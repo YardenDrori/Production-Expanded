@@ -40,6 +40,7 @@
 		<hasInteractionCell>True</hasInteractionCell>
 		<interactionCellOffset>(0,0,2)</interactionCellOffset>
 		<defaultPlacingRot>South</defaultPlacingRot>
+		<terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
 		<surfaceType>Item</surfaceType>
 		<comps Inherit="false">
 			<!-- <li Class="ProcessorFramework.CompProperties_Processor"> -->
@@ -60,6 +61,9 @@
 			<!-- 		<li>DankPyon_SmeltingOre_Scrap_Industrial</li> -->
 			<!-- 	</processes> -->
 			<!-- </li> -->
+      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
+        <maxCapacity>75</maxCapacity>
+      </li>
 			<li Class="CompProperties_Forbiddable"/>
       <li Class="CompProperties_Glower">
 				<glowRadius>6</glowRadius>
@@ -105,14 +109,19 @@
 				<cornerBR>Damage/Corner</cornerBR>
 			</damageData>
 		</graphicData>
-		<!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
+
+		<castEdgeShadows>true</castEdgeShadows>
+		<staticSunShadowHeight>0.20</staticSunShadowHeight>
+
     <stuffCategories>
       <li>Stony</li>
     </stuffCategories>
     <costStuffCount>200</costStuffCount>
+
 		<costList>
 			<PE_Iron>80</PE_Iron>
 		</costList>
+
 		<altitudeLayer>BuildingOnTop</altitudeLayer>
 		<fillPercent>1.0</fillPercent>
 		<useHitPoints>True</useHitPoints>
@@ -127,7 +136,8 @@
 		<passability>PassThroughOnly</passability>
 		<pathCost>50</pathCost>
 		<hasInteractionCell>True</hasInteractionCell>
-		<interactionCellOffset>(0,0,2)</interactionCellOffset>
+		<interactionCellOffset>(0,0,-1)</interactionCellOffset>
+		<terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
 		<defaultPlacingRot>South</defaultPlacingRot>
 		<surfaceType>Item</surfaceType>
 		<comps Inherit="false">
