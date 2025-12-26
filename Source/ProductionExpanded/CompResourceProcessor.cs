@@ -79,7 +79,7 @@ namespace ProductionExpanded
                 return "Furnace Status: Idle";
 
             // If processing, show progress
-            float progressPercent = (float)progressTicks / (inputCount * totalTicksPerCycle);
+            float progressPercent = (float)progressTicks / totalTicksPerCycle;
             if (cycles > 1)
             {
                 return $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})\nCycle: {currentCycle} of {cycles}";
