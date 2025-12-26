@@ -55,6 +55,7 @@ namespace ProductionExpanded
             base.CompTickRare();
             if (isProcessing)
             {
+
                 if (CanContinueProcessing())
                 {
                     progressTicks += 250;
@@ -104,11 +105,36 @@ namespace ProductionExpanded
             return true; // we gucci
         }
 
-        public void StartProcessing(ThingDef inputType, ThingDef outputType, int cycles, int ticksPerItem, int inputCount, int outputCount)
+        public void AddMaterials(ThingDef inputType, ThingDef outputType, int cycles, int ticksPerItem, int inputCount, int outputCount)
         {
-            if (isProcessing || isFinished)
+            if (isFinished)
             {
                 return;
+            }
+            if (isProcessing)
+            {
+                int totalTicksPassed = totalTicksPerCycle * currentCycle + progressTicks;
+
+                // Add to existing batch
+                this.inputCount += inputCount;
+                this.outputCount += outputCount;
+
+                // Recalculate total time with new amount
+                totalTicksPerCycle = ticksPerItem * this.inputCount;
+                if (totalTicksPerCycle < ticksPerItem * 10)
+                {
+                    totalTicksPerCycle = ticksPerItem * 10;
+                }
+
+                currentCycle = 0;
+                while (totalTicksPassed > totalTicksPerCycle)
+                {
+                    totalTicksPassed -= totalTicksPerCycle;
+                    currentCycle++;
+                }
+                progressTicks = totalTicksPassed;
+
+                return;  // Keep progressTicks unchanged
             }
             isProcessing = true;
             progressTicks = 0;
@@ -204,12 +230,22 @@ namespace ProductionExpanded
                         inputCount = 10;
                         inputType = ThingDefOf.Steel;
                         progressTicks = 0;
-                        totalTicksPerCycle = 300;
+                        totalTicksPerCycle = 2000;
                         cycles = 3;
                         Log.Message("Started test processing!");
                     }
                 };
             }
+        }
+
+
+        public bool getIsFinished()
+        {
+            return this.isFinished;
+        }
+        public int getCapacityRemaining()
+        {
+            return this.Props.maxCapacity - this.inputCount;
         }
     }
 }

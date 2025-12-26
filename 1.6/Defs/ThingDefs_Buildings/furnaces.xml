@@ -5,6 +5,9 @@
 		<defName>ME_ArcFurnace</defName>
 		<label>arc furnace</label>
 		<description>TODO</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
 		<thingClass>Building_WorkTable</thingClass>
 		<drawerType>MapMeshAndRealTime</drawerType>
 		<graphicData>
@@ -95,6 +98,9 @@
 		<defName>ME_WoodFiredFurnace</defName>
 		<label>fueled furnace</label>
 		<description>TODO</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
 		<thingClass>Building_WorkTable</thingClass>
 		<drawerType>MapMeshAndRealTime</drawerType>
 		<graphicData>
