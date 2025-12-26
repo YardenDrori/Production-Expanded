@@ -10,7 +10,7 @@ namespace ProductionExpanded
         public int maxCapacity = 50;
         public ThingDef input = null;
         public ThingDef output = null;
-        public int cycles = 0; // 0 - means done in 1 go 1 means need to do 1 checkups etc
+        public int cycles = 1;
 
         // CONSTRUCTOR IS REQUIRED!
         // This tells RimWorld which Comp class to create
@@ -26,9 +26,12 @@ namespace ProductionExpanded
             (CompProperties_ResourceProcessor)props;
         private bool isProcessing = false;
         private int progressTicks = 0;
+        private int totalTicksPerCycle = 0;
+        private int cycles = 1;
+        private int currentCycle = 0;
         private int inputCount = 0;
         private ThingDef inputType = null;
-        private ThingDef outputTyoe = null;
+        private ThingDef outputType = null;
 
         public override void PostSpawnSetup(bool respawningAfterLoad)
         {
@@ -43,9 +46,9 @@ namespace ProductionExpanded
                 progressTicks += 250;
 
                 //temp complete processing
-                if (progressTicks >= 2000)
+                if (progressTicks >= totalTicksPerCycle)
                 {
-                    CompleteProcessing();
+                    CompleteProcessingCycle();
                 }
             }
             else
@@ -54,13 +57,19 @@ namespace ProductionExpanded
             }
         }
 
-        public void CompleteProcessing()
+        public void CompleteProcessingCycle()
         {
-            isProcessing = false;
+            currentCycle++;
             progressTicks = 0;
-            inputCount = 0;
-            inputType = null;
-            inputType = null;
+            if (currentCycle >= cycles)
+            {
+                isProcessing = false;
+                inputCount = 0;
+                inputType = null;
+                outputType = null;
+                currentCycle = 0;
+                totalTicksPerCycle = 0;
+            }
         }
 
         public override string CompInspectStringExtra()
@@ -70,7 +79,11 @@ namespace ProductionExpanded
                 return "Furnace Status: Idle";
 
             // If processing, show progress
-            float progressPercent = (float)progressTicks / (inputCount * 60000);
+            float progressPercent = (float)progressTicks / (inputCount * totalTicksPerCycle);
+            if (cycles > 1)
+            {
+                return $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})\nCycle: {currentCycle} of {cycles}";
+            }
             return $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})";
         }
 
@@ -96,6 +109,8 @@ namespace ProductionExpanded
                         inputCount = 10;
                         inputType = ThingDefOf.Steel;
                         progressTicks = 0;
+                        totalTicksPerCycle = 300;
+                        cycles = 3;
                         Log.Message("Started test processing!");
                     }
                 };
