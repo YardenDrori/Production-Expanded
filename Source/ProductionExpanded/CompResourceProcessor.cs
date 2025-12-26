@@ -5,7 +5,7 @@ namespace ProductionExpanded
 {
     public class CompProperties_ResourceProcessor : CompProperties
     {
-        // How many units of material this building can hold
+        // How many units of material this building can hold by default
         public int maxCapacity = 50;
 
         // CONSTRUCTOR IS REQUIRED!
@@ -18,8 +18,8 @@ namespace ProductionExpanded
 
     public class CompResourceProcessor : ThingComp
     {
-        private CompProperties_ResourceProcessor Props =>
-            (CompProperties_ResourceProcessor)props;
+        private compproperties_resourceprocessor props =>
+            (compproperties_resourceprocessor)props;
 
         public override void PostSpawnSetup(bool respawningAfterLoad)
         {
@@ -36,19 +36,6 @@ namespace ProductionExpanded
             return "Processor Status: Idle";
         }
 
-        // ═══════════════════════════════════════════════════════════════════════
-        // SAVE/LOAD - This will be needed in Step 2
-        // ═══════════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Called when saving/loading the game.
-        ///
-        /// CRITICAL: Any state that needs to persist across saves must be
-        /// serialized here using Scribe_* methods.
-        ///
-        /// Think of this like writing to/reading from a file, but RimWorld handles
-        /// the actual file I/O for you.
-        /// </summary>
         public override void PostExposeData()
         {
             base.PostExposeData();
