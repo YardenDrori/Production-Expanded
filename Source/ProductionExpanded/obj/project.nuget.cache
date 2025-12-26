@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "7NR/viWbDo8=",
+  "success": true,
+  "projectFilePath": "/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/ProductionExpanded.csproj",
+  "expectedPackageFiles": [
+    "/home/jordan/.nuget/packages/microsoft.netframework.referenceassemblies/1.0.3/microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "/home/jordan/.nuget/packages/microsoft.netframework.referenceassemblies.net48/1.0.3/microsoft.netframework.referenceassemblies.net48.1.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

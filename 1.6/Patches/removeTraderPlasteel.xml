@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  
+
+
+
+
+  <!-- <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="Plasteel"][not(tradeability)]</xpath>
+    <value>
+      <tradeability>None</tradeability>
+    </value>
+  </Operation> -->
+
+  <!-- <Operation Class="PatchOperationAdd">
+    <xpath>Defs/TraderKindDef/stockGenerators/li[@Class="StockGenerator_Category"]/excludedThingDefs</xpath>
+    <value>
+      <li>Plasteel</li>
+    </value>
+  </Operation> -->
+
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/TraderKindDef/stockGenerators/li[@Class="StockGenerator_SingleDef" and thingDef="Plasteel"]/thingDef</xpath>
+    <value>
+      <thingDef>PE_UnrefinedPlasteel</thingDef>
+    </value>
+  </Operation>
+
+  <!-- <Operation Class="PatchOperationAdd">
+    <xpath>Defs/TraderKindDef/stockGenerators</xpath>
+    <value>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>PE_UnrefinedPlasteel</thingDef>
+        <countRange>15~75</countRange>
+      </li>
+    </value>
+  </Operation> -->
+
+</Patch>

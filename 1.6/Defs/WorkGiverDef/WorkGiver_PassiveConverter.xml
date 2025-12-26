@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!--
+    WorkGiverDef registers our custom WorkGiver with RimWorld's work system
+
+    This tells RimWorld: "Crafting work includes loading passive converters"
+  -->
+
+  <WorkGiverDef>
+    <defName>LoadPassiveConverter</defName>
+    <label>load passive converter</label>
+    <giverClass>ProductionExpanded.WorkGiver_LoadPassiveConverter</giverClass>
+
+    <!-- This WorkGiver is part of Crafting work -->
+    <workType>Crafting</workType>
+
+    <!-- Priority within Crafting (higher = done first) -->
+    <!-- Set high so converters get loaded before other crafting -->
+    <priorityInType>90</priorityInType>
+
+    <!-- Can interrupt other work if this becomes available -->
+    <canBeDoneWhileDrafted>false</canBeDoneWhileDrafted>
+
+    <!-- Emergency work priority (not emergency work) -->
+    <emergency>false</emergency>
+  </WorkGiverDef>
+
+</Defs>

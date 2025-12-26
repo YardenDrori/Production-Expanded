@@ -1,0 +1,5 @@
+/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/obj/Debug/ProductionExpanded.csproj.AssemblyReference.cache
+/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/obj/Debug/ProductionExpanded.GeneratedMSBuildEditorConfig.editorconfig
+/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/obj/Debug/ProductionExpanded.AssemblyInfoInputs.cache
+/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/obj/Debug/ProductionExpanded.AssemblyInfo.cs
+/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/obj/Debug/ProductionExpanded.csproj.CoreCompileInputs.cache

@@ -1,0 +1,29 @@
+<Defs>
+  <ThingDef ParentName="ResourceBase">
+    <defName>PE_UnrefinedPlasteel</defName>
+    <label>plasteel composite</label>
+    <description>Raw Unrefined plasteel manufactured in a distant glitterworld containing valuable
+      plasteel compounds. Unrefined plasteel is more compact then its refined counterpart which made
+      traders prefer selling it. Requires refinement with silver to produce pure plasteel suitable
+      for advanced fabrication.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PE_UnrefinedPlasteel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <soundInteract>Metal_Drop</soundInteract>
+    <soundDrop>Metal_Drop</soundDrop>
+    <useHitPoints>false</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <statBases>
+      <MarketValue>9</MarketValue>
+      <Mass>0.4</Mass>
+    </statBases>
+    <thingCategories>
+      <li>ResourcesRaw</li>
+    </thingCategories>
+    <deepCommonality>1</deepCommonality>
+    <deepCountPerPortion>10</deepCountPerPortion>
+    <deepLumpSizeRange>2~10</deepLumpSizeRange>
+    <burnableByRecipe>false</burnableByRecipe>
+  </ThingDef>
+</Defs>
