@@ -7,7 +7,7 @@
         <thingClass>Building_WorkTable</thingClass>
         <drawerType>MapMeshAndRealTime</drawerType>
         <graphicData>
-            <texPath>Things/Building/Production/FueledSmithy</texPath>
+            <texPath>Things/Building/Production/Alloy_Smelter/Fueled/PE_AlloySmelter</texPath>
             <graphicClass>Graphic_Multi</graphicClass>
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(4,2)</drawSize>

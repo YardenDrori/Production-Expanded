@@ -77,7 +77,7 @@
       <Crafting>3</Crafting>
     </skillRequirements>
     <recipeUsers>
-      <li>PE_FueledSmeltingFurnace</li>
+      <li>PE_FueledAlloySmelter</li>
       <li>EM_ElectricAlloySmelter</li>
     </recipeUsers>
     <displayPriority>14</displayPriority>

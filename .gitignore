@@ -1,1 +1,20 @@
+# Build artifacts
 Source/ProductionExpanded/obj/*
+Source/ProductionExpanded/bin/*
+
+# Claude Code working files
+.claude/
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Decompiled reference code
+ProcessorFramework_Decompiled_NOT_PART_OF_THE_MOD_JUST_HERE_CAUSE_CLAUDE_HAS_PERM_ISSUES_APPARENTLY/
