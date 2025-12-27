@@ -10,7 +10,7 @@ namespace ProductionExpanded
         private const TargetIndex ProcessorInd = TargetIndex.A;
         private const TargetIndex ItemInd = TargetIndex.B;
 
-        protected Thing Processor => job.GetTarget(TargetIndex.A).Thing;
+        protected Building_WorkTable Processor => (Building_WorkTable)job.GetTarget(TargetIndex.A).Thing;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
@@ -24,6 +24,11 @@ namespace ProductionExpanded
 
             // Go to processor's interaction cell
             yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
+
+
+            yield return Toils_General.Wait(90).FailOnDestroyedNullOrForbidden(TargetIndex.B).FailOnDestroyedNullOrForbidden(TargetIndex.A)
+                .FailOnCannotTouch(TargetIndex.A, PathEndMode.Touch)
+                .WithProgressBarToilDelay(TargetIndex.A);
 
             // Empty the processor (this spawns items at interaction cell)
             Toil emptyToil = ToilMaker.MakeToil("MakeNewToils");
