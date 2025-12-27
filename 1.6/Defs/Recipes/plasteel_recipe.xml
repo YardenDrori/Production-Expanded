@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ProductionExpanded.ProcessorRecipeDef>
+    <defName>PE_ForgePlasteelArcFurnace</defName>
+    <label>refine plasteel</label>
+    <description>Refine plasteel composite into pure plasteel.</description>
+    <ticksPerItem>4980</ticksPerItem>
+    <cycles>2</cycles>
+    <ratio>1</ratio>
+    <inputType>PE_UnrefinedPlasteel</inputType>
+    <outputType>Plasteel</outputType>
+    <recipeUsers>
+      <li>ME_ArcFurnace</li>
+      <!-- <li>ME_WoodFiredFurnace</li> -->
+    </recipeUsers>
+    <products>
+      <Plasteel>1</Plasteel>
+    </products>
+  </ProductionExpanded.ProcessorRecipeDef>
+
+  <ProductionExpanded.ProcessorRecipeDef>
+    <defName>PE_ForgePlasteelWoodFurnace</defName>
+    <label>extract plasteel</label>
+    <description>Refine plasteel composite into pure plasteel.</description>
+    <ticksPerItem>10000</ticksPerItem>
+    <cycles>3</cycles>
+    <ratio>1</ratio>
+    <inputType>PE_UnrefinedPlasteel</inputType>
+    <outputType>Plasteel</outputType>
+    <recipeUsers>
+      <!-- <li>ME_ArcFurnace</li> -->
+      <li>ME_WoodFiredFurnace</li>
+    </recipeUsers>
+    <products>
+      <Plasteel>1</Plasteel>
+    </products>
+  </ProductionExpanded.ProcessorRecipeDef>
+</Defs>

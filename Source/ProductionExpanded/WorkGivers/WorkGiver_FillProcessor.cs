@@ -118,7 +118,9 @@ namespace ProductionExpanded
                 Thing thing = FindMaterials(pawn, curr_bill_recipe);
                 if (thing != null)
                 {
-                    return JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, thing);
+                    Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, thing);
+                    job.bill = workTable.billStack[i];
+                    return job;
                 }
             }
             return null;

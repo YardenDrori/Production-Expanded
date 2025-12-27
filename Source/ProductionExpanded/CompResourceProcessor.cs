@@ -26,6 +26,7 @@ namespace ProductionExpanded
             (CompProperties_ResourceProcessor)props;
         private bool isProcessing = false;
         private bool isFinished = false;
+        private bool isWaitingForCycleInteraction = false;
         private int progressTicks = 0;
         private int totalTicksPerCycle = 0;
         private int cycles = 1;
@@ -59,7 +60,14 @@ namespace ProductionExpanded
                 if (CanContinueProcessing())
                 {
                     progressTicks += 250;
-
+                    if (refuelable != null)
+                    {
+                        refuelable.ConsumeFuel(refuelable.Props.fuelConsumptionRate / 60000 * 250);
+                    }
+                    else
+                    {
+                        powerTrader.PowerOutput = -powerTrader.Props.PowerConsumption;
+                    }
                     //temp complete processing
                     if (progressTicks >= totalTicksPerCycle)
                     {
@@ -77,12 +85,26 @@ namespace ProductionExpanded
                     {
                         progressTicks = 0;
                     }
+
+                    if (powerTrader != null)
+                    {
+                        powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
+                    }
                 }
             }
             else
             {
-                //todo
+                if (powerTrader != null)
+                {
+                    powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
+                }
             }
+        }
+
+
+        public void StartNextCycle()
+        {
+            isWaitingForCycleInteraction = false;
         }
 
         public bool CanContinueProcessing()
@@ -97,6 +119,11 @@ namespace ProductionExpanded
             if (refuelable != null && !refuelable.HasFuel)
             {
                 return false; // no fuel
+            }
+
+            if (isWaitingForCycleInteraction)
+            {
+                return false; //waiting for cycle
             }
 
             // If we get here, either:
@@ -156,6 +183,7 @@ namespace ProductionExpanded
                 return;  // Keep progressTicks unchanged
             }
             isProcessing = true;
+            isWaitingForCycleInteraction = false;
             progressTicks = 0;
             currentCycle = 0;
             totalTicksPerCycle = ticksPerItem * inputCount;
@@ -178,13 +206,16 @@ namespace ProductionExpanded
             if (currentCycle >= cycles)
             {
                 isProcessing = false;
+                isWaitingForCycleInteraction = false;
                 isFinished = true;
                 inputCount = 0;
                 inputType = null;
                 currentCycle = 0;
                 totalTicksPerCycle = 0;
                 cycles = 0;
+                return;
             }
+            isWaitingForCycleInteraction = true;
         }
 
         public void EmptyBuilding()
@@ -200,6 +231,7 @@ namespace ProductionExpanded
 
                 // Reset state
                 isFinished = false;
+                isWaitingForCycleInteraction = false;
                 outputType = null;
                 outputCount = 0;
             }
@@ -213,8 +245,13 @@ namespace ProductionExpanded
 
             // If processing, show progress
             float progressPercent = (float)progressTicks / totalTicksPerCycle;
-            if (cycles > 1)
+            if (cycles > 1 && isWaitingForCycleInteraction)
             {
+                return $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})\nCycle: {currentCycle} of {cycles}\nWaiting for colonist interaction to continue refining";
+            }
+            else if (cycles > 1)
+            {
+
                 return $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})\nCycle: {currentCycle} of {cycles}";
             }
             return $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})";
@@ -239,7 +276,7 @@ namespace ProductionExpanded
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
             // Only show in dev mode
-            if (Prefs.DevMode)
+            if (DebugSettings.ShowDevGizmos)
             {
                 yield return new Command_Action
                 {
@@ -255,10 +292,21 @@ namespace ProductionExpanded
                         Log.Message("Started test processing!");
                     }
                 };
+                yield return new Command_Action
+                {
+                    defaultLabel = "DEBUG: Finish cycle",
+                    action = delegate
+                    {
+                        StartNextCycle();
+                    }
+                };
             }
         }
 
-
+        public bool getIsProcessing()
+        {
+            return this.isProcessing;
+        }
         public bool getIsFinished()
         {
             return this.isFinished;
