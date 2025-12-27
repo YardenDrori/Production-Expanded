@@ -39,12 +39,14 @@ namespace ProductionExpanded
         private ThingDef outputType = null;
         private CompPowerTrader powerTrader = null;
         private CompRefuelable refuelable = null;
+        private CompHeatPusher heatPusher = null;
 
         public override void PostSpawnSetup(bool respawningAfterLoad)
         {
             base.PostSpawnSetup(respawningAfterLoad);
             powerTrader = parent.GetComp<CompPowerTrader>();
             refuelable = parent.GetComp<CompRefuelable>();
+            heatPusher = parent.GetComp<CompHeatPusher>();
 
             // Validate building configuration - log once on spawn
             if (powerTrader == null && refuelable == null)
@@ -58,9 +60,12 @@ namespace ProductionExpanded
             base.CompTickRare();
             if (isProcessing)
             {
-
                 if (CanContinueProcessing())
                 {
+                    if (heatPusher != null)
+                    {
+                        heatPusher.enabled = true;
+                    }
                     inspectStringDirty = true;
                     progressTicks += 250;
                     if (refuelable != null)
@@ -79,6 +84,10 @@ namespace ProductionExpanded
                 }
                 else
                 {
+                    if (heatPusher != null)
+                    {
+                        heatPusher.enabled = false;
+                    }
                     inspectStringDirty = true;
                     // remove progress if the building is unfueled/powered
                     if (progressTicks > 750)
@@ -97,6 +106,10 @@ namespace ProductionExpanded
             }
             else
             {
+                if (heatPusher != null)
+                {
+                    heatPusher.enabled = false;
+                }
                 inspectStringDirty = true;
                 if (powerTrader != null)
                 {
@@ -130,9 +143,6 @@ namespace ProductionExpanded
                 return false; //waiting for cycle
             }
 
-            // If we get here, either:
-            // - Building has power AND it's on
-            // - Building has fuel AND it has fuel
             return true; // we gucci
         }
 
@@ -158,6 +168,7 @@ namespace ProductionExpanded
 
             if (isFinished)
             {
+                Log.Warning($"[Production Expanded] Tried adding items to Finished processor");
                 return;
             }
 
@@ -187,7 +198,12 @@ namespace ProductionExpanded
 
                 return;  // Keep progressTicks unchanged
             }
+            if (heatPusher != null)
+            {
+                heatPusher.enabled = true;
+            }
             isProcessing = true;
+            parent.DirtyMapMesh(parent.Map);
             isWaitingForCycleInteraction = false;
             progressTicks = 0;
             currentCycle = 0;
@@ -212,6 +228,7 @@ namespace ProductionExpanded
             if (currentCycle >= cycles)
             {
                 isProcessing = false;
+                parent.DirtyMapMesh(parent.Map);
                 isWaitingForCycleInteraction = false;
                 isFinished = true;
                 inputCount = 0;
@@ -229,6 +246,13 @@ namespace ProductionExpanded
             inspectStringDirty = true;
             if (isFinished)
             {
+                if (outputType == null)
+                {
+                    Log.Error($"[Production Expanded] {parent.def.defName} tried to empty but outputType is null! isFinished={isFinished}, outputCount={outputCount}");
+                    isFinished = false;
+                    return;
+                }
+
                 // Create the output item
                 Thing item = ThingMaker.MakeThing(outputType);
                 item.stackCount = outputCount;
@@ -238,6 +262,10 @@ namespace ProductionExpanded
 
                 // Reset state
                 isFinished = false;
+                if (heatPusher != null)
+                {
+                    heatPusher.enabled = false;
+                }
                 isWaitingForCycleInteraction = false;
                 outputType = null;
                 outputCount = 0;
@@ -248,6 +276,13 @@ namespace ProductionExpanded
         {
             if (inspectStringDirty)
             {
+
+                if (isFinished)
+                {
+                    inspectStringDirty = false;
+                    cachedInfoString = "Finished. Waiting for colonist to extract materials";
+                    return cachedInfoString;
+                }
                 // If idle, show that
                 if (!isProcessing)
                 {
@@ -255,12 +290,11 @@ namespace ProductionExpanded
                     cachedInfoString = "Furnace Status: Idle";
                     return cachedInfoString;
                 }
-
                 // If processing, show progress
                 float progressPercent = (float)progressTicks / totalTicksPerCycle;
                 if (cycles > 1 && isWaitingForCycleInteraction)
                 {
-                    cachedInfoString = $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})\nCycle: {currentCycle} of {cycles}\nWaiting for colonist interaction to continue refining";
+                    cachedInfoString = $"{inputCount} units of {inputType?.label ?? "unknown"}\nCycle: {currentCycle} of {cycles}\nWaiting for colonist interaction to continue refining";
                     inspectStringDirty = false;
                     return cachedInfoString;
                 }
@@ -279,7 +313,6 @@ namespace ProductionExpanded
         public override void PostExposeData()
         {
             base.PostExposeData();
-            base.PostExposeData();
 
             // Save/load all our state variables
             Scribe_Values.Look(ref isProcessing, "isProcessing", false);
@@ -290,6 +323,7 @@ namespace ProductionExpanded
             Scribe_Values.Look(ref cycles, "cycles", 1);
             Scribe_Values.Look(ref currentCycle, "currentCycle", 0);
             Scribe_Values.Look(ref inputCount, "inputCount", 0);
+            Scribe_Values.Look(ref outputCount, "outputCount", 0);
             Scribe_Defs.Look(ref inputType, "inputType");
             Scribe_Defs.Look(ref outputType, "outputType");
         }
@@ -321,6 +355,32 @@ namespace ProductionExpanded
                         StartNextCycle();
                     }
                 };
+                yield return new Command_Action
+                {
+                    defaultLabel = "DEBUG: Finish Current Cycle",
+                    action = delegate
+                    {
+                        progressTicks = totalTicksPerCycle - 60;
+                    }
+                };
+                // yield return new Command_Action
+                // {
+                //     defaultLabel = "DEBUG: Print State",
+                //     action = delegate
+                //     {
+                //         Log.Message($"[{parent.def.defName}] State Variables:\n" +
+                //             $"  isFinished: {isFinished}\n" +
+                //             $"  isProcessing: {isProcessing}\n" +
+                //             $"  isWaitingForCycleInteraction: {isWaitingForCycleInteraction}\n" +
+                //             $"  progressTicks: {progressTicks}/{totalTicksPerCycle}\n" +
+                //             $"  currentCycle: {currentCycle}/{cycles}\n" +
+                //             $"  inputCount: {inputCount}\n" +
+                //             $"  outputCount: {outputCount}\n" +
+                //             $"  inputType: {inputType?.defName ?? "null"}\n" +
+                //             $"  outputType: {outputType?.defName ?? "null"}\n" +
+                //             $"  CanContinueProcessing: {CanContinueProcessing()}");
+                //     }
+                // };
             }
         }
 
@@ -335,6 +395,14 @@ namespace ProductionExpanded
         public int getCapacityRemaining()
         {
             return this.Props.maxCapacity - this.inputCount;
+        }
+        public bool getIsReady()
+        {
+            return CanContinueProcessing();
+        }
+        public bool getIsWaitingForNextCycle()
+        {
+            return isWaitingForCycleInteraction;
         }
     }
 }

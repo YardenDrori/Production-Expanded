@@ -2,7 +2,8 @@
   <RecipeDef>
     <defName>SmeltPigIron</defName>
     <label>smelt pig iron</label>
-    <description>Smelt iron with carbon from logs to produce crude pig iron. Must be further refined in a blast furnace to create usable steel.</description>
+    <description>Smelt iron with carbon from logs to produce crude pig iron. Must be further refined
+      in a blast furnace to create usable steel.</description>
     <jobString>Smelting pig iron.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Smelt</effectWorking>
@@ -36,7 +37,7 @@
     </skillRequirements>
     <recipeUsers>
       <li>PE_FueledAlloySmelter</li>
-      <li>EM_ElectricAlloySmelter</li>
+      <!-- <li>EM_ElectricAlloySmelter</li> -->
     </recipeUsers>
     <displayPriority>15</displayPriority>
   </RecipeDef>
@@ -44,7 +45,8 @@
   <RecipeDef>
     <defName>SmeltPigIronBulk</defName>
     <label>smelt pig iron x4</label>
-    <description>Smelt iron with carbon from logs to produce crude pig iron. Must be further in a blast furnace to create usable steel.</description>
+    <description>Smelt iron with carbon from logs to produce crude pig iron. Must be further in a
+      blast furnace to create usable steel.</description>
     <jobString>Smelting pig iron.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Smelt</effectWorking>
@@ -78,7 +80,7 @@
     </skillRequirements>
     <recipeUsers>
       <li>PE_FueledAlloySmelter</li>
-      <li>EM_ElectricAlloySmelter</li>
+      <!-- <li>EM_ElectricAlloySmelter</li> -->
     </recipeUsers>
     <displayPriority>14</displayPriority>
   </RecipeDef>

@@ -75,9 +75,8 @@ namespace ProductionExpanded
             {
                 return false;
             }
-            // Check if building needs refueling before we can haul materials to it
-            CompRefuelable compRefuelable = t.TryGetComp<CompRefuelable>();
-            if (compRefuelable != null && !compRefuelable.HasFuel)
+            //check if building can operate
+            if (!comp.CanContinueProcessing())
             {
                 return false; // Can't haul materials to unfueled building
             }

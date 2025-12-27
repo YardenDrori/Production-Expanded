@@ -8,12 +8,12 @@
     <inspectorTabs>
       <li>ITab_Bills</li>
     </inspectorTabs>
-    <thingClass>Building_WorkTable</thingClass>
+    <thingClass>ProductionExpanded.Building_Processor</thingClass>
     <drawerType>MapMeshAndRealTime</drawerType>
     <graphicData>
       <texPath>Things/Building/Production/Arc_Furnace/PE_ArcFurnace</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
-      <shaderType>CutoutComplex</shaderType>
+      <shaderType>Cutout</shaderType>
       <drawSize>(5,4)</drawSize>
       <damageData>
         <cornerTL>Damage/Corner</cornerTL>
@@ -41,8 +41,8 @@
     <passability>PassThroughOnly</passability>
     <pathCost>50</pathCost>
     <hasInteractionCell>True</hasInteractionCell>
-    <interactionCellOffset>(0,0,2)</interactionCellOffset>
-    <defaultPlacingRot>South</defaultPlacingRot>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <defaultPlacingRot>North</defaultPlacingRot>
     <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
     <surfaceType>Item</surfaceType>
     <comps Inherit="false">
@@ -69,12 +69,14 @@
       </li>
       <li Class="CompProperties_Forbiddable" />
       <li Class="CompProperties_Glower">
+        <compClass>ProductionExpanded.CompGlower_Processor</compClass>
         <glowRadius>6</glowRadius>
-        <glowColor>(255,172,65,0)</glowColor>
+        <glowColor>(255,172,65)</glowColor>
       </li>
       <li Class="CompProperties_HeatPusher">
-        <compClass>CompHeatPusherPowered</compClass>
+        <compClass>CompHeatPusher</compClass>
         <heatPerSecond>10</heatPerSecond>
+        <heatPushMaxTemperature>30</heatPushMaxTemperature>
       </li>
       <li Class="CompProperties_Power">
         <compClass>CompPowerTrader</compClass>
@@ -102,7 +104,7 @@
     <inspectorTabs>
       <li>ITab_Bills</li>
     </inspectorTabs>
-    <thingClass>Building_WorkTable</thingClass>
+    <thingClass>ProductionExpanded.Building_Processor</thingClass>
     <drawerType>MapMeshAndRealTime</drawerType>
     <graphicData>
       <texPath>Things/Building/Production/Wood_Fired_Furnace/PE_WoodFiredFurnace</texPath>
@@ -148,25 +150,6 @@
     <defaultPlacingRot>North</defaultPlacingRot>
     <surfaceType>Item</surfaceType>
     <comps Inherit="false">
-      <!-- <li Class="ProcessorFramework.CompProperties_Processor"> -->
-      <!-- 	<capacity>500</capacity> -->
-      <!-- 	<independentProcesses>false</independentProcesses> -->
-      <!-- 	<parallelProcesses>false</parallelProcesses> -->
-      <!-- 	<dropIngredients>true</dropIngredients> -->
-      <!-- 	<showProductIcon>true</showProductIcon> -->
-      <!-- 	<barOffset>(0.0, 0.25)</barOffset> -->
-      <!-- 	<barScale>(1.0, 1.0)</barScale> -->
-      <!-- 	<colorCoded>false</colorCoded> -->
-      <!-- 	<processes> -->
-      <!-- 		<li>DankPyon_SmeltingOre_Iron_Industrial</li> -->
-      <!-- 		<li>DankPyon_SmeltingOre_Steel_Industrial</li> -->
-      <!-- 		<li>DankPyon_SmeltingOre_Silver_Industrial</li> -->
-      <!-- 		<li>DankPyon_SmeltingOre_Gold_Industrial</li> -->
-      <!-- 		<li>DankPyon_SmeltingOre_Plasteel_Industrial</li> -->
-      <!-- 		<li>DankPyon_SmeltingOre_Scrap_Industrial</li> -->
-      <!-- 	</processes> -->
-      <!-- </li> -->
-
       <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
         <maxCapacity>30</maxCapacity>
       </li>
@@ -183,12 +166,14 @@
       </li>
       <li Class="CompProperties_Forbiddable" />
       <li Class="CompProperties_Glower">
+        <compClass>ProductionExpanded.CompGlower_Processor</compClass>
         <glowRadius>1</glowRadius>
-        <glowColor>(255,72,25,0)</glowColor>
+        <glowColor>(255,72,25)</glowColor>
       </li>
       <li Class="CompProperties_HeatPusher">
-        <compClass>CompHeatPusherPowered</compClass>
+        <compClass>CompHeatPusher</compClass>
         <heatPerSecond>20</heatPerSecond>
+        <heatPushMaxTemperature>40</heatPushMaxTemperature>
       </li>
     </comps>
     <tickerType>Rare</tickerType>

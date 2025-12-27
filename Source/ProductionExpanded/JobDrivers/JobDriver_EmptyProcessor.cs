@@ -26,7 +26,7 @@ namespace ProductionExpanded
             yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
 
 
-            yield return Toils_General.Wait(90).FailOnDestroyedNullOrForbidden(TargetIndex.B).FailOnDestroyedNullOrForbidden(TargetIndex.A)
+            yield return Toils_General.Wait(90).FailOnDestroyedNullOrForbidden(TargetIndex.A)
                 .FailOnCannotTouch(TargetIndex.A, PathEndMode.Touch)
                 .WithProgressBarToilDelay(TargetIndex.A);
 
