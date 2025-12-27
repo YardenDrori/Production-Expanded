@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <WorkGiverDef>
+    <defName>PE_EmptyProcessor</defName>
+    <label>unload processor</label>
+    <giverClass>ProductionExpanded.WorkGiver_EmptyProcessor</giverClass>
+    <workType>Hauling</workType>
+    <priorityInType>110</priorityInType>
+    <verb>unload</verb>
+    <gerund>unloading</gerund>
+  </WorkGiverDef>
+</Defs>

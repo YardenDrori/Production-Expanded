@@ -9,6 +9,7 @@ namespace ProductionExpanded
     public static class JobDefOf_ProductionExpanded
     {
         public static JobDef PE_FillProcessor;
+        public static JobDef PE_EmptyProcessor;
 
         static JobDefOf_ProductionExpanded()
         {
