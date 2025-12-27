@@ -33,7 +33,7 @@ namespace ProductionExpanded
             CompResourceProcessor processorComp = Processor.GetComp<CompResourceProcessor>();
             this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
             this.FailOnBurningImmobile(TargetIndex.A);
-            AddEndCondition(() => (processorComp.getCapacityRemaining() > 0) ? JobCondition.Ongoing : JobCondition.Succeeded);
+            AddEndCondition(() => (processorComp.getCapacityRemaining() >= 0) ? JobCondition.Ongoing : JobCondition.Succeeded);
             yield return Toils_General.DoAtomic(delegate
             {
                 job.count = processorComp.getCapacityRemaining();
