@@ -27,12 +27,14 @@ namespace ProductionExpanded
         private bool isProcessing = false;
         private bool isFinished = false;
         private bool isWaitingForCycleInteraction = false;
+        private bool inspectStringDirty = true;
         private int progressTicks = 0;
         private int totalTicksPerCycle = 0;
         private int cycles = 1;
         private int currentCycle = 0;
         private int inputCount = 0;
         private int outputCount = 0;
+        private string cachedInfoString = null;
         private ThingDef inputType = null;
         private ThingDef outputType = null;
         private CompPowerTrader powerTrader = null;
@@ -59,6 +61,7 @@ namespace ProductionExpanded
 
                 if (CanContinueProcessing())
                 {
+                    inspectStringDirty = true;
                     progressTicks += 250;
                     if (refuelable != null)
                     {
@@ -76,6 +79,7 @@ namespace ProductionExpanded
                 }
                 else
                 {
+                    inspectStringDirty = true;
                     // remove progress if the building is unfueled/powered
                     if (progressTicks > 750)
                     {
@@ -85,7 +89,6 @@ namespace ProductionExpanded
                     {
                         progressTicks = 0;
                     }
-
                     if (powerTrader != null)
                     {
                         powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
@@ -94,6 +97,7 @@ namespace ProductionExpanded
             }
             else
             {
+                inspectStringDirty = true;
                 if (powerTrader != null)
                 {
                     powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
@@ -139,6 +143,7 @@ namespace ProductionExpanded
 
         public void AddMaterials(Bill_Production bill, int inputCount)
         {
+            inspectStringDirty = true;
             if (bill.recipe == null)
             {
                 Log.Warning("[Production Expanded] Bill doesnt have a recipe");
@@ -201,6 +206,7 @@ namespace ProductionExpanded
 
         public void CompleteProcessingCycle()
         {
+            inspectStringDirty = true;
             currentCycle++;
             progressTicks = 0;
             if (currentCycle >= cycles)
@@ -220,6 +226,7 @@ namespace ProductionExpanded
 
         public void EmptyBuilding()
         {
+            inspectStringDirty = true;
             if (isFinished)
             {
                 // Create the output item
@@ -239,22 +246,34 @@ namespace ProductionExpanded
 
         public override string CompInspectStringExtra()
         {
-            // If idle, show that
-            if (!isProcessing)
-                return "Furnace Status: Idle";
-
-            // If processing, show progress
-            float progressPercent = (float)progressTicks / totalTicksPerCycle;
-            if (cycles > 1 && isWaitingForCycleInteraction)
+            if (inspectStringDirty)
             {
-                return $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})\nCycle: {currentCycle} of {cycles}\nWaiting for colonist interaction to continue refining";
-            }
-            else if (cycles > 1)
-            {
+                // If idle, show that
+                if (!isProcessing)
+                {
+                    inspectStringDirty = false;
+                    cachedInfoString = "Furnace Status: Idle";
+                    return cachedInfoString;
+                }
 
-                return $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})\nCycle: {currentCycle} of {cycles}";
+                // If processing, show progress
+                float progressPercent = (float)progressTicks / totalTicksPerCycle;
+                if (cycles > 1 && isWaitingForCycleInteraction)
+                {
+                    cachedInfoString = $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})\nCycle: {currentCycle} of {cycles}\nWaiting for colonist interaction to continue refining";
+                    inspectStringDirty = false;
+                    return cachedInfoString;
+                }
+                else if (cycles > 1)
+                {
+                    cachedInfoString = $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})\nCycle: {currentCycle} of {cycles}";
+                    inspectStringDirty = false;
+                    return cachedInfoString;
+                }
+                cachedInfoString = $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})";
+                inspectStringDirty = false;
             }
-            return $"Processing: {progressPercent:P0} ({inputCount} units of {inputType?.label ?? "unknown"})";
+            return cachedInfoString;
         }
 
         public override void PostExposeData()
@@ -264,6 +283,8 @@ namespace ProductionExpanded
 
             // Save/load all our state variables
             Scribe_Values.Look(ref isProcessing, "isProcessing", false);
+            Scribe_Values.Look(ref isFinished, "isFinished", false);
+            Scribe_Values.Look(ref isWaitingForCycleInteraction, "isWaitingForCycleInteraction", false);
             Scribe_Values.Look(ref progressTicks, "progressTicks", 0);
             Scribe_Values.Look(ref totalTicksPerCycle, "totalTicksPerCycle", 0);
             Scribe_Values.Look(ref cycles, "cycles", 1);

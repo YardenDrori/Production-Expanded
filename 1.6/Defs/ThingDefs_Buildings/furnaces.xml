@@ -145,7 +145,7 @@
     <hasInteractionCell>True</hasInteractionCell>
     <interactionCellOffset>(0,0,-1)</interactionCellOffset>
     <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
-    <defaultPlacingRot>South</defaultPlacingRot>
+    <defaultPlacingRot>North</defaultPlacingRot>
     <surfaceType>Item</surfaceType>
     <comps Inherit="false">
       <!-- <li Class="ProcessorFramework.CompProperties_Processor"> -->

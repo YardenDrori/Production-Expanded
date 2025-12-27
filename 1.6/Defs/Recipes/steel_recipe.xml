@@ -16,6 +16,7 @@
     <products>
       <Steel>1</Steel>
     </products>
+    <displayPriority>200</displayPriority>
   </ProductionExpanded.ProcessorRecipeDef>
 
   <ProductionExpanded.ProcessorRecipeDef>
@@ -34,5 +35,6 @@
     <products>
       <Steel>1</Steel>
     </products>
+    <displayPriority>200</displayPriority>
   </ProductionExpanded.ProcessorRecipeDef>
 </Defs>

@@ -16,6 +16,7 @@
     <products>
       <Plasteel>1</Plasteel>
     </products>
+    <displayPriority>300</displayPriority>
   </ProductionExpanded.ProcessorRecipeDef>
 
   <ProductionExpanded.ProcessorRecipeDef>
@@ -34,5 +35,6 @@
     <products>
       <Plasteel>1</Plasteel>
     </products>
+    <displayPriority>300</displayPriority>
   </ProductionExpanded.ProcessorRecipeDef>
 </Defs>
