@@ -36,7 +36,7 @@ namespace ProductionExpanded
                 return false;
             }
             //checks if building can accept more items
-            if (comp.getCapacityRemaining() < 0)
+            if (comp.getCapacityRemaining() <= 0)
             {
                 JobFailReason.IsSilent();
                 return false;
