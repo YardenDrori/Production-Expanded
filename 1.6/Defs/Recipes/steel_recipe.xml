@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ProductionExpanded.ProcessorRecipeDef>
+      <defName>PE_ForgeSteel</defName>
+      <label>forge steel</label>
+      <description>Forge pig iron into steel.</description>
+      <ticksPerItem>1920</ticksPerItem>
+      <cycles>3</cycles>
+      <ratio>1</ratio>
+      <inputType>PE_PigIron</inputType>
+      <outputType>Steel</outputType>
+      <recipeUsers>
+        <li>ME_ArcFurnace</li>
+        <li>ME_WoodFiredFurnace</li>
+      </recipeUsers>
+  </ProductionExpanded.ProcessorRecipeDef>
+</Defs>

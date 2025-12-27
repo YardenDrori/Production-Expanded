@@ -1,0 +1,8 @@
+<Defs>
+    <JobDef>
+      <defName>PE_FillProcessor</defName>
+      <driverClass>ProductionExpanded.JobDriver_FillProcessor</driverClass>
+      <reportString>filling processor.</reportString>
+      <playerInterruptible>true</playerInterruptible>
+    </JobDef>
+</Defs>

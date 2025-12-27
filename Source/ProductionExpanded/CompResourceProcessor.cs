@@ -105,19 +105,38 @@ namespace ProductionExpanded
             return true; // we gucci
         }
 
-        public void AddMaterials(ThingDef inputType, ThingDef outputType, int cycles, int ticksPerItem, int inputCount, int outputCount)
+        // public void StartProcessing()
+        // {
+        //
+        // }
+
+        public void AddMaterials(Bill_Production bill, int inputCount)
         {
+            if (bill.recipe == null)
+            {
+                Log.Warning("[Production Expanded] Bill doesnt have a recipe");
+                return;
+            }
+            ProcessorRecipeDef recipe = bill.recipe as ProcessorRecipeDef;
+            if (recipe == null)
+            {
+                Log.Error($"[Production Expanded] Bill recipe is not a ProcessorRecipeDef!");
+                return;
+            }
+
             if (isFinished)
             {
                 return;
             }
+
+            int ticksPerItem = recipe.ticksPerItem;
             if (isProcessing)
             {
                 int totalTicksPassed = totalTicksPerCycle * currentCycle + progressTicks;
 
                 // Add to existing batch
                 this.inputCount += inputCount;
-                this.outputCount += outputCount;
+                this.outputCount += (int)(inputCount / recipe.ratio);
 
                 // Recalculate total time with new amount
                 totalTicksPerCycle = ticksPerItem * this.inputCount;
@@ -144,11 +163,12 @@ namespace ProductionExpanded
             {
                 totalTicksPerCycle = ticksPerItem * 10;
             }
-            this.inputType = inputType;
-            this.outputType = outputType;
-            this.cycles = cycles;
+            this.inputType = recipe.inputType;
+            this.outputType = recipe.outputType;
+            this.cycles = recipe.cycles;
             this.inputCount = inputCount;
-            this.outputCount = outputCount;
+            this.outputCount = (int)(inputCount / recipe.ratio);
+            // StartProcessing();
         }
 
         public void CompleteProcessingCycle()
