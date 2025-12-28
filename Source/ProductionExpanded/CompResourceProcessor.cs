@@ -40,6 +40,8 @@ namespace ProductionExpanded
         private CompPowerTrader powerTrader = null;
         private CompRefuelable refuelable = null;
         private CompHeatPusher heatPusher = null;
+        private CompGlower glower = null;
+        private bool previousCanContinue = false;
 
         public override void PostSpawnSetup(bool respawningAfterLoad)
         {
@@ -47,11 +49,33 @@ namespace ProductionExpanded
             powerTrader = parent.GetComp<CompPowerTrader>();
             refuelable = parent.GetComp<CompRefuelable>();
             heatPusher = parent.GetComp<CompHeatPusher>();
+            glower = parent.GetComp<CompGlower>();
 
             // Validate building configuration - log once on spawn
             if (powerTrader == null && refuelable == null)
             {
                 Log.Warning($"[Production Expanded] {parent.def.defName} has CompResourceProcessor but no CompPowerTrader or CompRefuelable.");
+            }
+
+            // Initialize glower state
+            UpdateGlower();
+        }
+
+        public override void PostDestroy(DestroyMode mode, Map previousMap)
+        {
+            base.PostDestroy(mode, previousMap);
+            // Clean up the glower when building is destroyed
+            if (glower != null && previousMap != null)
+            {
+                glower.UpdateLit(previousMap);
+            }
+        }
+
+        private void UpdateGlower()
+        {
+            if (glower != null && parent.Spawned)
+            {
+                glower.UpdateLit(parent.Map);
             }
         }
 
@@ -60,7 +84,16 @@ namespace ProductionExpanded
             base.CompTickRare();
             if (isProcessing)
             {
-                if (CanContinueProcessing())
+                bool currentCanContinue = CanContinueProcessing();
+
+                // Update glower if power/fuel state changed
+                if (currentCanContinue != previousCanContinue)
+                {
+                    previousCanContinue = currentCanContinue;
+                    UpdateGlower();
+                }
+
+                if (currentCanContinue)
                 {
                     if (heatPusher != null)
                     {
@@ -122,6 +155,7 @@ namespace ProductionExpanded
         public void StartNextCycle()
         {
             isWaitingForCycleInteraction = false;
+            UpdateGlower();
         }
 
         public bool CanContinueProcessing()
@@ -204,6 +238,7 @@ namespace ProductionExpanded
             }
             isProcessing = true;
             parent.DirtyMapMesh(parent.Map);
+            UpdateGlower();
             isWaitingForCycleInteraction = false;
             progressTicks = 0;
             currentCycle = 0;
@@ -229,6 +264,7 @@ namespace ProductionExpanded
             {
                 isProcessing = false;
                 parent.DirtyMapMesh(parent.Map);
+                UpdateGlower();
                 isWaitingForCycleInteraction = false;
                 isFinished = true;
                 inputCount = 0;
@@ -239,6 +275,7 @@ namespace ProductionExpanded
                 return;
             }
             isWaitingForCycleInteraction = true;
+            UpdateGlower();
         }
 
         public void EmptyBuilding()
@@ -269,6 +306,7 @@ namespace ProductionExpanded
                 isWaitingForCycleInteraction = false;
                 outputType = null;
                 outputCount = 0;
+                UpdateGlower();
             }
         }
 

@@ -68,8 +68,7 @@
         <maxCapacity>50</maxCapacity>
       </li>
       <li Class="CompProperties_Forbiddable" />
-      <li Class="CompProperties_Glower">
-        <compClass>ProductionExpanded.CompGlower_Processor</compClass>
+      <li Class="ProductionExpanded.CompProperties_Glower_Processor">
         <glowRadius>6</glowRadius>
         <glowColor>(255,172,65)</glowColor>
       </li>
@@ -165,9 +164,8 @@
         <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
       </li>
       <li Class="CompProperties_Forbiddable" />
-      <li Class="CompProperties_Glower">
-        <compClass>ProductionExpanded.CompGlower_Processor</compClass>
-        <glowRadius>1</glowRadius>
+      <li Class="ProductionExpanded.CompProperties_Glower_Processor">
+        <glowRadius>4</glowRadius>
         <glowColor>(255,72,25)</glowColor>
       </li>
       <li Class="CompProperties_HeatPusher">

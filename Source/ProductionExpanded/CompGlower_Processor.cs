@@ -1,13 +1,29 @@
+using RimWorld;
 using Verse;
 
 namespace ProductionExpanded
 {
+    // CompProperties class is required to tell RimWorld which Comp class to instantiate
+    public class CompProperties_Glower_Processor : CompProperties_Glower
+    {
+        public CompProperties_Glower_Processor()
+        {
+            this.compClass = typeof(CompGlower_Processor);
+        }
+    }
+
     public class CompGlower_Processor : CompGlower
     {
         protected override bool ShouldBeLitNow
         {
             get
             {
+                // If building is destroyed/despawned, light should always be off
+                if (!parent.Spawned)
+                {
+                    return false;
+                }
+
                 CompResourceProcessor processor = parent.GetComp<CompResourceProcessor>();
                 if (processor == null)
                 {
@@ -20,12 +36,6 @@ namespace ProductionExpanded
                 bool isFinished = processor.getIsFinished();
                 bool isWaiting = processor.getIsWaitingForNextCycle();
                 bool result = isProcessing && canContinue && !isFinished && !isWaiting;
-
-                // Log occasionally for debugging
-                if (Find.TickManager.TicksGame % 250 == 0)
-                {
-                    Log.Message($"[Glower] {parent.def.defName}: proc={isProcessing}, can={canContinue}, fin={isFinished}, wait={isWaiting} -> lit={result}");
-                }
 
                 return result;
             }
