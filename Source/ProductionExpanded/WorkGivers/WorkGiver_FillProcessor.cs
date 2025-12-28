@@ -90,6 +90,10 @@ namespace ProductionExpanded
       //checks if we can access materials for one of the bills
       for (int i = 0; i < workTable.billStack.Count; i++)
       {
+        if (workTable.billStack.Bills[i].suspended)
+        {
+          return false;
+        }
         ProcessorRecipeDef curr_bill_recipe =
           workTable.billStack.Bills[i].recipe as ProcessorRecipeDef;
         if (curr_bill_recipe == null)

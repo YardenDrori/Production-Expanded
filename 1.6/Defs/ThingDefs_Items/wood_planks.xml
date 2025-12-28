@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="ResourceBase">
+    <defName>WoodRaw</defName>
+    <label>wood log</label>
+    <description>Raw wood logs. Can be used as a crude weapon, but must be processed into planks before use in construction.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/WoodLog</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <equippedAngleOffset>-20</equippedAngleOffset>
+    <soundInteract>Wood_Drop</soundInteract>
+    <soundDrop>Wood_Drop</soundDrop>
+    <statBases>
+      <MarketValue>1.0</MarketValue>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Mass>0.4</Mass>
+      <Flammability>1.0</Flammability>
+      <DeteriorationRate>2.0</DeteriorationRate>
+    </statBases>
+    <burnableByRecipe>true</burnableByRecipe>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <thingCategories>
+      <li>ResourcesRaw</li>
+    </thingCategories>
+    <techHediffsTags>
+      <li>Poor</li>
+    </techHediffsTags>
+    <weaponClasses>
+      <li>Melee</li>
+      <li>MeleeBlunt</li>
+      <li>Neolithic</li>
+    </weaponClasses>
+    <tools>
+      <li>
+        <label>log</label>
+        <capacities>
+          <li>Blunt</li>
+        </capacities>
+        <power>10</power>
+        <cooldownTime>2</cooldownTime>
+      </li>
+    </tools>
+  </ThingDef>
+</Defs>

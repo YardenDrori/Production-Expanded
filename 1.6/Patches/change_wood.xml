@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Replace parent to remove equipment inheritance -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>Defs/ThingDef[defName="WoodLog"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>ResourceBase</value>
+  </Operation>
+  <!-- Change vanilla wood texture to planks -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="WoodLog"]/graphicData/texPath</xpath>
+    <value>
+      <texPath>Things/Item/Resource/WoodPlank</texPath>
+    </value>
+  </Operation>
+
+  <!-- Add wood color back to graphicData -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="WoodLog"]/graphicData</xpath>
+    <value>
+      <color>(139, 102, 71)</color>
+    </value>
+  </Operation>
+
+  <!-- Ensure color is in stuffProps too -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="WoodLog"]/stuffProps</xpath>
+    <value>
+      <color>(139, 102, 71)</color>
+    </value>
+  </Operation>
+</Patch>
