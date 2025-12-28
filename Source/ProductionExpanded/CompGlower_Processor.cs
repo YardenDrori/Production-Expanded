@@ -4,10 +4,6 @@ namespace ProductionExpanded
 {
     public class CompGlower_Processor : CompGlower
     {
-        public override void CompTick()
-        {
-            base.CompTick();
-        }
         protected override bool ShouldBeLitNow
         {
             get
