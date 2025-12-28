@@ -61,9 +61,7 @@ namespace ProductionExpanded
 
     public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
     {
-      Building_WorkTable workTable = t as Building_WorkTable;
-      return JobMaker.MakeJob(JobDef);
-      return null;
+      return JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_StartNextProcessorCycle, t);
     }
   }
 }

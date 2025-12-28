@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <WorkGiverDef>
-    <defName>PE_FillProcessor</defName>
+    <defName>PE_StartNextProcessorCycle</defName>
     <label>Interact with building</label>
-    <giverClass>ProductionExpanded.WorkGiver_FillProcessor</giverClass>
-    <workType>Basic</workType>
+    <giverClass>ProductionExpanded.WorkGiver_StartNextProcessorCycle</giverClass>
+    <workType>BasicWorker</workType>
     <priorityInType>100</priorityInType>
     <verb>interact</verb>
     <gerund>interacting</gerund>
