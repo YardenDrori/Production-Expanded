@@ -1,0 +1,13 @@
+
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <WorkGiverDef>
+    <defName>PE_FillProcessor</defName>
+    <label>refine metal</label>
+    <giverClass>ProductionExpanded.WorkGiver_FillProcessor</giverClass>
+    <workType>Hauling</workType>
+    <priorityInType>100</priorityInType>
+    <verb>refine</verb>
+    <gerund>refining</gerund>
+  </WorkGiverDef>
+</Defs>

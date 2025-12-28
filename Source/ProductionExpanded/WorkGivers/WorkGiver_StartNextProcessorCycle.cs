@@ -1,3 +1,4 @@
+
 using RimWorld;
 using System;
 using Verse;
@@ -6,10 +7,9 @@ using Verse.AI;
 namespace ProductionExpanded
 {
 
-    public class WorkGiver_FillProcessor : WorkGiver_Scanner
+    public class WorkGiver_StartNextProcessorCycle : WorkGiver_Scanner
     {
-        private static string NoMaterialsTrans;
-        private static string AlreadyFinishedTrans;
+        // private static string NoMaterialsTrans;
 
         public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial);
 
@@ -17,8 +17,7 @@ namespace ProductionExpanded
 
         public static void ResetStaticData()
         {
-            NoMaterialsTrans = "NoMaterials".Translate();
-            AlreadyFinishedTrans = "AlreadyFinished".Translate();
+            // NoMaterialsTrans = "NoMaterials".Translate();
         }
 
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -30,19 +29,13 @@ namespace ProductionExpanded
             }
             CompResourceProcessor comp = t.TryGetComp<CompResourceProcessor>();
             //checks if building waiting for items to be extracted
-            if (comp.getIsFinished())
-            {
-                JobFailReason.Is(AlreadyFinishedTrans);
-                return false;
-            }
-            //prioritize starting next cycle over adding items
-            if (comp.getIsWaitingForNextCycle())
+            if (!comp.getIsWaitingForNextCycle())
             {
                 JobFailReason.IsSilent();
                 return false;
             }
-            //checks if building can accept more items
-            if (comp.getCapacityRemaining() <= 0)
+            //if building is finished dont interact with it
+            if (comp.getIsFinished())
             {
                 JobFailReason.IsSilent();
                 return false;
@@ -53,12 +46,6 @@ namespace ProductionExpanded
             {
                 JobFailReason.IsSilent();
                 Log.Warning($"[Production Expanded] Building {t.def.defName} Has the comp \"CompResourceProcessor\" but isnt't a worktable.");
-                return false;
-            }
-            //checks if building has bills
-            if (workTable.billStack.Count <= 0)
-            {
-                JobFailReason.IsSilent();
                 return false;
             }
             //idk tbh i just coppied it from the barrel one
@@ -81,27 +68,7 @@ namespace ProductionExpanded
             {
                 return false;
             }
-            //check if building can operate
-            if (!comp.CanContinueProcessing())
-            {
-                return false; // Can't haul materials to unfueled building
-            }
-            //checks if we can access materials for one of the bills
-            for (int i = 0; i < workTable.billStack.Count; i++)
-            {
-                ProcessorRecipeDef curr_bill_recipe = workTable.billStack.Bills[i].recipe as ProcessorRecipeDef;
-                if (curr_bill_recipe == null)
-                {
-                    Log.Warning($"[Production Expanded] Bill of id {i} in building {t.def.defName} has a recipe of a different type other than ProcessorRecipeDef ({workTable.billStack.Bills[i].recipe.GetType()})"); //fix this please im fine with you editing the code here yourself
-                    continue;
-                }
-                if (FindMaterials(pawn, curr_bill_recipe) != null)
-                {
-                    return true;
-                }
-            }
-            JobFailReason.Is(NoMaterialsTrans);
-            return false;
+            return true;
         }
 
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -112,6 +79,7 @@ namespace ProductionExpanded
                 Log.Warning($"[Production Expanded] Building {t.def.defName} Has the comp \"CompResourceProcessor\" but isnt't a worktable.");
                 return null;
             }
+            return JobMaker.MakeJob(JobDef)
             for (int i = 0; i < workTable.billStack.Count; i++)
             {
                 ProcessorRecipeDef curr_bill_recipe = workTable.billStack.Bills[i].recipe as ProcessorRecipeDef;
@@ -129,14 +97,6 @@ namespace ProductionExpanded
                 }
             }
             return null;
-        }
-
-
-        private Thing FindMaterials(Pawn pawn, ProcessorRecipeDef recipe)
-        {
-            Predicate<Thing> validator = (Thing x) => (!x.IsForbidden(pawn) && pawn.CanReserve(x)) ? true : false;
-            ThingDef input = recipe.inputType;
-            return GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, ThingRequest.ForDef(input), PathEndMode.ClosestTouch, TraverseParms.For(pawn), 9999f, validator);
         }
     }
 }
