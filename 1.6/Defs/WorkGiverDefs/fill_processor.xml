@@ -2,11 +2,11 @@
 <Defs>
   <WorkGiverDef>
     <defName>PE_FillProcessor</defName>
-    <label>refine metal</label>
+    <label>Haul items to building</label>
     <giverClass>ProductionExpanded.WorkGiver_FillProcessor</giverClass>
     <workType>Hauling</workType>
     <priorityInType>100</priorityInType>
-    <verb>refine</verb>
-    <gerund>refining</gerund>
+    <verb>haul</verb>
+    <gerund>hauling</gerund>
   </WorkGiverDef>
 </Defs>

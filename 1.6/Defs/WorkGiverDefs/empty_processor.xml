@@ -2,11 +2,11 @@
 <Defs>
   <WorkGiverDef>
     <defName>PE_EmptyProcessor</defName>
-    <label>unload processor</label>
+    <label>empty building</label>
     <giverClass>ProductionExpanded.WorkGiver_EmptyProcessor</giverClass>
     <workType>Hauling</workType>
     <priorityInType>110</priorityInType>
-    <verb>unload</verb>
-    <gerund>unloading</gerund>
+    <verb>empty</verb>
+    <gerund>emptying</gerund>
   </WorkGiverDef>
 </Defs>
