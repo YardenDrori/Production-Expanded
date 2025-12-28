@@ -79,7 +79,7 @@ namespace ProductionExpanded
                 Log.Warning($"[Production Expanded] Building {t.def.defName} Has the comp \"CompResourceProcessor\" but isnt't a worktable.");
                 return null;
             }
-            return JobMaker.MakeJob(JobDef)
+            // return JobMaker.MakeJob(JobDef)
             for (int i = 0; i < workTable.billStack.Count; i++)
             {
                 ProcessorRecipeDef curr_bill_recipe = workTable.billStack.Bills[i].recipe as ProcessorRecipeDef;

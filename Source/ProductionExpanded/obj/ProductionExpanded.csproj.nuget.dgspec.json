@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/yardendrori/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Mods/Production-Expanded/Source/ProductionExpanded/ProductionExpanded.csproj": {}
+    "/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/ProductionExpanded.csproj": {}
   },
   "projects": {
-    "/Users/yardendrori/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Mods/Production-Expanded/Source/ProductionExpanded/ProductionExpanded.csproj": {
+    "/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/ProductionExpanded.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/yardendrori/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Mods/Production-Expanded/Source/ProductionExpanded/ProductionExpanded.csproj",
+        "projectUniqueName": "/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/ProductionExpanded.csproj",
         "projectName": "ProductionExpanded",
-        "projectPath": "/Users/yardendrori/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Mods/Production-Expanded/Source/ProductionExpanded/ProductionExpanded.csproj",
-        "packagesPath": "/Users/yardendrori/.nuget/packages/",
-        "outputPath": "/Users/yardendrori/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Mods/Production-Expanded/Source/ProductionExpanded/obj/",
+        "projectPath": "/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/ProductionExpanded.csproj",
+        "packagesPath": "/home/jordan/.nuget/packages/",
+        "outputPath": "/home/jordan/.local/share/Steam/steamapps/common/RimWorld/Mods/Production Expanded/Source/ProductionExpanded/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/yardendrori/.nuget/NuGet/NuGet.Config"
+          "/home/jordan/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net48"
@@ -51,7 +51,7 @@
               "autoReferenced": true
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.101/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.100/RuntimeIdentifierGraph.json"
         }
       }
     }
