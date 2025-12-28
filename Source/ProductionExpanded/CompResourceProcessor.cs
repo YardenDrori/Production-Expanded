@@ -128,7 +128,8 @@ namespace ProductionExpanded
           progressTicks += 250;
           if (refuelable != null)
           {
-            refuelable.ConsumeFuel(refuelable.Props.fuelConsumptionRate / 60000 * 250);
+            // equivalent of *60,000 / 250 aka fuelconsumption rate per tick per day *250 as this method gets called every TickRare
+            refuelable.ConsumeFuel(refuelable.Props.fuelConsumptionRate / 240);
           }
           else
           {
@@ -399,7 +400,7 @@ namespace ProductionExpanded
         if (cycles > 1 && isWaitingForCycleInteraction)
         {
           cachedInfoString =
-            $"{inputCount} units of {inputType?.label ?? "unknown"}\nCycle: {currentCycle} of {cycles}\nWaiting for colonist interaction to continue refining";
+            $"{inputCount} units of {inputType?.label ?? "unknown"}\n{currentCycle - cycles} cycles remaining\nWaiting for colonist interaction to continue refining";
           inspectStringDirty = false;
           return cachedInfoString;
         }

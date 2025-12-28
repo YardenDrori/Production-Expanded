@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <Defs>
   <!-- Alloy Furnaces -->
   <ThingDef ParentName="BenchBase">
@@ -80,7 +81,6 @@
       <li>Smithing</li>
     </researchPrerequisites>
   </ThingDef>
-
   <ThingDef ParentName="BenchBase">
     <defName>EM_ElectricAlloySmelter</defName>
     <label>electric alloy smelter</label>
@@ -146,7 +146,7 @@
         <glowRadius>3</glowRadius>
         <glowColor>(217,112,33,0)</glowColor>
       </li>
-      <li Class="CompProperties_Flickable" />
+      <li Class="CompProperties_Flickable"/>
       <li Class="CompProperties_AffectedByFacilities">
         <linkableFacilities>
           <li>ToolCabinet</li>
@@ -162,9 +162,7 @@
       <li>PlaceWorker_PreventInteractionSpotOverlap</li>
     </placeWorkers>
     <researchPrerequisites>
-      <li>Smithing</li>
-      <li>Electricity</li>
+      <li>Machining</li>
     </researchPrerequisites>
   </ThingDef>
-
 </Defs>

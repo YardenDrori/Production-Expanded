@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <Defs>
   <RecipeDef>
     <defName>SmeltPigIron</defName>
@@ -37,11 +38,10 @@
     </skillRequirements>
     <recipeUsers>
       <li>PE_FueledAlloySmelter</li>
-      <!-- <li>EM_ElectricAlloySmelter</li> -->
+      <li>EM_ElectricAlloySmelter</li>
     </recipeUsers>
-    <displayPriority>15</displayPriority>
+    <displayPriority>100</displayPriority>
   </RecipeDef>
-
   <RecipeDef>
     <defName>SmeltPigIronBulk</defName>
     <label>smelt pig iron x4</label>
@@ -80,11 +80,10 @@
     </skillRequirements>
     <recipeUsers>
       <li>PE_FueledAlloySmelter</li>
-      <!-- <li>EM_ElectricAlloySmelter</li> -->
+      <li>EM_ElectricAlloySmelter</li>
     </recipeUsers>
-    <displayPriority>14</displayPriority>
+    <displayPriority>200</displayPriority>
   </RecipeDef>
-
   <!-- <RecipeDef> -->
   <!--   <defName>SmeltSteelAdvanced</defName> -->
   <!--   <label>smelt steel</label> -->
@@ -173,8 +172,6 @@
   <!--   <displayPriority>12</displayPriority> -->
   <!-- </RecipeDef> -->
   <!---->
-
-
   <!-- <Defs> -->
   <!--   <RecipeDef> -->
   <!--     <defName>RefinePlasteel</defName> -->
@@ -197,7 +194,8 @@ process.</description> -->
   <!--             <li>PE_UnrefinedPlasteel</li> -->
   <!--           </thingDefs> -->
   <!--         </filter> -->
-  <!--         <count>15</count> --> <!--       </li> -->
+  <!--         <count>15</count> -->
+  <!--       </li> -->
   <!--       <li> -->
   <!--         <filter> -->
   <!--           <thingDefs> -->
@@ -338,10 +336,4 @@ process.</description> -->
   <!--     <displayPriority>13</displayPriority> -->
   <!--   </RecipeDef> -->
   <!-- </Defs> -->
-
-
 </Defs>
-
-
-
-

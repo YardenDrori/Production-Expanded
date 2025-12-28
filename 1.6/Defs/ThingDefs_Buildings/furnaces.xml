@@ -1,6 +1,5 @@
+<?xml version="1.0"?>
 <Defs>
-
-
   <ThingDef ParentName="BuildingBase">
     <defName>ME_ArcFurnace</defName>
     <label>arc furnace</label>
@@ -64,18 +63,15 @@
       <!-- 		<li>DankPyon_SmeltingOre_Scrap_Industrial</li> -->
       <!-- 	</processes> -->
       <!-- </li> -->
-      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
-        <maxCapacity>50</maxCapacity>
-      </li>
-      <li Class="CompProperties_Forbiddable" />
+      <li Class="CompProperties_Forbiddable"/>
       <li Class="ProductionExpanded.CompProperties_Glower_Processor">
         <glowRadius>6</glowRadius>
         <glowColor>(255,172,65)</glowColor>
       </li>
       <li Class="CompProperties_HeatPusher">
         <compClass>CompHeatPusher</compClass>
-        <heatPerSecond>10</heatPerSecond>
-        <heatPushMaxTemperature>30</heatPushMaxTemperature>
+        <heatPerSecond>20</heatPerSecond>
+        <heatPushMaxTemperature>50</heatPushMaxTemperature>
       </li>
       <li Class="CompProperties_Power">
         <compClass>CompPowerTrader</compClass>
@@ -83,7 +79,10 @@
         <idlePowerDraw>50</idlePowerDraw>
         <shortCircuitInRain>true</shortCircuitInRain>
       </li>
-      <li Class="CompProperties_Flickable" />
+      <li Class="CompProperties_Flickable"/>
+      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
+        <maxCapacity>50</maxCapacity>
+      </li>
     </comps>
     <tickerType>Rare</tickerType>
     <placeWorkers>
@@ -91,11 +90,9 @@
     </placeWorkers>
     <techLevel>Industrial</techLevel>
     <researchPrerequisites>
-      <li>Electricity</li>
+      <li>Machining</li>
     </researchPrerequisites>
   </ThingDef>
-
-
   <ThingDef ParentName="BuildingBase">
     <defName>ME_WoodFiredFurnace</defName>
     <label>fueled furnace</label>
@@ -117,19 +114,15 @@
         <cornerBR>Damage/Corner</cornerBR>
       </damageData>
     </graphicData>
-
     <castEdgeShadows>true</castEdgeShadows>
     <staticSunShadowHeight>0.20</staticSunShadowHeight>
-
     <stuffCategories>
       <li>Stony</li>
     </stuffCategories>
     <costStuffCount>200</costStuffCount>
-
     <costList>
       <PE_Iron>80</PE_Iron>
     </costList>
-
     <altitudeLayer>BuildingOnTop</altitudeLayer>
     <fillPercent>1.0</fillPercent>
     <useHitPoints>True</useHitPoints>
@@ -149,12 +142,9 @@
     <defaultPlacingRot>North</defaultPlacingRot>
     <surfaceType>Item</surfaceType>
     <comps Inherit="false">
-      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
-        <maxCapacity>30</maxCapacity>
-      </li>
       <li Class="CompProperties_Refuelable">
-        <fuelConsumptionRate>75</fuelConsumptionRate>
-        <fuelCapacity>75.0</fuelCapacity>
+        <fuelConsumptionRate>25</fuelConsumptionRate>
+        <fuelCapacity>45.0</fuelCapacity>
         <fuelFilter>
           <thingDefs>
             <li>WoodLog</li>
@@ -163,15 +153,18 @@
         <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
         <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
       </li>
-      <li Class="CompProperties_Forbiddable" />
+      <li Class="CompProperties_Forbiddable"/>
       <li Class="ProductionExpanded.CompProperties_Glower_Processor">
         <glowRadius>4</glowRadius>
         <glowColor>(255,72,25)</glowColor>
       </li>
       <li Class="CompProperties_HeatPusher">
         <compClass>CompHeatPusher</compClass>
-        <heatPerSecond>20</heatPerSecond>
-        <heatPushMaxTemperature>40</heatPushMaxTemperature>
+        <heatPerSecond>10</heatPerSecond>
+        <heatPushMaxTemperature>45</heatPushMaxTemperature>
+      </li>
+      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
+        <maxCapacity>30</maxCapacity>
       </li>
     </comps>
     <tickerType>Rare</tickerType>
@@ -180,9 +173,7 @@
     </placeWorkers>
     <techLevel>Industrial</techLevel>
     <researchPrerequisites>
-      <li>Electricity</li>
+      <li>Smithing</li>
     </researchPrerequisites>
   </ThingDef>
-
-
 </Defs>
