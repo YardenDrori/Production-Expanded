@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="BuildingBase">
+    <defName>PE_TanningDrum</defName>
+    <label>tanning drump</label>
+    <description>TODO</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <thingClass>ProductionExpanded.Building_Processor</thingClass>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <graphicData>
+      <texPath>Things/Building/Production/Tanning_Drum/TanningDrum</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(4,2)</drawSize>
+      <shadowData>
+        <volume>(2.8, 0.35, 0.59)</volume>
+        <offset>(0, 0, 0.08)</offset>
+      </shadowData>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
+    <costList>
+      <Steel>90</Steel>
+    </costList>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <fillPercent>1.0</fillPercent>
+    <useHitPoints>True</useHitPoints>
+    <statBases>
+      <WorkToBuild>1200</WorkToBuild>
+      <MaxHitPoints>120</MaxHitPoints>
+      <Flammability>0.4</Flammability>
+    </statBases>
+    <size>(2,1)</size>
+    <designationCategory>Production</designationCategory>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <defaultPlacingRot>North</defaultPlacingRot>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <surfaceType>Item</surfaceType>
+    <comps Inherit="false">
+      <!-- <li Class="CompProperties_Refuelable"> -->
+      <!--   <fuelConsumptionRate>15</fuelConsumptionRate> -->
+      <!--   <fuelCapacity>25.0</fuelCapacity> -->
+      <!--   <fuelFilter> -->
+      <!--     <thingDefs> -->
+      <!--       <li>WoodLog</li> -->
+      <!--     </thingDefs> -->
+      <!--   </fuelFilter> -->
+      <!--   <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed> -->
+      <!--   <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle> -->
+      <!-- </li> -->
+      <li Class="CompProperties_Forbiddable"/>
+      <!-- <li Class="CompProperties_Power"> -->
+      <!--   <compClass>CompPowerTrader</compClass> -->
+      <!--   <basePowerConsumption>160</basePowerConsumption> -->
+      <!--   <idlePowerDraw>90</idlePowerDraw> -->
+      <!--   <shortCircuitInRain>true</shortCircuitInRain> -->
+      <!-- </li> -->
+      <!-- <li Class="CompProperties_Flickable"/> -->
+      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
+        <maxCapacity>15</maxCapacity>
+        <hasIdlePowerCost>false</hasIdlePowerCost>
+        <usesOnTexture>false</usesOnTexture>
+      </li>
+    </comps>
+    <tickerType>Rare</tickerType>
+    <placeWorkers>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <techLevel>Industrial</techLevel>
+    <researchPrerequisites>
+      <li>MicroelectronicsBasics</li>
+    </researchPrerequisites>
+  </ThingDef>
+</Defs>

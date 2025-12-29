@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="ResourceBase">
+    <defName>DankPyon_TanningLiquor</defName>
+    <label>tanning liquor</label>
+    <description>Tannins leeched from various natural sources have been concentrated into this liquor. It can be used to treat raw hides into tanned leathers.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Tannin</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <rotatable>false</rotatable>
+    <stackLimit>25</stackLimit>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+    <statBases>
+      <DeteriorationRate>1.0</DeteriorationRate>
+      <MarketValue>2.2</MarketValue>
+      <Mass>0.8</Mass>
+      <Flammability>0.05</Flammability>
+      <MaxHitPoints>60</MaxHitPoints>
+    </statBases>
+  </ThingDef>
+</Defs>

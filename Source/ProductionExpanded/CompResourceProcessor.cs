@@ -59,12 +59,6 @@ namespace ProductionExpanded
       processorTracker.processorsNeedingFill.Add((Building_WorkTable)parent);
 
       // Validate building configuration - log once on spawn
-      if (powerTrader == null && refuelable == null)
-      {
-        Log.Warning(
-          $"[Production Expanded] {parent.def.defName} has CompResourceProcessor but no CompPowerTrader or CompRefuelable."
-        );
-      }
       if (processorTracker == null)
       {
         Log.Error(
@@ -133,7 +127,7 @@ namespace ProductionExpanded
             // equivalent of *60,000 / 250 aka fuelconsumption rate per tick per day *250 as this method gets called every TickRare
             refuelable.ConsumeFuel(refuelable.Props.fuelConsumptionRate / 240);
           }
-          else
+          else if (powerTrader != null)
           {
             powerTrader.PowerOutput = -powerTrader.Props.PowerConsumption;
           }
