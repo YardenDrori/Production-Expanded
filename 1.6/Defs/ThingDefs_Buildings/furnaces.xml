@@ -82,6 +82,8 @@
       <li Class="CompProperties_Flickable"/>
       <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
         <maxCapacity>50</maxCapacity>
+        <hasIdlePowerCost>true</hasIdlePowerCost>
+        <usesOnTexture>true</usesOnTexture>
       </li>
     </comps>
     <tickerType>Rare</tickerType>
@@ -165,6 +167,8 @@
       </li>
       <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
         <maxCapacity>30</maxCapacity>
+        <hasIdlePowerCost>true</hasIdlePowerCost>
+        <usesOnTexture>true</usesOnTexture>
       </li>
     </comps>
     <tickerType>Rare</tickerType>

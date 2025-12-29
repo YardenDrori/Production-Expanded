@@ -18,7 +18,6 @@
     </products>
     <displayPriority>200</displayPriority>
   </ProductionExpanded.ProcessorRecipeDef>
-
   <ProductionExpanded.ProcessorRecipeDef>
     <defName>PE_ForgeSteelWoodFurnace</defName>
     <label>refine steel</label>

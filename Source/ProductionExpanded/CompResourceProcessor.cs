@@ -8,9 +8,11 @@ namespace ProductionExpanded
   {
     // How many units of material this building can hold by default
     public int maxCapacity = 50;
+    public int cycles = 1;
+    public bool usesOnTexture = false;
+    public bool hasIdlePowerCost = false;
     public ThingDef input = null;
     public ThingDef output = null;
-    public int cycles = 1;
 
     // CONSTRUCTOR IS REQUIRED!
     // This tells RimWorld which Comp class to create
@@ -156,7 +158,7 @@ namespace ProductionExpanded
           {
             progressTicks = 0;
           }
-          if (powerTrader != null)
+          if (powerTrader != null && Props.hasIdlePowerCost)
           {
             powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
           }
@@ -165,12 +167,20 @@ namespace ProductionExpanded
       }
       else
       {
+        if (CanContinueProcessing())
+        {
+          processorTracker.processorsNeedingFill.Add((Building_WorkTable)parent);
+        }
+        else
+        {
+          processorTracker.processorsNeedingFill.Remove((Building_WorkTable)parent);
+        }
         if (heatPusher != null)
         {
           heatPusher.enabled = false;
         }
         inspectStringDirty = true;
-        if (powerTrader != null)
+        if (powerTrader != null && Props.hasIdlePowerCost)
         {
           powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
         }
@@ -392,7 +402,7 @@ namespace ProductionExpanded
         if (!isProcessing)
         {
           inspectStringDirty = false;
-          cachedInfoString = "Furnace Status: Idle";
+          cachedInfoString = "Status: Idle";
           return cachedInfoString;
         }
         // If processing, show progress
@@ -515,6 +525,11 @@ namespace ProductionExpanded
     public bool getIsWaitingForNextCycle()
     {
       return isWaitingForCycleInteraction;
+    }
+
+    public CompProperties_ResourceProcessor getProps()
+    {
+      return this.Props;
     }
   }
 }

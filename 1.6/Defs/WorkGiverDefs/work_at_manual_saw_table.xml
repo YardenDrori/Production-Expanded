@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <WorkGiverDef>
+    <defName>PE_DoBillsSawTable</defName>
+    <label>process wood at saw bench</label>
+    <giverClass>WorkGiver_DoBill</giverClass>
+    <workType>Crafting</workType>
+    <priorityInType>100</priorityInType>
+    <fixedBillGiverDefs>
+      <li>PE_SawTable</li>
+      <!-- <li>EM_ElectricAlloySmelter</li> -->
+    </fixedBillGiverDefs>
+    <verb>process wood at</verb>
+    <gerund>processing wood at</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+    <prioritizeSustains>false</prioritizeSustains>
+  </WorkGiverDef>
+</Defs>
