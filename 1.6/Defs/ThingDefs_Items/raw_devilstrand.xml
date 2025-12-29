@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="ResourceBase">
+    <defName>RawDevilstrand</defName>
+    <label>devilstrand fungus</label>
+    <description>TODO</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PlantFoodRaw/RawDevilstrand</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <MarketValue>4.5</MarketValue>
+      <Mass>0.042</Mass>
+      <Flammability>0.7</Flammability>
+      <DeteriorationRate>3</DeteriorationRate>
+    </statBases>
+    <healthAffectsPrice>false</healthAffectsPrice>
+  </ThingDef>
+</Defs>
