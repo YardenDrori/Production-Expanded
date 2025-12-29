@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="BenchBase">
+    <defName>PE_ClothSpinner</defName>
+    <label>cloth spinner</label>
+    <description>TODO</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <building>
+      <spawnedConceptLearnOpportunity>BillsTab</spawnedConceptLearnOpportunity>
+    </building>
+    <thingClass>Building_WorkTable</thingClass>
+    <graphicData>
+      <texPath>Things/Building/Production/Cloth_Spinner/ClothSpinner</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(4.5,3)</drawSize>
+      <shadowData>
+        <volume>(2.8, 0.35, 0.59)</volume>
+        <offset>(0, 0, 0.08)</offset>
+      </shadowData>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
+    <costList>
+      <Steel>90</Steel>
+      <ComponentIndustrial>2</ComponentIndustrial>
+    </costList>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <fillPercent>1.0</fillPercent>
+    <useHitPoints>True</useHitPoints>
+    <statBases>
+      <WorkToBuild>1900</WorkToBuild>
+      <MaxHitPoints>180</MaxHitPoints>
+      <Flammability>0.8</Flammability>
+      <Beauty>-5</Beauty>
+    </statBases>
+    <size>(2,1)</size>
+    <designationCategory>Production</designationCategory>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <defaultPlacingRot>North</defaultPlacingRot>
+    <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+    <surfaceType>Item</surfaceType>
+    <comps>
+      <li Class="CompProperties_Forbiddable"/>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>120</basePowerConsumption>
+        <shortCircuitInRain>true</shortCircuitInRain>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <!-- <li Class="ProductionExpanded.CompProperties_ResourceProcessor"> -->
+      <!--   <maxCapacity>70</maxCapacity> -->
+      <!--   <hasIdlePowerCost>false</hasIdlePowerCost> -->
+      <!--   <usesOnTexture>false</usesOnTexture> -->
+      <!-- </li> -->
+    </comps>
+    <tickerType>Rare</tickerType>
+    <placeWorkers>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <techLevel>Industrial</techLevel>
+    <researchPrerequisites>
+      <li>Electricity</li>
+    </researchPrerequisites>
+  </ThingDef>
+</Defs>

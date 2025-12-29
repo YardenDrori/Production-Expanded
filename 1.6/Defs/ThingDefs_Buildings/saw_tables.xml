@@ -88,7 +88,7 @@
       <texPath>Things/Building/Production/Saw_Table_Auto/SawTableAuto</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <shaderType>CutoutComplex</shaderType>
-      <drawSize>(3,7)</drawSize>
+      <drawSize>(6.5,7)</drawSize>
       <shadowData>
         <volume>(2.8, 0.35, 0.59)</volume>
         <offset>(0, 0, 0.08)</offset>
@@ -119,7 +119,7 @@
       <Flammability>0.8</Flammability>
       <Beauty>-15</Beauty>
     </statBases>
-    <size>(2,4)</size>
+    <size>(3,4)</size>
     <designationCategory>Production</designationCategory>
     <passability>PassThroughOnly</passability>
     <pathCost>50</pathCost>

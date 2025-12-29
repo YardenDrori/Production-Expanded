@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Process raw wood logs into lumber -->
+  <RecipeDef>
+    <defName>PE_ProcessCottonToCloth</defName>
+    <label>process raw cotton into cloth</label>
+    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <jobString>Processing cloth.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <workAmount>140</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>RawCotton</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <products>
+      <Cloth>1</Cloth>
+    </products>
+    <skillRequirements>
+      <Crafting>0</Crafting>
+    </skillRequirements>
+    <recipeUsers>
+      <li>HandTailoringBench</li>
+      <!-- <li>TableMachining</li> -->
+    </recipeUsers>
+    <displayPriority>900</displayPriority>
+  </RecipeDef>
+  <!-- Bulk version -->
+  <RecipeDef>
+    <defName>PE_ProcessCottonToClothBulk</defName>
+    <label>process raw cotton into cloth x10</label>
+    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <jobString>Processing cloth.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <workAmount>1400</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>RawCotton</li>
+          </thingDefs>
+        </filter>
+        <count>10</count>
+      </li>
+    </ingredients>
+    <products>
+      <Cloth>10</Cloth>
+    </products>
+    <skillRequirements>
+      <Crafting>2</Crafting>
+    </skillRequirements>
+    <recipeUsers>
+      <li>HandTailoringBench</li>
+      <!-- <li>TableMachining</li> -->
+    </recipeUsers>
+    <displayPriority>901</displayPriority>
+  </RecipeDef>
+  <!-- Process raw wood logs into lumber -->
+  <RecipeDef>
+    <defName>PE_ProcessCottonToClothWithSpinner</defName>
+    <label>process raw cotton into cloth</label>
+    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <jobString>Processing cloth.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <workAmount>30</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>RawCotton</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <products>
+      <Cloth>1</Cloth>
+    </products>
+    <skillRequirements>
+      <Crafting>2</Crafting>
+    </skillRequirements>
+    <recipeUsers>
+      <li>PE_ClothSpinner</li>
+    </recipeUsers>
+    <displayPriority>40</displayPriority>
+  </RecipeDef>
+  <!-- Bulk version -->
+  <RecipeDef>
+    <defName>PE_ProcessCottonToClothWithSpinnerBulk</defName>
+    <label>process raw cotton into cloth x10</label>
+    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <jobString>Processing cloth.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <workAmount>300</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>RawCotton</li>
+          </thingDefs>
+        </filter>
+        <count>10</count>
+      </li>
+    </ingredients>
+    <products>
+      <Cloth>10</Cloth>
+    </products>
+    <skillRequirements>
+      <Crafting>4</Crafting>
+    </skillRequirements>
+    <recipeUsers>
+      <li>PE_ClothSpinner</li>
+    </recipeUsers>
+    <displayPriority>41</displayPriority>
+  </RecipeDef>
+  <!-- Process raw wood logs into lumber -->
+</Defs>

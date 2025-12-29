@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="ResourceBase">
+    <defName>RawCotton</defName>
+    <label>cotton</label>
+    <description>cotton</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PlantFoodRaw/RawCotton</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <thingCategories>
+      <li>ResourcesRaw</li>
+    </thingCategories>
+    <statBases>
+      <MarketValue>1</MarketValue>
+      <Mass>0.03</Mass>
+      <Flammability>1.5</Flammability>
+    </statBases>
+  </ThingDef>
+</Defs>

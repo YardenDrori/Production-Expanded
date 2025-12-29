@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <WorkGiverDef>
+    <defName>PE_DoBillsClothSpinner</defName>
+    <label>process fabrics at cloth spinner</label>
+    <giverClass>WorkGiver_DoBill</giverClass>
+    <workType>Crafting</workType>
+    <priorityInType>100</priorityInType>
+    <fixedBillGiverDefs>
+      <li>PE_ClothSpinner</li>
+    </fixedBillGiverDefs>
+    <verb>process fabrics at</verb>
+    <gerund>processing fabrics at</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+    <prioritizeSustains>false</prioritizeSustains>
+  </WorkGiverDef>
+</Defs>
