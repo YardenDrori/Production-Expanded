@@ -13,7 +13,20 @@
       <texPath>Things/Item/Resource/WoodPlank</texPath>
     </value>
   </Operation>
-
+  <!-- make wood deteriorate faster -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="WoodLog"]/statBases/DeteriorationRate</xpath>
+    <value>
+      <DeteriorationRate>1.5</DeteriorationRate>
+    </value>
+  </Operation>
+  <!-- change display name -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="WoodLog"]/label</xpath>
+    <value>
+      <label>lumber</label>
+    </value>
+  </Operation>
   <!-- Add wood color back to graphicData -->
   <Operation Class="PatchOperationAdd">
     <xpath>Defs/ThingDef[defName="WoodLog"]/graphicData</xpath>
@@ -21,7 +34,6 @@
       <color>(139, 102, 71)</color>
     </value>
   </Operation>
-
   <!-- Ensure color is in stuffProps too -->
   <Operation Class="PatchOperationAdd">
     <xpath>Defs/ThingDef[defName="WoodLog"]/stuffProps</xpath>

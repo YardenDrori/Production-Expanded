@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Change Woodmaker Dryad to spawn WoodRaw instead of WoodLog -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="Dryad_Woodmaker"]/comps/li[@Class="CompProperties_Spawner"]/thingToSpawn</xpath>
+    <value>
+      <thingToSpawn>WoodRaw</thingToSpawn>
+    </value>
+  </Operation>
+
+  <!-- Note: descriptionHyperlinks patch removed - element structure differs from expected -->
+</Patch>

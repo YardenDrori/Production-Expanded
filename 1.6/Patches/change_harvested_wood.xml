@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Change all trees/plants that harvest WoodLog to harvest WoodRaw instead -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef/plant[harvestedThingDef="WoodLog"]/harvestedThingDef</xpath>
+    <value>
+      <harvestedThingDef>WoodRaw</harvestedThingDef>
+    </value>
+  </Operation>
+</Patch>
