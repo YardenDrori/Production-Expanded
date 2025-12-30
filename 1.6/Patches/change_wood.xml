@@ -41,4 +41,11 @@
       <color>(139, 102, 71)</color>
     </value>
   </Operation>
+  <!-- Add UI icon for fuel gauges and other UI elements -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="WoodLog"]</xpath>
+    <value>
+      <uiIconPath>Things/Item/Resource/WoodPlank/WoodPlank_UIIcon</uiIconPath>
+    </value>
+  </Operation>
 </Patch>
