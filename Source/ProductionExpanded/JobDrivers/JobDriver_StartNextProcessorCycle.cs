@@ -24,6 +24,12 @@ namespace ProductionExpanded
       CompResourceProcessor processorComp = Processor.GetComp<CompResourceProcessor>();
       this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
       this.FailOnBurningImmobile(TargetIndex.A);
+
+      // End the job if the processor no longer needs cycle start
+      AddEndCondition(() =>
+        processorComp.getIsWaitingForNextCycle() ? JobCondition.Ongoing : JobCondition.Succeeded
+      );
+
       yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
       yield return Toils_General
         .Wait(300)

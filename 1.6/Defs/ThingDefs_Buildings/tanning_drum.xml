@@ -2,8 +2,8 @@
 <Defs>
   <ThingDef ParentName="BuildingBase">
     <defName>PE_TanningDrum</defName>
-    <label>tanning drump</label>
-    <description>TODO</description>
+    <label>tanning drum</label>
+    <description>A rotating drum that soaks raw hides in tannin solution, preserving and softening them into usable leather.</description>
     <inspectorTabs>
       <li>ITab_Bills</li>
     </inspectorTabs>
@@ -13,7 +13,7 @@
       <texPath>Things/Building/Production/Tanning_Drum/TanningDrum</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <shaderType>CutoutComplex</shaderType>
-      <drawSize>(4,2)</drawSize>
+      <drawSize>(3.5,2.5)</drawSize>
       <shadowData>
         <volume>(2.8, 0.35, 0.59)</volume>
         <offset>(0, 0, 0.08)</offset>

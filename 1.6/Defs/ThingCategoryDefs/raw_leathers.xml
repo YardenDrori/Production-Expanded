@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingCategoryDef>
+    <defName>PE_RawLeathers</defName>
+    <label>raw leathers</label>
+    <parent>Leathers</parent>
+    <iconPath>UI/Icons/ThingCategories/Leathers</iconPath>
+    <resourceReadoutRoot>true</resourceReadoutRoot>
+  </ThingCategoryDef>
+</Defs>

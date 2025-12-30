@@ -1,1 +1,2 @@
 make passive buildings play sfx upon inserting extracting or starting new cycle
+add translation support

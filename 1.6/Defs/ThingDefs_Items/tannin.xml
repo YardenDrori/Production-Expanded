@@ -5,7 +5,7 @@
     <label>tanning liquor</label>
     <description>Tannins leeched from various natural sources have been concentrated into this liquor. It can be used to treat raw hides into tanned leathers.</description>
     <graphicData>
-      <texPath>Things/Item/Resource/Tannin</texPath>
+      <texPath>Things/Item/Resource/PE_Tannin</texPath>
       <graphicClass>Graphic_Random</graphicClass>
     </graphicData>
     <rotatable>false</rotatable>

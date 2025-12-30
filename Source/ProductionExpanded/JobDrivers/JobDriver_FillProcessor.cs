@@ -70,7 +70,7 @@ namespace ProductionExpanded
       Toil toil = ToilMaker.MakeToil("MakeNewToils");
       toil.initAction = delegate
       {
-        processorComp.AddMaterials((Bill_Production)job.bill, Materials.stackCount);
+        processorComp.AddMaterials((Bill_Production)job.bill, Materials.stackCount, Materials);
         Materials.Destroy();
       };
       toil.defaultCompleteMode = ToilCompleteMode.Instant;

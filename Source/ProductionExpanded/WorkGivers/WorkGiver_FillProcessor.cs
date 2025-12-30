@@ -141,6 +141,31 @@ namespace ProductionExpanded
     {
       Predicate<Thing> validator = (Thing x) =>
         (!x.IsForbidden(pawn) && pawn.CanReserve(x)) ? true : false;
+
+      // For generic recipes (inputType = null), search for items in PE_RawLeathers category
+      if (recipe.inputType == null)
+      {
+        var rawLeathersCategory = DefDatabase<ThingCategoryDef>.GetNamedSilentFail("PE_RawLeathers");
+        if (rawLeathersCategory != null)
+        {
+          // Find any raw leather
+          return GenClosest.ClosestThingReachable(
+            pawn.Position,
+            pawn.Map,
+            ThingRequest.ForGroup(ThingRequestGroup.HaulableEver),
+            PathEndMode.ClosestTouch,
+            TraverseParms.For(pawn),
+            9999f,
+            (Thing x) =>
+              validator(x)
+              && x.def.thingCategories != null
+              && x.def.thingCategories.Contains(rawLeathersCategory)
+          );
+        }
+        return null;
+      }
+
+      // For specific input recipes, use the inputType
       ThingDef input = recipe.inputType;
       return GenClosest.ClosestThingReachable(
         pawn.Position,
