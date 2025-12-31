@@ -159,7 +159,9 @@ namespace ProductionExpanded
 
       // ===== Delete Button (Top Right) =====
       Rect deleteRect = new Rect(rect.width - ButtonSize, 0f, ButtonSize, ButtonSize);
-      if (Widgets.ButtonImage(deleteRect, TexButton.Delete, color, color * GenUI.SubtleMouseoverColor))
+      if (
+        Widgets.ButtonImage(deleteRect, TexButton.Delete, color, color * GenUI.SubtleMouseoverColor)
+      )
       {
         processor.DeleteBill(this);
         SoundDefOf.Click.PlayOneShotOnCamera();
@@ -194,7 +196,12 @@ namespace ProductionExpanded
       {
         Text.Font = GameFont.Medium;
         Text.Anchor = TextAnchor.MiddleCenter;
-        Rect suspendedRect = new Rect(rect.x + rect.width / 2f - 70f, rect.y + rect.height / 2f - 20f, 140f, 40f);
+        Rect suspendedRect = new Rect(
+          rect.x + rect.width / 2f - 70f,
+          rect.y + rect.height / 2f - 20f,
+          140f,
+          40f
+        );
         GUI.DrawTexture(suspendedRect, TexUI.GrayTextBG);
         Widgets.Label(suspendedRect, "SUSPENDED");
         Text.Anchor = TextAnchor.UpperLeft;
@@ -222,7 +229,11 @@ namespace ProductionExpanded
       }
 
       // Using WidgetRow for right-aligned buttons
-      WidgetRow widgetRow = new WidgetRow(baseRect.xMax - 4f, baseRect.y + 29f, UIDirection.LeftThenUp);
+      WidgetRow widgetRow = new WidgetRow(
+        baseRect.xMax - 4f,
+        baseRect.y + 29f,
+        UIDirection.LeftThenUp
+      );
 
       // Details Button
       if (widgetRow.ButtonText("Details..."))
@@ -327,7 +338,11 @@ namespace ProductionExpanded
       Scribe_Defs.Look(ref processDef, "processDef");
       Scribe_Deep.Look(ref processFilter, "processFilter");
       Scribe_Values.Look(ref repeatMode, "repeatMode", ProcessRepeatMode.Forever);
-      Scribe_Values.Look(ref actionWithOutput, "actionWithOutput", ActionWithOutput.HaulToBestStockpile);
+      Scribe_Values.Look(
+        ref actionWithOutput,
+        "actionWithOutput",
+        ActionWithOutput.HaulToBestStockpile
+      );
       Scribe_Values.Look(ref allowedWorker, "allowedWorker", AllowedWorker.Any);
       Scribe_References.Look(ref destinationStockpile, "destinationStockpile");
       Scribe_References.Look(ref worker, "worker");

@@ -82,7 +82,7 @@ namespace ProductionExpanded
       bill.repeatMode = ProcessRepeatMode.DoXTimes;
       bill.x = 10;
       bill.ingredientSearchRadius = 9999;
-      bill.label = this.def.label;
+      bill.label = process.label;
       bill.worker = null;
       bill.destinationStockpile = null;
 

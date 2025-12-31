@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using LudeonTK;
 using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
-using LudeonTK;
 
 namespace ProductionExpanded
 {
@@ -57,7 +57,10 @@ namespace ProductionExpanded
           GUI.color = Color.white;
           if (Mouse.IsOver(pasteRect))
           {
-            TooltipHandler.TipRegion(pasteRect, "Cannot paste: process not available on this building");
+            TooltipHandler.TipRegion(
+              pasteRect,
+              "Cannot paste: process not available on this building"
+            );
           }
         }
         else if (SelProcessor.activeBills.Count >= MaxBillCount)
@@ -79,7 +82,10 @@ namespace ProductionExpanded
           }
           if (Mouse.IsOver(pasteRect))
           {
-            TooltipHandler.TipRegion(pasteRect, "Paste bill: " + ProcessBillUtility.Clipboard.LabelCap);
+            TooltipHandler.TipRegion(
+              pasteRect,
+              "Paste bill: " + ProcessBillUtility.Clipboard.LabelCap
+            );
           }
         }
       }
@@ -104,7 +110,7 @@ namespace ProductionExpanded
       if (SelProcessor.activeBills.Count < MaxBillCount)
       {
         Rect addButtonRect = new Rect(0f, 0f, 150f, 29f);
-        if (Widgets.ButtonText(addButtonRect, "Add Process"))
+        if (Widgets.ButtonText(addButtonRect, "Add Bill"))
         {
           Find.WindowStack.Add(new FloatMenu(GetProcessOptions()));
         }
@@ -165,16 +171,18 @@ namespace ProductionExpanded
           icon = processDef.outputDef.uiIcon;
         }
 
-        options.Add(new FloatMenuOption(
-          processDef.LabelCap,
-          delegate
-          {
-            SelProcessor.CreateBill(localDef);
-            SoundDefOf.Tick_High.PlayOneShotOnCamera();
-          },
-          iconTex: icon,
-          iconColor: Color.white
-        ));
+        options.Add(
+          new FloatMenuOption(
+            processDef.LabelCap,
+            delegate
+            {
+              SelProcessor.CreateBill(localDef);
+              SoundDefOf.Tick_High.PlayOneShotOnCamera();
+            },
+            iconTex: icon,
+            iconColor: Color.white
+          )
+        );
       }
 
       if (options.Count == 0)

@@ -383,7 +383,14 @@ namespace ProductionExpanded
         // Decrement bill count if applicable
         if (activeBill != null && activeBill.repeatMode == ProcessRepeatMode.DoXTimes)
         {
-          activeBill.x -= outputCount;
+          if (activeBill.x - outputCount >= 0)
+          {
+            activeBill.x -= outputCount;
+          }
+          else
+          {
+            activeBill.x = 0;
+          }
         }
 
         // Reset state

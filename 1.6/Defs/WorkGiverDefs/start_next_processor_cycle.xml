@@ -4,7 +4,7 @@
     <defName>PE_StartNextProcessorCycle</defName>
     <label>Interact with building</label>
     <giverClass>ProductionExpanded.WorkGiver_StartNextProcessorCycle</giverClass>
-    <workType>BasicWorker</workType>
+    <workType>Smithing</workType>
     <priorityInType>100</priorityInType>
     <verb>interact with</verb>
     <gerund>interacting with</gerund>

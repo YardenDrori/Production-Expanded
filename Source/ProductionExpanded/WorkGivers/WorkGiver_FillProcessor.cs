@@ -96,19 +96,21 @@ namespace ProductionExpanded
 
       foreach (ProcessBill bill in processor.activeBills)
       {
-        // Check if bill is suspended (if we add that later) or filled
+        // Skip suspended or fulfilled bills
+        if (bill.isSuspended)
+          continue;
         if (bill.IsFulfilled())
           continue;
 
-        //checks to make sure correct employee is working
+        // Check if this pawn is allowed to work this bill
         if (bill.allowedWorker == AllowedWorker.Slave && !pawn.IsSlave)
-          return false;
+          continue;  // Try next bill
         if (bill.allowedWorker == AllowedWorker.Mech && !pawn.IsColonyMechPlayerControlled)
-          return false;
+          continue;  // Try next bill
         if (bill.allowedWorker == AllowedWorker.SpecificPawn && pawn != bill.worker)
-          return false;
+          continue;  // Try next bill
 
-        Thing foundThing = FindMaterials(pawn, bill);
+        Thing foundThing = FindMaterials(pawn, bill, processor);
         if (foundThing == null)
           continue;
 
@@ -134,24 +136,31 @@ namespace ProductionExpanded
 
       foreach (ProcessBill bill in processor.activeBills)
       {
+        // Skip suspended or fulfilled bills
+        if (bill.isSuspended)
+          continue;
         if (bill.IsFulfilled())
           continue;
 
-        Thing thing = FindMaterials(pawn, bill);
+        // Check if this pawn is allowed to work this bill
+        if (bill.allowedWorker == AllowedWorker.Slave && !pawn.IsSlave)
+          continue;
+        if (bill.allowedWorker == AllowedWorker.Mech && !pawn.IsColonyMechPlayerControlled)
+          continue;
+        if (bill.allowedWorker == AllowedWorker.SpecificPawn && pawn != bill.worker)
+          continue;
+
+        Thing thing = FindMaterials(pawn, bill, processor);
         if (thing != null)
         {
           Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, thing);
-          // We can't attach our custom bill to job.bill (which expects vanilla Bill)
-          // But we can process it in the JobDriver using the ingredient to find the bill again
-          // Or we could cast/interface but Job.bill is strict.
-          // For now, the driver will re-resolve or we pass info via target indices.
           return job;
         }
       }
       return null;
     }
 
-    private Thing FindMaterials(Pawn pawn, ProcessBill bill)
+    private Thing FindMaterials(Pawn pawn, ProcessBill bill, Building_Processor processor)
     {
       if (bill.processFilter == null)
         return null;
@@ -164,7 +173,7 @@ namespace ProductionExpanded
       foreach (ThingDef def in bill.processFilter.allowedIngredients)
       {
         Thing found = GenClosest.ClosestThingReachable(
-          pawn.Position,
+          processor.Position,  // Use processor position, not pawn position
           pawn.Map,
           ThingRequest.ForDef(def),
           PathEndMode.ClosestTouch,
