@@ -1,67 +1,71 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
 
-  <!--
-    LEARNING NOTE: Translation / Localization Files
+    <!--
+        LEARNING NOTE: Translation / Localization Files
+    
+        RimWorld uses XML files for all text that appears in-game.
+        This allows easy translation to other languages!
+    
+        STRUCTURE:
+        - Languages/English/ = English translation
+        - Languages/French/ = French translation (if you add it)
+        - Keyed/ = text referenced by key in code
+        - DefInjected/ = text that replaces Def fields
+    
+        HOW IT WORKS:
+        In code: "SomeKey".Translate()
+        RimWorld looks up "SomeKey" in this file
+        Returns the translated text
+    
+        PARAMETERS:
+        You can use {0}, {1}, etc. for parameters
+        Example: "Converting {0} {1}" where {0}=amount, {1}=material name
+      -->
 
-    RimWorld uses XML files for all text that appears in-game.
-    This allows easy translation to other languages!
+    <!-- UI strings for passive converter inspect panel -->
 
-    STRUCTURE:
-    - Languages/English/ = English translation
-    - Languages/French/ = French translation (if you add it)
-    - Keyed/ = text referenced by key in code
-    - DefInjected/ = text that replaces Def fields
+    <!-- Not currently used (handled inline) but kept for future use --><PassiveConverterProgress>Converting: {0} {1} ({2}% complete)
+    </PassiveConverterProgress><PassiveConverterTimeRemaining>Time remaining: {0}
+    </PassiveConverterTimeRemaining><PassiveConverterIdle>Idle - awaiting materials
+    </PassiveConverterIdle>
 
-    HOW IT WORKS:
-    In code: "SomeKey".Translate()
-    RimWorld looks up "SomeKey" in this file
-    Returns the translated text
+    <!-- Messages shown to player -->
 
-    PARAMETERS:
-    You can use {0}, {1}, etc. for parameters
-    Example: "Converting {0} {1}" where {0}=amount, {1}=material name
-  -->
+    <!-- Not currently used (handled inline) but kept for consistency --><PassiveConversionComplete>Finished converting {0} {1} into {2} {3}.
+    </PassiveConversionComplete><PassiveConversionCanceled>Passive conversion canceled. Materials refunded.
+    </PassiveConversionCanceled>
 
-  <!-- UI strings for passive converter inspect panel -->
+    <!-- Gizmo (button) text -->
 
-  <!-- Not currently used (handled inline) but kept for future use -->
-  <PassiveConverterProgress>Converting: {0} {1} ({2}% complete)</PassiveConverterProgress>
-  <PassiveConverterTimeRemaining>Time remaining: {0}</PassiveConverterTimeRemaining>
-  <PassiveConverterIdle>Idle - awaiting materials</PassiveConverterIdle>
+    <!-- Not currently used (handled inline) but kept for future localization --><CancelPassiveConversion>Cancel Conversion
+    </CancelPassiveConversion><CancelPassiveConversionDesc>Stop the current conversion and refund materials.
+    </CancelPassiveConversionDesc><NoMaterials>No materials available for active process
+    </NoMaterials><AlreadyFinished>Processor is already finished. Empty it first.
+    </AlreadyFinished><ProcessorNotFinished>Processor cycle not complete
+    </ProcessorNotFinished><TextMote_ProductWasted>Product Wasted
+</TextMote_ProductWasted>
 
-  <!-- Messages shown to player -->
-
-  <!-- Not currently used (handled inline) but kept for consistency -->
-  <PassiveConversionComplete>Finished converting {0} {1} into {2} {3}.</PassiveConversionComplete>
-  <PassiveConversionCanceled>Passive conversion canceled. Materials refunded.</PassiveConversionCanceled>
-
-  <!-- Gizmo (button) text -->
-
-  <!-- Not currently used (handled inline) but kept for future localization -->
-  <CancelPassiveConversion>Cancel Conversion</CancelPassiveConversion>
-  <CancelPassiveConversionDesc>Stop the current conversion and refund materials.</CancelPassiveConversionDesc>
-
-  <!--
-    NOTE FOR DEVELOPERS:
-
-    The strings above are defined but not currently used in the code.
-    The code uses inline strings for simplicity in this version.
-
-    TO USE THESE STRINGS IN CODE:
-    Instead of: "Converting {amount} {material}"
-    Use: "PassiveConverterProgress".Translate(amount, material, percent)
-
-    BENEFITS OF USING KEYS:
-    - Easy to translate to other languages
-    - Change text without recompiling code
-    - Consistent wording across mod
-
-    DRAWBACK:
-    - Slightly more complex code
-    - Need to remember key names
-
-    For now, keeping these as placeholders for future localization.
-  -->
+    <!--
+        NOTE FOR DEVELOPERS:
+    
+        The strings above are defined but not currently used in the code.
+        The code uses inline strings for simplicity in this version.
+    
+        TO USE THESE STRINGS IN CODE:
+        Instead of: "Converting {amount} {material}"
+        Use: "PassiveConverterProgress".Translate(amount, material, percent)
+    
+        BENEFITS OF USING KEYS:
+        - Easy to translate to other languages
+        - Change text without recompiling code
+        - Consistent wording across mod
+    
+        DRAWBACK:
+        - Slightly more complex code
+        - Need to remember key names
+    
+        For now, keeping these as placeholders for future localization.
+      -->
 
 </LanguageData>

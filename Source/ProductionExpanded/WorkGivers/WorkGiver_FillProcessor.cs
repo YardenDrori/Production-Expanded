@@ -100,6 +100,14 @@ namespace ProductionExpanded
         if (bill.IsFulfilled())
           continue;
 
+        //checks to make sure correct employee is working
+        if (bill.allowedWorker == AllowedWorker.Slave && !pawn.IsSlave)
+          return false;
+        if (bill.allowedWorker == AllowedWorker.Mech && !pawn.IsColonyMechPlayerControlled)
+          return false;
+        if (bill.allowedWorker == AllowedWorker.SpecificPawn && pawn != bill.worker)
+          return false;
+
         Thing foundThing = FindMaterials(pawn, bill);
         if (foundThing == null)
           continue;
@@ -153,16 +161,6 @@ namespace ProductionExpanded
           ? true
           : false;
 
-      // We search for things matching the filter
-      // GenClosest.ClosestThingReachable wants a ThingRequest.
-      // Since our filter can have multiple defs, checking for "Undefined" (group) is expensive.
-      // Better to check for the *Group* if possible, or iterate ingredients.
-
-      // If categories are used, it's usually specific defs in allowedIngredients.
-      // If there are many allowed ingredients, this loop could be slow.
-      // Optimally, we search for best ingredient.
-
-      // Simple approach: Search for any item in allowed set
       foreach (ThingDef def in bill.processFilter.allowedIngredients)
       {
         Thing found = GenClosest.ClosestThingReachable(
@@ -171,7 +169,7 @@ namespace ProductionExpanded
           ThingRequest.ForDef(def),
           PathEndMode.ClosestTouch,
           TraverseParms.For(pawn),
-          9999f,
+          bill.ingredientSearchRadius,
           validator
         );
 

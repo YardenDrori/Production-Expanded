@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-    <ThingCategoryDef>
-        <defName>PE_RawWools</defName>
-        <label>raw wools</label>
-        <parent>Wools</parent>
-        <iconPath>UI/Icons/ThingCategories/Wools</iconPath>
-        <resourceReadoutRoot>true</resourceReadoutRoot>
-    </ThingCategoryDef>
+  <ThingCategoryDef>
+    <defName>PE_RawWools</defName>
+    <label>raw wools</label>
+    <parent>Wools</parent>
+    <iconPath>UI/Icons/ThingCategories/Wools</iconPath>
+    <resourceReadoutRoot>true</resourceReadoutRoot>
+  </ThingCategoryDef>
 </Defs>

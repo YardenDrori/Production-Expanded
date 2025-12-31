@@ -8,12 +8,6 @@ namespace ProductionExpanded
 {
   public class Building_Processor : Building
   {
-    // ============ PROCESS SELECTION (like BillStack in Building_WorkTable) ============
-
-    /// <summary>
-    /// Active "bills" for this processor.
-    /// Each bill enables a process with specific ingredients and settings (like do X times).
-    /// </summary>
     public List<ProcessBill> activeBills = new List<ProcessBill>();
 
     /// <summary>
@@ -23,9 +17,7 @@ namespace ProductionExpanded
     {
       get
       {
-        return DefDatabase<ProcessDef>.AllDefs
-          .Where(p => p.recipeUsers.Contains(def))
-          .ToList();
+        return DefDatabase<ProcessDef>.AllDefs.Where(p => p.recipeUsers.Contains(def)).ToList();
       }
     }
 
@@ -61,7 +53,11 @@ namespace ProductionExpanded
     {
       foreach (var bill in activeBills)
       {
-        if (bill.processFilter != null && bill.processFilter.Allows(ingredientDef) && !bill.IsFulfilled())
+        if (
+          bill.processFilter != null
+          && bill.processFilter.Allows(ingredientDef)
+          && !bill.IsFulfilled()
+        )
         {
           return bill;
         }
@@ -82,6 +78,13 @@ namespace ProductionExpanded
       bill.processDef = process;
       bill.processFilter = new ProcessFilter(process);
       bill.processFilter.processDef = process; // Link to filter
+      bill.isSuspended = false;
+      bill.repeatMode = ProcessRepeatMode.DoXTimes;
+      bill.x = 10;
+      bill.ingredientSearchRadius = 9999;
+      bill.label = this.def.label;
+      bill.worker = null;
+      bill.destinationStockpile = null;
 
       activeBills.Add(bill);
       return bill;
@@ -110,11 +113,7 @@ namespace ProductionExpanded
       base.ExposeData();
 
       // Save/load active bills
-      Scribe_Collections.Look(
-        ref activeBills,
-        "activeBills",
-        LookMode.Deep
-      );
+      Scribe_Collections.Look(ref activeBills, "activeBills", LookMode.Deep);
 
       // Ensure list is never null after load
       if (activeBills == null)
@@ -131,8 +130,6 @@ namespace ProductionExpanded
         }
       }
     }
-
-    // ============ GRAPHIC (existing code) ============
 
     public override Graphic Graphic
     {

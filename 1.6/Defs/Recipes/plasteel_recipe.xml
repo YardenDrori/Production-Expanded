@@ -1,40 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-    <ProductionExpanded.ProcessDef>
-        <defName>PE_ForgePlasteelArcFurnace</defName>
-        <label>refine plasteel</label>
-        <description>Refine plasteel composite into pure plasteel.</description>
-        <ticksPerItem>4980</ticksPerItem>
-        <cycles>2</cycles>
-        <ratio>1</ratio>
-        <capacityFactor>1</capacityFactor>
-        <ingredientFilter>
-            <thingDefs>
-                <li>PE_UnrefinedPlasteel</li>
-            </thingDefs>
-        </ingredientFilter>
-        <outputDef>Plasteel</outputDef>
-        <recipeUsers>
-            <li>ME_ArcFurnace</li>
-        </recipeUsers>
-    </ProductionExpanded.ProcessDef>
-
-    <ProductionExpanded.ProcessDef>
-        <defName>PE_ForgePlasteelWoodFurnace</defName>
-        <label>extract plasteel</label>
-        <description>Refine plasteel composite into pure plasteel.</description>
-        <ticksPerItem>10000</ticksPerItem>
-        <cycles>3</cycles>
-        <ratio>1</ratio>
-        <capacityFactor>1</capacityFactor>
-        <ingredientFilter>
-            <thingDefs>
-                <li>PE_UnrefinedPlasteel</li>
-            </thingDefs>
-        </ingredientFilter>
-        <outputDef>Plasteel</outputDef>
-        <recipeUsers>
-            <li>ME_WoodFiredFurnace</li>
-        </recipeUsers>
-    </ProductionExpanded.ProcessDef>
+  <ProductionExpanded.ProcessDef>
+    <defName>PE_ForgePlasteelArcFurnace</defName>
+    <label>refine plasteel</label>
+    <description>Refine plasteel composite into pure plasteel.</description>
+    <ticksPerItem>4980</ticksPerItem>
+    <cycles>2</cycles>
+    <ratio>1</ratio>
+    <capacityFactor>2</capacityFactor>
+    <ingredientFilter>
+      <thingDefs>
+        <li>PE_UnrefinedPlasteel</li>
+      </thingDefs>
+    </ingredientFilter>
+    <outputDef>Plasteel</outputDef>
+    <recipeUsers>
+      <li>ME_ArcFurnace</li>
+    </recipeUsers>
+  </ProductionExpanded.ProcessDef>
+  <ProductionExpanded.ProcessDef>
+    <defName>PE_ForgePlasteelWoodFurnace</defName>
+    <label>extract plasteel</label>
+    <description>Refine plasteel composite into pure plasteel.</description>
+    <ticksPerItem>10000</ticksPerItem>
+    <cycles>3</cycles>
+    <ratio>1</ratio>
+    <capacityFactor>3</capacityFactor>
+    <ingredientFilter>
+      <thingDefs>
+        <li>PE_UnrefinedPlasteel</li>
+      </thingDefs>
+    </ingredientFilter>
+    <outputDef>Plasteel</outputDef>
+    <recipeUsers>
+      <li>ME_WoodFiredFurnace</li>
+    </recipeUsers>
+  </ProductionExpanded.ProcessDef>
 </Defs>
