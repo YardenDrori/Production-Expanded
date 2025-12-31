@@ -221,7 +221,7 @@ namespace ProductionExpanded
     //
     // }
 
-    public void AddMaterials(Bill_Production bill, int inputCount, Thing inputThing)
+    public void AddMaterials(Bill_Production bill, int inputCount)
     {
       inspectStringDirty = true;
       if (bill.recipe == null)
@@ -261,31 +261,6 @@ namespace ProductionExpanded
       }
 
       int ticksPerItem = recipe.ticksPerItem;
-
-      // Determine input/output types
-      // For generic recipes (inputType = null), determine dynamically based on the input thing
-      ThingDef actualInputType = recipe.inputType;
-      ThingDef actualOutputType = recipe.outputType;
-
-      if (recipe.inputType == null && inputThing != null)
-      {
-        // Generic recipe - determine output based on input
-        actualInputType = inputThing.def;
-
-        // Check if this is a raw leather -> finished leather conversion
-        ThingDef finishedLeather = RawLeatherDefGenerator.GetFinishedLeather(inputThing.def);
-        if (finishedLeather != null)
-        {
-          actualOutputType = finishedLeather;
-        }
-        else
-        {
-          Log.Error(
-            $"[Production Expanded] Generic recipe could not determine output for input {inputThing.def.defName}"
-          );
-          actualOutputType = actualInputType; // Fallback to same type
-        }
-      }
 
       if (isProcessing)
       {
@@ -327,8 +302,8 @@ namespace ProductionExpanded
       {
         totalTicksPerCycle = ticksPerItem * 10;
       }
-      this.inputType = actualInputType;
-      this.outputType = actualOutputType;
+      this.inputType = recipe.inputType;
+      this.outputType = recipe.outputType;
       this.cycles = recipe.cycles;
       this.inputCount = inputCount;
       this.outputCount = (int)(inputCount / recipe.ratio);
