@@ -4,7 +4,7 @@ using Verse;
 
 namespace ProductionExpanded
 {
-  public class Building_Processor : Building_WorkTable
+  public class Building_Processor : Building
   {
     public override Graphic Graphic
     {
