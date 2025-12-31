@@ -46,6 +46,13 @@ namespace ProductionExpanded
         // RimWorld will call PostLoad/ResolveReferences during its normal def resolution phase
         DefGenerator.AddImpliedDef(rawLeather);
 
+        // Manually add to category children since ResolveReferences has already run
+        var rawLeatherCategory = DefDatabase<ThingCategoryDef>.GetNamed("PE_RawLeathers", true);
+        if (rawLeatherCategory != null && !rawLeatherCategory.childThingDefs.Contains(rawLeather))
+        {
+          rawLeatherCategory.childThingDefs.Add(rawLeather);
+        }
+
         // Register with central registry
         RawToFinishedRegistry.Register(rawLeather, finishedLeather);
 
@@ -55,6 +62,13 @@ namespace ProductionExpanded
       Log.Message(
         $"[Production Expanded] Generated {generated} raw leather definitions from {allLeathers.Count} finished leathers."
       );
+
+      // Re-resolve all ProcessDef filters because they may have cached an empty list
+      // before we populated the PE_RawLeathers category.
+      foreach (var processDef in DefDatabase<ProcessDef>.AllDefs)
+      {
+        processDef.ResolveReferences();
+      }
     }
 
     private static ThingDef CreateRawLeatherDef(ThingDef finishedLeather)

@@ -64,6 +64,12 @@ namespace ProductionExpanded
         description =
           $"Raw wool freshly sheared from an animal. Still contains natural oils, dirt, and debris that make it unsuitable for weaving. Must be cleaned and spun into usable wool fabric. <link=\"{finishedWool.defName}\">{finishedWool.label}</link>",
 
+        // Categories
+        thingCategories = new List<ThingCategoryDef>
+        {
+          DefDatabase<ThingCategoryDef>.GetNamed("PE_RawWools", true),
+        },
+
         // Graphics - use category-based texture with color tint
         graphicData = new GraphicData
         {

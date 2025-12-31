@@ -21,7 +21,7 @@ namespace ProductionExpanded
         yield break;
       }
 
-      foreach (Building_WorkTable processor in tracker.processorsNeedingEmpty)
+      foreach (Building_Processor processor in tracker.processorsNeedingEmpty)
       {
         yield return processor;
       }

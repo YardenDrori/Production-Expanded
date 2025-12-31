@@ -1,32 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <RootNamespace>ProductionExpanded</RootNamespace>
-    <AssemblyName>ProductionExpanded</AssemblyName>
-    <OutputPath>../../1.6/Assemblies/</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <ItemGroup>
-    <!-- RimWorld core game DLL (contains all game code: Verse, RimWorld namespaces) -->
-    <Reference Include="Assembly-CSharp">
-      <HintPath>/home/jordan/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
-      <!-- abbove is Linux version below is macos version -->
-      <!-- <HintPath>/Users/yardendrori/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Contents/Resources/Data/Managed/Assembly-CSharp.dll</HintPath> -->
-      <Private>False</Private>
-    </Reference>
-    <!-- Unity engine DLL (UnityEngine namespace) -->
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>/home/jordan/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
-      <!-- abbove is Linux version below is macos version -->
-      <!-- <HintPath>/Users/yardendrori/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Contents/Resources/Data/Managed/UnityEngine.CoreModule.dll</HintPath> -->
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>../../1.6/Assemblies/0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <RootNamespace>ProductionExpanded</RootNamespace>
+        <AssemblyName>ProductionExpanded</AssemblyName>
+        <OutputPath>../../1.6/Assemblies/</OutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <DebugType>portable</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
+    <ItemGroup>
+        <!-- RimWorld core game DLL (contains all game code: Verse, RimWorld namespaces) -->
+        <Reference Include="Assembly-CSharp">
+            <HintPath>/home/jordan/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
+            <!-- abbove is Linux version below is macos version -->
+            <!-- <HintPath>/Users/yardendrori/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Contents/Resources/Data/Managed/Assembly-CSharp.dll</HintPath> -->
+            <Private>False</Private>
+        </Reference>
+        <!-- Unity engine DLL (UnityEngine namespace) -->
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>/home/jordan/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
+            <!-- abbove is Linux version below is macos version -->
+            <!-- <HintPath>/Users/yardendrori/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Contents/Resources/Data/Managed/UnityEngine.CoreModule.dll</HintPath> -->
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.IMGUIModule">
+            <HintPath>/home/jordan/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux_Data/Managed/UnityEngine.IMGUIModule.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>/home/jordan/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux_Data/Managed/UnityEngine.TextRenderingModule.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="0Harmony">
+            <HintPath>../../1.6/Assemblies/0Harmony.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+    </ItemGroup>
 </Project>

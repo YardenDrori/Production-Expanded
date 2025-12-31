@@ -5,7 +5,7 @@
     <label>tanning drum</label>
     <description>A rotating drum that soaks raw hides in tannin solution, preserving and softening them into usable leather.</description>
     <inspectorTabs>
-      <li>ITab_Bills</li>
+      <li>ProductionExpanded.ITab_ProcessSelection</li>
     </inspectorTabs>
     <thingClass>ProductionExpanded.Building_Processor</thingClass>
     <drawerType>MapMeshAndRealTime</drawerType>
@@ -13,7 +13,7 @@
       <texPath>Things/Building/Production/Tanning_Drum/TanningDrum</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <shaderType>CutoutComplex</shaderType>
-      <drawSize>(3.5,2.5)</drawSize>
+      <drawSize>(4,3)</drawSize>
       <shadowData>
         <volume>(2.8, 0.35, 0.59)</volume>
         <offset>(0, 0, 0.08)</offset>

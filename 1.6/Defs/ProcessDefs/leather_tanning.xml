@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <ProductionExpanded.ProcessDef>
+        <defName>PE_Process_TanLeather</defName>
+        <label>tan leather</label>
+        <description>Tan raw hides into finished leather.</description>
+        <ingredientFilter>
+            <categories>
+                <li>PE_RawLeathers</li>
+            </categories>
+        </ingredientFilter>
+        <recipeUsers>
+            <li>PE_TanningDrum</li>
+        </recipeUsers>
+        <ticksPerItem>2500</ticksPerItem>
+        <ratio>1.0</ratio>
+        <capacityFactor>1</capacityFactor>
+    </ProductionExpanded.ProcessDef>
+</Defs>

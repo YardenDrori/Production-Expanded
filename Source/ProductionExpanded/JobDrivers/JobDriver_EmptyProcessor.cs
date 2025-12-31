@@ -10,8 +10,8 @@ namespace ProductionExpanded
     private const TargetIndex ProcessorInd = TargetIndex.A;
     private const TargetIndex ItemInd = TargetIndex.B;
 
-    protected Building_WorkTable Processor =>
-      (Building_WorkTable)job.GetTarget(TargetIndex.A).Thing;
+    protected Building_Processor Processor =>
+      (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
     {

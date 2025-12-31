@@ -1,148 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <!-- Process raw wood logs into lumber -->
-  <RecipeDef>
-    <defName>PE_ProcessWoodToLumber</defName>
-    <label>process wood into lumber</label>
-    <description>Process raw wood logs into lumber planks suitable for construction.</description>
-    <jobString>Processing wood.</jobString>
-    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
-    <effectWorking>Smelt</effectWorking>
-    <soundWorking>Recipe_MakeBow</soundWorking>
-    <workAmount>70</workAmount>
-    <ingredients>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>WoodRaw</li>
-          </thingDefs>
-        </filter>
-        <count>1</count>
-      </li>
-    </ingredients>
-    <products>
-      <WoodLog>1</WoodLog>
-    </products>
-    <skillRequirements>
-      <Crafting>0</Crafting>
-    </skillRequirements>
-    <recipeUsers>
-      <li>CraftingSpot</li>
-      <!-- <li>TableMachining</li> -->
-    </recipeUsers>
-    <displayPriority>30</displayPriority>
-  </RecipeDef>
-  <!-- Bulk version -->
-  <RecipeDef>
-    <defName>PE_ProcessWoodToLumberBulk</defName>
-    <label>process wood into lumber x4</label>
-    <description>Process raw wood logs into lumber planks suitable for construction. This recipe produces four times the normal amount.</description>
-    <jobString>Processing wood.</jobString>
-    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
-    <effectWorking>Smelt</effectWorking>
-    <soundWorking>Recipe_MakeBow</soundWorking>
-    <workAmount>700</workAmount>
-    <ingredients>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>WoodRaw</li>
-          </thingDefs>
-        </filter>
-        <count>10</count>
-      </li>
-    </ingredients>
-    <products>
-      <WoodLog>10</WoodLog>
-    </products>
-    <skillRequirements>
-      <Crafting>1</Crafting>
-    </skillRequirements>
-    <recipeUsers>
-      <li>CraftingSpot</li>
-      <!-- <li>TableMachining</li> -->
-    </recipeUsers>
-    <displayPriority>29</displayPriority>
-  </RecipeDef>
-  <!-- Process raw wood logs into lumber -->
-  <RecipeDef>
-    <defName>PE_ProcessWoodToLumberViaSaw</defName>
-    <label>process wood into lumber</label>
-    <description>Process raw wood logs into lumber planks suitable for construction.</description>
-    <jobString>Processing wood.</jobString>
-    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
-    <effectWorking>Smelt</effectWorking>
-    <soundWorking>Recipe_MakeBow</soundWorking>
-    <workAmount>35</workAmount>
-    <ingredients>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>WoodRaw</li>
-          </thingDefs>
-        </filter>
-        <count>1</count>
-      </li>
-    </ingredients>
-    <products>
-      <WoodLog>1</WoodLog>
-    </products>
-    <skillRequirements>
-      <Crafting>2</Crafting>
-    </skillRequirements>
-    <recipeUsers>
-      <li>PE_SawTable</li>
-      <!-- <li>TableMachining</li> -->
-    </recipeUsers>
-    <displayPriority>30</displayPriority>
-  </RecipeDef>
-  <!-- Bulk version -->
-  <RecipeDef>
-    <defName>PE_ProcessWoodToLumberViaSawBulk</defName>
-    <label>process wood into lumber x4</label>
-    <description>Process raw wood logs into lumber planks suitable for construction. This recipe produces four times the normal amount.</description>
-    <jobString>Processing wood.</jobString>
-    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
-    <effectWorking>Smelt</effectWorking>
-    <soundWorking>Recipe_MakeBow</soundWorking>
-    <workAmount>350</workAmount>
-    <ingredients>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>WoodRaw</li>
-          </thingDefs>
-        </filter>
-        <count>10</count>
-      </li>
-    </ingredients>
-    <products>
-      <WoodLog>10</WoodLog>
-    </products>
-    <skillRequirements>
-      <Crafting>4</Crafting>
-    </skillRequirements>
-    <recipeUsers>
-      <li>PE_SawTable</li>
-      <!-- <li>TableMachining</li> -->
-    </recipeUsers>
-    <displayPriority>29</displayPriority>
-  </RecipeDef>
-  <ProductionExpanded.ProcessorRecipeDef>
-    <defName>PE_ProcessWoodViaAutoSaw</defName>
-    <label>refine lumber</label>
-    <description>Refine logs into lumber.</description>
-    <ticksPerItem>1600</ticksPerItem>
-    <cycles>1</cycles>
-    <ratio>1</ratio>
-    <inputType>WoodRaw</inputType>
-    <outputType>WoodLog</outputType>
-    <recipeUsers>
-      <li>PE_AutoSawTable</li>
-    </recipeUsers>
-    <products>
-      <WoodLog>1</WoodLog>
-    </products>
-    <displayPriority>300</displayPriority>
-  </ProductionExpanded.ProcessorRecipeDef>
+    <!-- Process raw wood logs into lumber -->
+    <RecipeDef>
+        <defName>PE_ProcessWoodToLumber</defName>
+        <label>process wood into lumber</label>
+        <description>Process raw wood logs into lumber planks suitable for construction.</description>
+        <jobString>Processing wood.</jobString>
+        <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+        <effectWorking>Smelt</effectWorking>
+        <soundWorking>Recipe_MakeBow</soundWorking>
+        <workAmount>70</workAmount>
+        <ingredients>
+            <li>
+                <filter>
+                    <thingDefs>
+                        <li>WoodRaw</li>
+                    </thingDefs>
+                </filter>
+                <count>1</count>
+            </li>
+        </ingredients>
+        <products>
+            <WoodLog>1</WoodLog>
+        </products>
+        <skillRequirements>
+            <Crafting>0</Crafting>
+        </skillRequirements>
+        <recipeUsers>
+            <li>CraftingSpot</li>
+            <!-- <li>TableMachining</li> -->
+        </recipeUsers>
+        <displayPriority>30</displayPriority>
+    </RecipeDef>
+    <!-- Bulk version -->
+    <RecipeDef>
+        <defName>PE_ProcessWoodToLumberBulk</defName>
+        <label>process wood into lumber x4</label>
+        <description>Process raw wood logs into lumber planks suitable for construction. This recipe produces four times the normal amount.</description>
+        <jobString>Processing wood.</jobString>
+        <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+        <effectWorking>Smelt</effectWorking>
+        <soundWorking>Recipe_MakeBow</soundWorking>
+        <workAmount>700</workAmount>
+        <ingredients>
+            <li>
+                <filter>
+                    <thingDefs>
+                        <li>WoodRaw</li>
+                    </thingDefs>
+                </filter>
+                <count>10</count>
+            </li>
+        </ingredients>
+        <products>
+            <WoodLog>10</WoodLog>
+        </products>
+        <skillRequirements>
+            <Crafting>1</Crafting>
+        </skillRequirements>
+        <recipeUsers>
+            <li>CraftingSpot</li>
+            <!-- <li>TableMachining</li> -->
+        </recipeUsers>
+        <displayPriority>29</displayPriority>
+    </RecipeDef>
+    <!-- Process raw wood logs into lumber -->
+    <RecipeDef>
+        <defName>PE_ProcessWoodToLumberViaSaw</defName>
+        <label>process wood into lumber</label>
+        <description>Process raw wood logs into lumber planks suitable for construction.</description>
+        <jobString>Processing wood.</jobString>
+        <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+        <effectWorking>Smelt</effectWorking>
+        <soundWorking>Recipe_MakeBow</soundWorking>
+        <workAmount>35</workAmount>
+        <ingredients>
+            <li>
+                <filter>
+                    <thingDefs>
+                        <li>WoodRaw</li>
+                    </thingDefs>
+                </filter>
+                <count>1</count>
+            </li>
+        </ingredients>
+        <products>
+            <WoodLog>1</WoodLog>
+        </products>
+        <skillRequirements>
+            <Crafting>2</Crafting>
+        </skillRequirements>
+        <recipeUsers>
+            <li>PE_SawTable</li>
+            <!-- <li>TableMachining</li> -->
+        </recipeUsers>
+        <displayPriority>30</displayPriority>
+    </RecipeDef>
+    <!-- Bulk version -->
+    <RecipeDef>
+        <defName>PE_ProcessWoodToLumberViaSawBulk</defName>
+        <label>process wood into lumber x4</label>
+        <description>Process raw wood logs into lumber planks suitable for construction. This recipe produces four times the normal amount.</description>
+        <jobString>Processing wood.</jobString>
+        <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+        <effectWorking>Smelt</effectWorking>
+        <soundWorking>Recipe_MakeBow</soundWorking>
+        <workAmount>350</workAmount>
+        <ingredients>
+            <li>
+                <filter>
+                    <thingDefs>
+                        <li>WoodRaw</li>
+                    </thingDefs>
+                </filter>
+                <count>10</count>
+            </li>
+        </ingredients>
+        <products>
+            <WoodLog>10</WoodLog>
+        </products>
+        <skillRequirements>
+            <Crafting>4</Crafting>
+        </skillRequirements>
+        <recipeUsers>
+            <li>PE_SawTable</li>
+            <!-- <li>TableMachining</li> -->
+        </recipeUsers>
+        <displayPriority>29</displayPriority>
+    </RecipeDef>
+    <ProductionExpanded.ProcessDef>
+        <defName>PE_ProcessWoodViaAutoSaw</defName>
+        <label>refine lumber</label>
+        <description>Refine logs into lumber.</description>
+        <ticksPerItem>1600</ticksPerItem>
+        <cycles>1</cycles>
+        <ratio>1</ratio>
+        <capacityFactor>1</capacityFactor>
+        <ingredientFilter>
+            <thingDefs>
+                <li>WoodRaw</li>
+            </thingDefs>
+        </ingredientFilter>
+        <outputDef>WoodLog</outputDef>
+        <recipeUsers>
+            <li>PE_AutoSawTable</li>
+        </recipeUsers>
+    </ProductionExpanded.ProcessDef>
 </Defs>

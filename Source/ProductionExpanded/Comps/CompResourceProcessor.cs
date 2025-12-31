@@ -38,8 +38,14 @@ namespace ProductionExpanded
     private int outputCount = 0;
     private int capacityRemaining = 0;
     private string cachedInfoString = null;
+
+    // Changed: Track the active bill
+    private ProcessBill activeBill = null;
+
+    // Kept for state tracking/display even if bill is deleted mid-process
     private ThingDef inputType = null;
     private ThingDef outputType = null;
+
     private CompPowerTrader powerTrader = null;
     private CompRefuelable refuelable = null;
     private CompHeatPusher heatPusher = null;
@@ -53,17 +59,27 @@ namespace ProductionExpanded
       refuelable = parent.GetComp<CompRefuelable>();
       heatPusher = parent.GetComp<CompHeatPusher>();
       glower = parent.GetComp<CompGlower>();
-      capacityRemaining = Props.maxCapacity;
+      if (!respawningAfterLoad)
+      {
+        capacityRemaining = Props.maxCapacity;
+      }
+
       processorTracker = parent.Map?.GetComponent<MapComponent_ProcessorTracker>();
-      processorTracker.allProcessors.Add((Building_WorkTable)parent);
-      processorTracker.processorsNeedingFill.Add((Building_WorkTable)parent);
 
       // Validate building configuration - log once on spawn
       if (processorTracker == null)
       {
         Log.Error(
-          "[Production Expanded] {parent.def.defName} is not on any map (MapComponent_ProcessorTracker is null)"
+          $"[Production Expanded] {parent.def.defName} is not on any map (MapComponent_ProcessorTracker is null)"
         );
+        return;
+      }
+
+      processorTracker.allProcessors.Add((Building_Processor)parent);
+
+      if (getCapacityRemaining() > 0 && CanContinueProcessing())
+      {
+        processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
       }
 
       // Initialize glower state
@@ -74,7 +90,7 @@ namespace ProductionExpanded
     {
       previousMap
         ?.GetComponent<MapComponent_ProcessorTracker>()
-        ?.allProcessors.Remove((Building_WorkTable)parent);
+        ?.allProcessors.Remove((Building_Processor)parent);
 
       base.PostDestroy(mode, previousMap);
       // Clean up the glower when building is destroyed
@@ -114,11 +130,11 @@ namespace ProductionExpanded
           }
           if (getCapacityRemaining() > 0)
           {
-            processorTracker.processorsNeedingFill.Add((Building_WorkTable)parent);
+            processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
           }
           else
           {
-            processorTracker.processorsNeedingFill.Remove((Building_WorkTable)parent);
+            processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
           }
           inspectStringDirty = true;
           progressTicks += 250;
@@ -156,18 +172,18 @@ namespace ProductionExpanded
           {
             powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
           }
-          processorTracker.processorsNeedingFill.Remove((Building_WorkTable)parent);
+          processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
         }
       }
       else
       {
         if (CanContinueProcessing())
         {
-          processorTracker.processorsNeedingFill.Add((Building_WorkTable)parent);
+          processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
         }
         else
         {
-          processorTracker.processorsNeedingFill.Remove((Building_WorkTable)parent);
+          processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
         }
         if (heatPusher != null)
         {
@@ -184,11 +200,11 @@ namespace ProductionExpanded
     public void StartNextCycle()
     {
       isWaitingForCycleInteraction = false;
-      processorTracker.processorsNeedingCycleStart.Remove((Building_WorkTable)parent);
+      processorTracker.processorsNeedingCycleStart.Remove((Building_Processor)parent);
 
       if (getCapacityRemaining() > 0 && CanContinueProcessing())
       {
-        processorTracker.processorsNeedingFill.Add((Building_WorkTable)parent);
+        processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
       }
 
       UpdateGlower();
@@ -216,29 +232,28 @@ namespace ProductionExpanded
       return true; // we gucci
     }
 
-    // public void StartProcessing()
-    // {
-    //
-    // }
-
-    public void AddMaterials(Bill_Production bill, int inputCount)
+    public void AddMaterials(ProcessBill bill, Thing ingredient, int inputCount)
     {
       inspectStringDirty = true;
-      if (bill.recipe == null)
+      if (bill == null || bill.processDef == null)
       {
-        Log.Warning("[Production Expanded] Bill doesnt have a recipe");
+        Log.Warning("[Production Expanded] Invalid bill or processDef");
         return;
       }
-      ProcessorRecipeDef recipe = bill.recipe as ProcessorRecipeDef;
-      if (recipe == null)
-      {
-        Log.Error($"[Production Expanded] Bill recipe is not a ProcessorRecipeDef!");
-        return;
-      }
+      ProcessDef process = bill.processDef;
 
       if (isFinished)
       {
         Log.Warning($"[Production Expanded] Tried adding items to Finished processor");
+        return;
+      }
+
+      // If adding to existing batch, strict type check
+      if (isProcessing && ingredient.def != inputType)
+      {
+        Log.Warning(
+          $"[Production Expanded] Tried adding {ingredient.def.label} to processor running on {inputType?.label}"
+        );
         return;
       }
 
@@ -253,14 +268,14 @@ namespace ProductionExpanded
       // Update fill list based on new capacity
       if (getCapacityRemaining() > 0 && CanContinueProcessing())
       {
-        processorTracker.processorsNeedingFill.Add((Building_WorkTable)parent);
+        processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
       }
       else
       {
-        processorTracker.processorsNeedingFill.Remove((Building_WorkTable)parent);
+        processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
       }
 
-      int ticksPerItem = recipe.ticksPerItem;
+      int ticksPerItem = process.ticksPerItem;
 
       if (isProcessing)
       {
@@ -268,7 +283,7 @@ namespace ProductionExpanded
 
         // Add to existing batch
         this.inputCount += inputCount;
-        this.outputCount += (int)(inputCount / recipe.ratio);
+        this.outputCount += (int)(inputCount / process.ratio);
 
         // Recalculate total time with new amount
         totalTicksPerCycle = ticksPerItem * this.inputCount;
@@ -287,11 +302,15 @@ namespace ProductionExpanded
 
         return; // Keep progressTicks unchanged
       }
+
+      // NEW BATCH
       if (heatPusher != null)
       {
         heatPusher.enabled = true;
       }
       isProcessing = true;
+      activeBill = bill; // Track which bill started this
+
       parent.DirtyMapMesh(parent.Map);
       UpdateGlower();
       isWaitingForCycleInteraction = false;
@@ -302,12 +321,20 @@ namespace ProductionExpanded
       {
         totalTicksPerCycle = ticksPerItem * 10;
       }
-      this.inputType = recipe.inputType;
-      this.outputType = recipe.outputType;
-      this.cycles = recipe.cycles;
+
+      // Set input/output types using dynamic resolution
+      this.inputType = ingredient.def;
+      this.outputType = process.GetOutputFor(ingredient.def);
+      if (this.outputType == null)
+      {
+        Log.Error(
+          $"[Production Expanded] Could not resolve output for {ingredient.def.defName} using process {process.defName}"
+        );
+      }
+
+      this.cycles = process.cycles;
       this.inputCount = inputCount;
-      this.outputCount = (int)(inputCount / recipe.ratio);
-      // StartProcessing();
+      this.outputCount = (int)(inputCount / process.ratio);
     }
 
     public void CompleteProcessingCycle()
@@ -315,23 +342,19 @@ namespace ProductionExpanded
       inspectStringDirty = true;
       currentCycle++;
       progressTicks = 0;
-      processorTracker.processorsNeedingFill.Remove((Building_WorkTable)parent);
+      processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
       if (currentCycle >= cycles)
       {
         isProcessing = false;
         parent.DirtyMapMesh(parent.Map);
         UpdateGlower();
         isWaitingForCycleInteraction = false;
-        processorTracker.processorsNeedingEmpty.Add((Building_WorkTable)parent);
+        processorTracker.processorsNeedingEmpty.Add((Building_Processor)parent);
         isFinished = true;
-        inputCount = 0;
-        inputType = null;
-        currentCycle = 0;
-        totalTicksPerCycle = 0;
-        cycles = 0;
+
         return;
       }
-      processorTracker.processorsNeedingCycleStart.Add((Building_WorkTable)parent);
+      processorTracker.processorsNeedingCycleStart.Add((Building_Processor)parent);
       isWaitingForCycleInteraction = true;
       UpdateGlower();
     }
@@ -357,6 +380,12 @@ namespace ProductionExpanded
         // Spawn it at the building's interaction cell
         GenSpawn.Spawn(item, parent.InteractionCell, parent.Map);
 
+        // Decrement bill count if applicable
+        if (activeBill != null && activeBill.repeatMode == ProcessRepeatMode.DoXTimes)
+        {
+          activeBill.x -= outputCount;
+        }
+
         // Reset state
         isFinished = false;
         if (heatPusher != null)
@@ -364,6 +393,8 @@ namespace ProductionExpanded
           heatPusher.enabled = false;
         }
         isProcessing = false;
+        activeBill = null; // Clear active bill
+
         isWaitingForCycleInteraction = false;
         outputType = null;
         outputCount = 0;
@@ -371,9 +402,9 @@ namespace ProductionExpanded
 
         if (CanContinueProcessing())
         {
-          processorTracker.processorsNeedingFill.Add((Building_WorkTable)parent);
+          processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
         }
-        processorTracker.processorsNeedingEmpty.Remove((Building_WorkTable)parent);
+        processorTracker.processorsNeedingEmpty.Remove((Building_Processor)parent);
         UpdateGlower();
       }
       else
@@ -477,24 +508,6 @@ namespace ProductionExpanded
             progressTicks = totalTicksPerCycle - 60;
           },
         };
-        // yield return new Command_Action
-        // {
-        //     defaultLabel = "DEBUG: Print State",
-        //     action = delegate
-        //     {
-        //         Log.Message($"[{parent.def.defName}] State Variables:\n" +
-        //             $"  isFinished: {isFinished}\n" +
-        //             $"  isProcessing: {isProcessing}\n" +
-        //             $"  isWaitingForCycleInteraction: {isWaitingForCycleInteraction}\n" +
-        //             $"  progressTicks: {progressTicks}/{totalTicksPerCycle}\n" +
-        //             $"  currentCycle: {currentCycle}/{cycles}\n" +
-        //             $"  inputCount: {inputCount}\n" +
-        //             $"  outputCount: {outputCount}\n" +
-        //             $"  inputType: {inputType?.defName ?? "null"}\n" +
-        //             $"  outputType: {outputType?.defName ?? "null"}\n" +
-        //             $"  CanContinueProcessing: {CanContinueProcessing()}");
-        //     }
-        // };
       }
     }
 
@@ -521,6 +534,16 @@ namespace ProductionExpanded
     public bool getIsWaitingForNextCycle()
     {
       return isWaitingForCycleInteraction;
+    }
+
+    public ProcessBill GetActiveBill()
+    {
+      return this.activeBill;
+    }
+
+    public ThingDef getInputItem()
+    {
+      return this.inputType;
     }
 
     public CompProperties_ResourceProcessor getProps()

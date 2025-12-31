@@ -20,7 +20,7 @@ namespace ProductionExpanded
       {
         yield break;
       }
-      foreach (Building_WorkTable processor in tracker.processorsNeedingCycleStart)
+      foreach (Building_Processor processor in tracker.processorsNeedingCycleStart)
       {
         yield return processor;
       }

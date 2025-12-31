@@ -11,10 +11,8 @@ namespace ProductionExpanded
 
     private const TargetIndex MaterialsInd = TargetIndex.B;
 
-    private const int Duration = 200;
-
-    protected Building_WorkTable Processor =>
-      (Building_WorkTable)job.GetTarget(TargetIndex.A).Thing;
+    protected Building_Processor Processor =>
+      (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
 
     protected Thing Materials => job.GetTarget(TargetIndex.B).Thing;
 
@@ -70,8 +68,21 @@ namespace ProductionExpanded
       Toil toil = ToilMaker.MakeToil("MakeNewToils");
       toil.initAction = delegate
       {
-        processorComp.AddMaterials((Bill_Production)job.bill, Materials.stackCount);
-        Materials.Destroy();
+        // Re-resolve the bill based on the ingredient we are actually carrying
+        ProcessBill bill = Processor.GetBillForIngredient(Materials.def);
+
+        if (bill != null)
+        {
+          processorComp.AddMaterials(bill, Materials, Materials.stackCount);
+          Materials.Destroy();
+        }
+        else
+        {
+          // If no bill supports this item anymore (e.g. player deleted bill while pawn was hauling)
+          // Drop the item
+          Log.Warning("[Production Expanded] Pawn arrived at processor but no valid bill found for ingredient. Dropping.");
+          GenPlace.TryPlaceThing(Materials, pawn.Position, pawn.Map, ThingPlaceMode.Near);
+        }
       };
       toil.defaultCompleteMode = ToilCompleteMode.Instant;
       yield return toil;
