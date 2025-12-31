@@ -1,40 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-    <ProductionExpanded.ProcessDef>
+    <RecipeDef>
         <defName>PE_ForgeSteelArcFurnace</defName>
         <label>refine steel</label>
         <description>Refine pig iron into steel.</description>
-        <ticksPerItem>1500</ticksPerItem>
-        <cycles>2</cycles>
-        <ratio>1</ratio>
-        <capacityFactor>1</capacityFactor>
-        <ingredientFilter>
-            <thingDefs>
-                <li>PE_PigIron</li>
-            </thingDefs>
-        </ingredientFilter>
-        <outputDef>Steel</outputDef>
+        <jobString>refining steel</jobString>
+        <workAmount>500</workAmount>
         <recipeUsers>
             <li>ME_ArcFurnace</li>
         </recipeUsers>
-    </ProductionExpanded.ProcessDef>
-
-    <ProductionExpanded.ProcessDef>
-        <defName>PE_ForgeSteelWoodFurnace</defName>
-        <label>refine steel</label>
-        <description>Refine pig iron into steel.</description>
-        <ticksPerItem>3700</ticksPerItem>
-        <cycles>3</cycles>
-        <ratio>1</ratio>
-        <capacityFactor>1</capacityFactor>
-        <ingredientFilter>
+        <ingredients>
+            <li>
+                <filter>
+                    <thingDefs>
+                        <li>PE_PigIron</li>
+                    </thingDefs>
+                </filter>
+                <count>1</count>
+            </li>
+        </ingredients>
+        <fixedIngredientFilter>
             <thingDefs>
                 <li>PE_PigIron</li>
             </thingDefs>
-        </ingredientFilter>
-        <outputDef>Steel</outputDef>
+        </fixedIngredientFilter>
+        <products>
+            <Steel>1</Steel>
+        </products>
+        <modExtensions>
+            <li Class="ProductionExpanded.RecipeExtension_Processor">
+                <ticksPerItem>1500</ticksPerItem>
+                <cycles>2</cycles>
+                <capacityFactor>1</capacityFactor>
+            </li>
+        </modExtensions>
+    </RecipeDef>
+
+    <RecipeDef>
+        <defName>PE_ForgeSteelWoodFurnace</defName>
+        <label>refine steel</label>
+        <description>Refine pig iron into steel.</description>
+        <jobString>refining steel</jobString>
+        <workAmount>500</workAmount>
         <recipeUsers>
             <li>ME_WoodFiredFurnace</li>
         </recipeUsers>
-    </ProductionExpanded.ProcessDef>
+        <ingredients>
+            <li>
+                <filter>
+                    <thingDefs>
+                        <li>PE_PigIron</li>
+                    </thingDefs>
+                </filter>
+                <count>1</count>
+            </li>
+        </ingredients>
+        <fixedIngredientFilter>
+            <thingDefs>
+                <li>PE_PigIron</li>
+            </thingDefs>
+        </fixedIngredientFilter>
+        <products>
+            <Steel>1</Steel>
+        </products>
+        <modExtensions>
+            <li Class="ProductionExpanded.RecipeExtension_Processor">
+                <ticksPerItem>3700</ticksPerItem>
+                <cycles>3</cycles>
+                <capacityFactor>1</capacityFactor>
+            </li>
+        </modExtensions>
+    </RecipeDef>
 </Defs>

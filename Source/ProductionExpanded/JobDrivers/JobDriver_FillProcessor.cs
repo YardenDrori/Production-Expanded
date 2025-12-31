@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -8,12 +9,9 @@ namespace ProductionExpanded
   public class JobDriver_FillProcessor : JobDriver
   {
     private const TargetIndex ProcessorInd = TargetIndex.A;
-
     private const TargetIndex MaterialsInd = TargetIndex.B;
 
-    protected Building_Processor Processor =>
-      (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
-
+    protected Building_Processor Processor => (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
     protected Thing Materials => job.GetTarget(TargetIndex.B).Thing;
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -30,46 +28,44 @@ namespace ProductionExpanded
       CompResourceProcessor processorComp = Processor.GetComp<CompResourceProcessor>();
       this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
       this.FailOnBurningImmobile(TargetIndex.A);
-      AddEndCondition(() =>
-        (processorComp.getCapacityRemaining() > 0) ? JobCondition.Ongoing : JobCondition.Succeeded
-      );
-      yield return Toils_General.DoAtomic(
-        delegate
-        {
-          job.count = processorComp.getCapacityRemaining();
-        }
-      );
+
+      AddEndCondition(() => (processorComp.getCapacityRemaining() > 0) ? JobCondition.Ongoing : JobCondition.Succeeded);
+
+      yield return Toils_General.DoAtomic(delegate
+      {
+        job.count = processorComp.getCapacityRemaining();
+      });
+
       Toil reserveMaterials = Toils_Reserve.Reserve(TargetIndex.B);
       yield return reserveMaterials;
-      yield return Toils_Goto
-        .GotoThing(TargetIndex.B, PathEndMode.ClosestTouch)
+
+      yield return Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.ClosestTouch)
         .FailOnDespawnedNullOrForbidden(TargetIndex.B)
         .FailOnSomeonePhysicallyInteracting(TargetIndex.B);
-      yield return Toils_Haul
-        .StartCarryThing(
-          TargetIndex.B,
-          putRemainderInQueue: false,
-          subtractNumTakenFromJobCount: true
-        )
+
+      yield return Toils_Haul.StartCarryThing(TargetIndex.B, false, true)
         .FailOnDestroyedNullOrForbidden(TargetIndex.B);
-      yield return Toils_Haul.CheckForGetOpportunityDuplicate(
-        reserveMaterials,
-        TargetIndex.B,
-        TargetIndex.None,
-        takeFromValidStorage: true
-      );
+
+      yield return Toils_Haul.CheckForGetOpportunityDuplicate(reserveMaterials, TargetIndex.B, TargetIndex.None, true);
+
       yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
-      yield return Toils_General
-        .Wait(200)
+
+      yield return Toils_General.Wait(200)
         .FailOnDestroyedNullOrForbidden(TargetIndex.B)
         .FailOnDestroyedNullOrForbidden(TargetIndex.A)
         .FailOnCannotTouch(TargetIndex.A, PathEndMode.Touch)
         .WithProgressBarToilDelay(TargetIndex.A);
-      Toil toil = ToilMaker.MakeToil("MakeNewToils");
+
+      Toil toil = ToilMaker.MakeToil("FillProcessor");
       toil.initAction = delegate
       {
-        // Re-resolve the bill based on the ingredient we are actually carrying
-        ProcessBill bill = Processor.GetBillForIngredient(Materials.def);
+        Bill_Production bill = (Bill_Production)job.bill;
+
+        // If we are filling an active processor, use the stored active bill
+        if (bill == null && processorComp.getIsProcessing())
+        {
+          bill = processorComp.GetActiveBill();
+        }
 
         if (bill != null)
         {
@@ -78,8 +74,6 @@ namespace ProductionExpanded
         }
         else
         {
-          // If no bill supports this item anymore (e.g. player deleted bill while pawn was hauling)
-          // Drop the item
           Log.Warning("[Production Expanded] Pawn arrived at processor but no valid bill found for ingredient. Dropping.");
           GenPlace.TryPlaceThing(Materials, pawn.Position, pawn.Map, ThingPlaceMode.Near);
         }

@@ -5,7 +5,7 @@
         <label>arc furnace</label>
         <description>TODO</description>
         <inspectorTabs>
-            <li>ProductionExpanded.ITab_ProcessSelection</li>
+            <li>ITab_Bills</li>
         </inspectorTabs>
         <thingClass>ProductionExpanded.Building_Processor</thingClass>
         <drawerType>MapMeshAndRealTime</drawerType>
@@ -99,7 +99,7 @@
         <label>fueled furnace</label>
         <description>TODO</description>
         <inspectorTabs>
-            <li>ProductionExpanded.ITab_ProcessSelection</li>
+            <li>ITab_Bills</li>
         </inspectorTabs>
         <thingClass>ProductionExpanded.Building_Processor</thingClass>
         <drawerType>MapMeshAndRealTime</drawerType>

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -7,12 +8,9 @@ namespace ProductionExpanded
 {
   public class JobDriver_EmptyProcessor : JobDriver
   {
-    private const TargetIndex ProcessorInd = TargetIndex.A;
-    private const TargetIndex ItemInd = TargetIndex.B;
     // C is used for Destination Cell
 
-    protected Building_Processor Processor =>
-      (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
+    protected Building_Processor Processor => (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
     {
@@ -27,30 +25,33 @@ namespace ProductionExpanded
       // Go to processor's interaction cell
       yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
 
-      yield return Toils_General
-        .Wait(90)
+      yield return Toils_General.Wait(90)
         .FailOnDestroyedNullOrForbidden(TargetIndex.A)
         .FailOnCannotTouch(TargetIndex.A, PathEndMode.Touch)
         .WithProgressBarToilDelay(TargetIndex.A);
 
-      // Capture bill settings - ActionWithOutput
-      ActionWithOutput storeMode = ActionWithOutput.HaulToBestStockpile;
+      // Capture bill settings from vanilla system
+      BillStoreModeDef storeMode = BillStoreModeDefOf.BestStockpile;
       Zone_Stockpile specificStockpile = null;
 
       Toil captureSettings = ToilMaker.MakeToil("CaptureSettings");
       captureSettings.initAction = delegate
       {
         CompResourceProcessor comp = Processor.GetComp<CompResourceProcessor>();
-        ProcessBill active = comp?.GetActiveBill();
+        Bill_Production active = comp?.GetActiveBill();
         if (active != null)
         {
-          storeMode = active.actionWithOutput;
-          specificStockpile = active.destinationStockpile;
+          storeMode = active.GetStoreMode();
+          ISlotGroup group = active.GetSlotGroup();
+          if (group is SlotGroup slotGroup && slotGroup.parent is Zone_Stockpile zone)
+          {
+            specificStockpile = zone;
+          }
         }
       };
       yield return captureSettings;
 
-      // Empty the processor (this spawns items at interaction cell)
+      // Empty the processor
       Toil emptyToil = ToilMaker.MakeToil("EmptyProcessor");
       emptyToil.initAction = delegate
       {
@@ -75,7 +76,8 @@ namespace ProductionExpanded
         }
         else
         {
-          if (storeMode != ActionWithOutput.DropOnFloor)
+          // If no item spawned or invalid
+          if (storeMode != BillStoreModeDefOf.DropOnFloor)
             pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
           else
             pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
@@ -84,25 +86,25 @@ namespace ProductionExpanded
       findItemsToil.defaultCompleteMode = ToilCompleteMode.Instant;
       yield return findItemsToil;
 
-      // Check Store Mode logic
+      // Check Drop Mode
       Toil checkStoreMode = ToilMaker.MakeToil("CheckStoreMode");
       checkStoreMode.initAction = delegate
       {
-        if (storeMode == ActionWithOutput.DropOnFloor)
+        if (storeMode == BillStoreModeDefOf.DropOnFloor)
         {
           pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
         }
       };
       yield return checkStoreMode;
 
-      // Reserve the spawned items
+      // Reserve items
       yield return Toils_Reserve.Reserve(TargetIndex.B);
 
-      // Go pick up the items
+      // Pick up
       yield return Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.ClosestTouch);
       yield return Toils_Haul.StartCarryThing(TargetIndex.B);
 
-      // Find destination for hauling
+      // Find destination
       Toil findDest = ToilMaker.MakeToil("FindDestination");
       findDest.initAction = delegate
       {
@@ -117,9 +119,10 @@ namespace ProductionExpanded
         IntVec3 dest = IntVec3.Invalid;
         bool found = false;
 
-        // Try specific stockpile if requested
-        if (storeMode == ActionWithOutput.HaulToSpecificStockpile && specificStockpile != null)
+        // Specific Stockpile
+        if (storeMode == BillStoreModeDefOf.SpecificStockpile && specificStockpile != null)
         {
+          // Vanilla helper might be better here, but StoreUtility is good
           foreach (IntVec3 cell in specificStockpile.Cells)
           {
             if (StoreUtility.IsGoodStoreCell(cell, actor.Map, item, actor, actor.Faction))
@@ -131,7 +134,7 @@ namespace ProductionExpanded
           }
         }
 
-        // Fallback to best stockpile if specific failed or not requested
+        // Best Stockpile (Fallback)
         if (!found)
         {
           if (StoreUtility.TryFindBestBetterStoreCellFor(item, actor, actor.Map, StoragePriority.Unstored, actor.Faction, out IntVec3 c))
@@ -147,14 +150,14 @@ namespace ProductionExpanded
         }
         else
         {
-          // No valid storage found, drop it here and end job
+          // No storage found, drop
           actor.jobs.EndCurrentJob(JobCondition.Succeeded);
         }
       };
       findDest.defaultCompleteMode = ToilCompleteMode.Instant;
       yield return findDest;
 
-      // Haul to calculated destination
+      // Haul
       yield return Toils_Haul.CarryHauledThingToCell(TargetIndex.C);
       yield return Toils_Haul.PlaceHauledThingInCell(TargetIndex.C, null, false);
     }

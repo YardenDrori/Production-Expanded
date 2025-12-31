@@ -63,11 +63,25 @@ namespace ProductionExpanded
         $"[Production Expanded] Generated {generated} raw leather definitions from {allLeathers.Count} finished leathers."
       );
 
-      // Re-resolve all ProcessDef filters because they may have cached an empty list
-      // before we populated the PE_RawLeathers category.
-      foreach (var processDef in DefDatabase<ProcessDef>.AllDefs)
+      // Re-resolve vanilla RecipeDefs because their ingredient filters might have cached 
+      // an empty list before we populated the PE_RawLeathers category.
+      foreach (var recipe in DefDatabase<RecipeDef>.AllDefs)
       {
-        processDef.ResolveReferences();
+        // We specifically target recipes that might use our categories
+        if (recipe.defName.StartsWith("PE_"))
+        {
+          if (recipe.ingredients != null)
+          {
+            foreach (var ing in recipe.ingredients)
+            {
+              ing.ResolveReferences();
+            }
+          }
+          if (recipe.fixedIngredientFilter != null)
+          {
+            recipe.fixedIngredientFilter.ResolveReferences();
+          }
+        }
       }
     }
 
@@ -139,6 +153,7 @@ namespace ProductionExpanded
         alwaysHaulable = true,
         rotatable = false,
         pathCost = DefGenerator.StandardItemPathCost,
+        hiddenWhileUndiscovered = false,
 
         // Thing class
         thingClass = typeof(ThingWithComps),

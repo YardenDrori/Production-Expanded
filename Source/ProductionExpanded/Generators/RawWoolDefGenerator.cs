@@ -51,6 +51,22 @@ namespace ProductionExpanded
       Log.Message(
         $"[Production Expanded] Generated {generated} raw wool definitions from {allWool.Count} finished wools."
       );
+
+      // Re-resolve vanilla RecipeDefs
+      foreach (var recipe in DefDatabase<RecipeDef>.AllDefs)
+      {
+        if (recipe.defName.StartsWith("PE_"))
+        {
+          if (recipe.ingredients != null)
+          {
+            foreach (var ing in recipe.ingredients) ing.ResolveReferences();
+          }
+          if (recipe.fixedIngredientFilter != null)
+          {
+            recipe.fixedIngredientFilter.ResolveReferences();
+          }
+        }
+      }
     }
 
     private static ThingDef CreateRawLeatherDef(ThingDef finishedWool)
@@ -111,6 +127,7 @@ namespace ProductionExpanded
         alwaysHaulable = true,
         rotatable = false,
         pathCost = DefGenerator.StandardItemPathCost,
+        hiddenWhileUndiscovered = false,
 
         // Thing class
         thingClass = typeof(ThingWithComps),
