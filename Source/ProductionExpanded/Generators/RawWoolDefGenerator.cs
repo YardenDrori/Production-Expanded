@@ -9,11 +9,6 @@ namespace ProductionExpanded
   [StaticConstructorOnStartup]
   public static class RawWoolDefGenerator
   {
-    // Cached mapping: finished leather -> raw leather
-    public static Dictionary<ThingDef, ThingDef> FinishedToRawMap =
-      new Dictionary<ThingDef, ThingDef>();
-    public static Dictionary<ThingDef, ThingDef> RawToFinishedMap =
-      new Dictionary<ThingDef, ThingDef>();
 
     static RawWoolDefGenerator()
     {
@@ -47,9 +42,8 @@ namespace ProductionExpanded
         // RimWorld will call PostLoad/ResolveReferences during its normal def resolution phase
         DefGenerator.AddImpliedDef(rawWool);
 
-        // Cache the mapping
-        FinishedToRawMap[finishedWool] = rawWool;
-        RawToFinishedMap[rawWool] = finishedWool;
+        // Register with central registry
+        RawToFinishedRegistry.Register(rawWool, finishedWool);
 
         generated++;
       }
@@ -136,24 +130,6 @@ namespace ProductionExpanded
         finishedWool.burnableByRecipe = true;
 
       return rawWool;
-    }
-
-    /// <summary>
-    /// Gets the raw version of a finished leather. Returns null if not found.
-    /// </summary>
-    public static ThingDef GetRawWool(ThingDef finishedWool)
-    {
-      FinishedToRawMap.TryGetValue(finishedWool, out var raw);
-      return raw;
-    }
-
-    /// <summary>
-    /// Gets the finished version of a raw leather. Returns null if not found.
-    /// </summary>
-    public static ThingDef GetFinishedWool(ThingDef rawWool)
-    {
-      RawToFinishedMap.TryGetValue(rawWool, out var finished);
-      return finished;
     }
   }
 }

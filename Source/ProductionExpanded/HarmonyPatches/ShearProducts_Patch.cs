@@ -18,7 +18,7 @@ namespace ProductionExpanded.HarmonyPatches
         .Create(__instance)
         .Property("ResourceDef")
         .GetValue<ThingDef>();
-      ThingDef rawWool = RawWoolDefGenerator.GetRawWool(finishedWool);
+      ThingDef rawWool = RawToFinishedRegistry.GetRaw(finishedWool);
       if (rawWool != null)
       {
         //extract internal values

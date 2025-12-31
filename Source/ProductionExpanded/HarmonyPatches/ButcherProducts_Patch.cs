@@ -23,7 +23,7 @@ namespace ProductionExpanded.HarmonyPatches
       foreach (var thing in __result)
       {
         // Check if this is a finished leather
-        var rawLeather = RawLeatherDefGenerator.GetRawLeather(thing.def);
+        var rawLeather = RawToFinishedRegistry.GetRaw(thing.def);
 
         if (rawLeather != null)
         {
