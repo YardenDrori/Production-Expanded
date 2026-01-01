@@ -313,16 +313,11 @@ namespace ProductionExpanded
         this.inputCount += count;
 
         // Calculate additional output based on recipe
-        if (bill.recipe.products != null && bill.recipe.products.Count > 0)
-        {
-          float ratio = settings?.ratio ?? 1.0f;
-          int additionalOutput = Mathf.Max(1, (int)(count * ratio));
-          this.outputCount += additionalOutput;
-        }
-        else
-        {
-          Log.Error("[Production Expanded] Failed to find bill information");
-        }
+        float ratio =
+          settings?.ratio
+          ?? ((float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count);
+        int additionalOutput = Mathf.Max(1, (int)(count * ratio));
+        this.outputCount += additionalOutput;
 
         totalTicksPerCycle = ticksPerItem * this.inputCount;
 
