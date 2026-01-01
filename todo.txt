@@ -7,3 +7,4 @@ make cusom research be positioned correctly
 fix building item x2 capaity factor not working
 add gizmo to see max capacity
 fix timber texture
+wool doesnt output correct amount
