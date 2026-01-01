@@ -14,7 +14,6 @@ namespace ProductionExpanded
   [StaticConstructorOnStartup]
   public static class RawLeatherDefGenerator
   {
-
     static RawLeatherDefGenerator()
     {
       // Run after defs are loaded but before game starts
@@ -73,6 +72,8 @@ namespace ProductionExpanded
         $"[Production Expanded] Generated {generated} raw leather definitions from {allLeathers.Count} finished leathers."
       );
 
+      RimWorld.ResourceCounter.ResetDefs();
+
       // Re-resolve vanilla RecipeDefs because their ingredient filters might have cached
       // an empty list before we populated the PE_RawLeathers category.
       foreach (var recipe in DefDatabase<RecipeDef>.AllDefs)
@@ -90,6 +91,10 @@ namespace ProductionExpanded
           if (recipe.fixedIngredientFilter != null)
           {
             recipe.fixedIngredientFilter.ResolveReferences();
+          }
+          if (recipe.defaultIngredientFilter != null)
+          {
+            recipe.defaultIngredientFilter.ResolveReferences();
           }
         }
       }

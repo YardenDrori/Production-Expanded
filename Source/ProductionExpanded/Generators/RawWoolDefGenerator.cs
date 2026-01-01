@@ -9,7 +9,6 @@ namespace ProductionExpanded
   [StaticConstructorOnStartup]
   public static class RawWoolDefGenerator
   {
-
     static RawWoolDefGenerator()
     {
       // Run after defs are loaded but before game starts
@@ -32,7 +31,6 @@ namespace ProductionExpanded
 
       foreach (var finishedWool in allWool)
       {
-        // Skip if already a raw leather (prevents infinite loops)
         if (finishedWool.defName.StartsWith("PE_RawWool_"))
           continue;
 
@@ -69,6 +67,8 @@ namespace ProductionExpanded
         $"[Production Expanded] Generated {generated} raw wool definitions from {allWool.Count} finished wools."
       );
 
+      RimWorld.ResourceCounter.ResetDefs();
+
       // Re-resolve vanilla RecipeDefs
       foreach (var recipe in DefDatabase<RecipeDef>.AllDefs)
       {
@@ -76,11 +76,16 @@ namespace ProductionExpanded
         {
           if (recipe.ingredients != null)
           {
-            foreach (var ing in recipe.ingredients) ing.ResolveReferences();
+            foreach (var ing in recipe.ingredients)
+              ing.ResolveReferences();
           }
           if (recipe.fixedIngredientFilter != null)
           {
             recipe.fixedIngredientFilter.ResolveReferences();
+          }
+          if (recipe.defaultIngredientFilter != null)
+          {
+            recipe.defaultIngredientFilter.ResolveReferences();
           }
         }
       }
@@ -112,16 +117,14 @@ namespace ProductionExpanded
           colorTwo = finishedWool.graphicData?.colorTwo ?? Color.white,
         },
 
-        // Sound effects (copy from finished leather or use defaults)
         soundDrop = finishedWool.soundDrop ?? SoundDefOf.Standard_Drop,
         soundPickup = finishedWool.soundPickup ?? SoundDefOf.Standard_Pickup,
         soundInteract = finishedWool.soundInteract,
 
-        // Base stats (raw leather is heavier, deteriorates faster than finished)
         statBases = new List<StatModifier>
         {
           new StatModifier { stat = StatDefOf.MaxHitPoints, value = 40 },
-          new StatModifier { stat = StatDefOf.DeteriorationRate, value = 4 }, // 2x vanilla leather
+          new StatModifier { stat = StatDefOf.DeteriorationRate, value = 4 },
           new StatModifier { stat = StatDefOf.Mass, value = 0.04f }, // Slightly heavier
           new StatModifier { stat = StatDefOf.Flammability, value = 1f }, // More flammable (not treated)
           new StatModifier
@@ -157,15 +160,10 @@ namespace ProductionExpanded
         comps = new List<CompProperties>
         {
           new CompProperties_Forbiddable(),
-          new CompProperties_Rottable
-          {
-            daysToRotStart = 180, // Rots faster than finished leather (not preserved)
-            rotDestroys = true,
-          },
+          new CompProperties_Rottable { daysToRotStart = 180, rotDestroys = true },
         },
       };
 
-      // Copy some properties from finished leather
       if (finishedWool.burnableByRecipe)
         finishedWool.burnableByRecipe = true;
 

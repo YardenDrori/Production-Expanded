@@ -7,6 +7,7 @@ namespace ProductionExpanded
 {
   public class CompProperties_ResourceProcessor : CompProperties
   {
+    public float minimumItemsPrecentageForWorkTime = 0.25f;
     public int maxCapacity = 50;
     public bool usesOnTexture = false;
     public bool hasIdlePowerCost = false;
@@ -27,6 +28,7 @@ namespace ProductionExpanded
     private bool isFinished = false;
     private bool isWaitingForCycleInteraction = false;
     private bool previousCanContinue = false;
+    private bool isInspectStringDirty = true;
 
     // Progress
     private int progressTicks = 0;
@@ -52,6 +54,25 @@ namespace ProductionExpanded
     private CompHeatPusher heatPusher = null;
     private CompGlower glower = null;
     private MapComponent_ProcessorTracker processorTracker = null;
+
+    private string inspectMessageCahce;
+
+    // Standard accessors
+    public bool getIsProcessing() => isProcessing;
+
+    public bool getIsFinished() => isFinished;
+
+    public int getCapacityRemaining() => capacityRemaining;
+
+    public bool getIsReady() => CanContinueProcessing();
+
+    public bool getIsWaitingForNextCycle() => isWaitingForCycleInteraction;
+
+    public Bill_Production GetActiveBill() => activeBill;
+
+    public ThingDef getInputItem() => inputType;
+
+    public CompProperties_ResourceProcessor getProps() => Props;
 
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
@@ -118,6 +139,7 @@ namespace ProductionExpanded
       base.CompTickRare();
       if (isProcessing)
       {
+        isInspectStringDirty = true;
         bool currentCanContinue = CanContinueProcessing();
         if (currentCanContinue != previousCanContinue)
         {
@@ -184,6 +206,7 @@ namespace ProductionExpanded
     public void StartNextCycle()
     {
       isWaitingForCycleInteraction = false;
+      isInspectStringDirty = true;
       processorTracker.processorsNeedingCycleStart.Remove((Building_Processor)parent);
       if (getCapacityRemaining() > 0 && CanContinueProcessing())
       {
@@ -235,14 +258,18 @@ namespace ProductionExpanded
       // Validation: Check capacity
       if (capacityRemaining <= 0)
       {
-        Log.Warning($"[Production Expanded] Processor at {parent.Position} is full, cannot add materials");
+        Log.Warning(
+          $"[Production Expanded] Processor at {parent.Position} is full, cannot add materials"
+        );
         return;
       }
 
       // Validation: If already processing, ingredient must match current input type
       if (isProcessing && ingredient.def != inputType)
       {
-        Log.Warning($"[Production Expanded] Cannot add {ingredient.def.defName} to processor currently processing {inputType?.defName}");
+        Log.Warning(
+          $"[Production Expanded] Cannot add {ingredient.def.defName} to processor currently processing {inputType?.defName}"
+        );
         return;
       }
 
@@ -252,7 +279,16 @@ namespace ProductionExpanded
         ingredientContainer = new ThingOwner<Thing>(this);
       }
 
-      ingredientContainer.TryAdd(ingredient, true);
+      // Split off the exact count we need and add to container
+      Thing thingToAdd = ingredient.SplitOff(count);
+      if (!ingredientContainer.TryAdd(thingToAdd, false))
+      {
+        Log.Error(
+          $"[Production Expanded] Failed to add {count} {ingredient.def.defName} to processor container"
+        );
+        // Spawn the thing we couldn't add so it doesn't disappear
+        GenSpawn.Spawn(thingToAdd, parent.Position, parent.Map);
+      }
 
       capacityRemaining -= count;
       if (capacityRemaining < 0)
@@ -278,7 +314,8 @@ namespace ProductionExpanded
         // Calculate additional output based on recipe
         if (bill.recipe.products != null && bill.recipe.products.Count > 0)
         {
-          float ratio = (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count;
+          float ratio =
+            (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count;
           int additionalOutput = Mathf.Max(1, (int)(count / ratio));
           this.outputCount += additionalOutput;
         }
@@ -301,6 +338,7 @@ namespace ProductionExpanded
           currentCycle++;
         }
         progressTicks = totalTicksPassed;
+        isInspectStringDirty = true;
         return;
       }
 
@@ -339,7 +377,9 @@ namespace ProductionExpanded
         else
         {
           this.outputType = ingredient.def; // Fallback
-          Log.Warning($"[Production Expanded] No output mapping found for {ingredient.def.defName}, using same type as fallback");
+          Log.Warning(
+            $"[Production Expanded] No output mapping found for {ingredient.def.defName}, using same type as fallback"
+          );
         }
 
         float ratio = settings?.ratio ?? 1.0f;
@@ -348,14 +388,24 @@ namespace ProductionExpanded
 
       this.cycles = extensionCycles;
       this.inputCount = count;
-      this.totalTicksPerCycle = Mathf.Max(ticksPerItem * 10, ticksPerItem * inputCount);
+      if (count >= Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
+        this.totalTicksPerCycle = ticksPerItem * count;
+      else
+        this.totalTicksPerCycle =
+          ticksPerItem * (int)(Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime);
+
+      isInspectStringDirty = true;
 
       // Validate final state
       if (this.outputCount <= 0)
       {
-        Log.Error($"[Production Expanded] Invalid outputCount ({this.outputCount}) calculated for {ingredient.def.defName}");
+        Log.Error(
+          $"[Production Expanded] Invalid outputCount ({this.outputCount}) calculated for {ingredient.def.defName}"
+        );
         this.outputCount = 1; // Emergency fallback
       }
+
+      Log.Error($"{ticksPerItem}");
     }
 
     public void CompleteProcessingCycle()
@@ -366,16 +416,17 @@ namespace ProductionExpanded
 
       if (currentCycle >= cycles)
       {
-        isProcessing = false;
         parent.DirtyMapMesh(parent.Map);
         UpdateGlower();
         isWaitingForCycleInteraction = false;
         processorTracker.processorsNeedingEmpty.Add((Building_Processor)parent);
         isFinished = true;
+        isInspectStringDirty = true;
         return;
       }
       processorTracker.processorsNeedingCycleStart.Add((Building_Processor)parent);
       isWaitingForCycleInteraction = true;
+      isInspectStringDirty = true;
       UpdateGlower();
     }
 
@@ -416,6 +467,7 @@ namespace ProductionExpanded
         isWaitingForCycleInteraction = false;
         outputType = null;
         outputCount = 0;
+        isInspectStringDirty = true;
         capacityRemaining = Props.maxCapacity;
 
         if (CanContinueProcessing())
@@ -425,50 +477,47 @@ namespace ProductionExpanded
       }
     }
 
-    // Standard accessors
-    public bool getIsProcessing() => isProcessing;
-
-    public bool getIsFinished() => isFinished;
-
-    public int getCapacityRemaining() => capacityRemaining;
-
-    public bool getIsReady() => CanContinueProcessing();
-
-    public bool getIsWaitingForNextCycle() => isWaitingForCycleInteraction;
-
-    public Bill_Production GetActiveBill() => activeBill;
-
-    public ThingDef getInputItem() => inputType;
-
-    public CompProperties_ResourceProcessor getProps() => Props;
-
-    public override string CompInspectStringExtra()
+    private void cleanInspectString()
     {
       if (!parent.Spawned)
-        return "";
-
-      System.Text.StringBuilder str = new System.Text.StringBuilder();
-
-      if (isFinished)
       {
-        str.AppendLine("Finished. Waiting for emptying.");
+        inspectMessageCahce =
+          $"Well this is awkward... \nso how is your day going? personally im decent but tbh could be better. \nI assume yours isnt that fun if you are seeing this string in game... \nWell im truly sorry about that! but think about the bright side, \natleast its more interesting than me writing \"ERROR COMP HAS NO PARENT\" right? \nwell anyway ive gotta get back to coding so cya XD";
+      }
+      else if (!isProcessing)
+      {
+        inspectMessageCahce = "";
+      }
+      else if (isFinished)
+      {
+        inspectMessageCahce =
+          $"Finished. Waiting for colonist to extract {outputType.label} x{outputCount}";
+      }
+      else if (isWaitingForCycleInteraction)
+      {
+        inspectMessageCahce =
+          $"Waiting for colonist interaction to resume processing.\ncycles remaining: {cycles - currentCycle}";
+      }
+      else if (isProcessing && cycles == 1)
+      {
+        inspectMessageCahce =
+          $"Processing {inputType.label ?? "Material"} x{inputCount}: {(float)progressTicks / totalTicksPerCycle:P0}\n\n{totalTicksPerCycle}";
       }
       else if (isProcessing)
       {
-        str.AppendLine(
-          $"Processing {cachedLabel ?? "Material"}: {(float)progressTicks / totalTicksPerCycle:P0}"
-        );
-        if (cycles > 1)
-        {
-          str.AppendLine("Cycles remaining: " + (cycles - currentCycle));
-        }
+        inspectMessageCahce =
+          $"Processing {inputType.label ?? "Material"} x{inputCount}: {(float)progressTicks / totalTicksPerCycle:P0}\ncycles remaining: {cycles - currentCycle}";
       }
-      else
-      {
-        str.AppendLine("Status: Idle");
-      }
+      isInspectStringDirty = false;
+    }
 
-      return str.ToString().TrimEndNewlines();
+    public override string CompInspectStringExtra()
+    {
+      if (isInspectStringDirty)
+      {
+        cleanInspectString();
+      }
+      return inspectMessageCahce;
     }
 
     public override void PostExposeData()
