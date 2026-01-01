@@ -100,7 +100,7 @@ namespace ProductionExpanded
         defName = $"PE_RawWool_{finishedWool.defName.Replace("Wool", "")}",
         label = $"{finishedWool.label.Replace(" wool", " fleece")}",
         description =
-          $"Raw wool freshly sheared from an animal. Still contains natural oils, dirt, and debris that make it unsuitable for weaving. Must be cleaned and spun into usable wool fabric. <link=\"{finishedWool.defName}\">{finishedWool.label}</link>",
+          $"Raw wool freshly sheared from an animal. Still contains natural oils, dirt, and debris that make it unsuitable for weaving. Must be cleaned and spun into usable wool fabric. <link={finishedWool.defName}>{finishedWool.label}</link>",
 
         // Categories
         thingCategories = new List<ThingCategoryDef>
