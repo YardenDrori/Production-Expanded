@@ -33,18 +33,24 @@ namespace ProductionExpanded
           && comp.getProps().usesOnTexture
         )
         {
-          string texPath = def.graphicData.texPath + "_on";
-          Color color = (Stuff != null) ? Stuff.stuffProps.color : def.graphicData.color;
-          Color colorTwo = def.graphicData.colorTwo;
+          if (
+            !comp.getIsFinished()
+            || comp.getIsFinished() && comp.getProps().keepOnTextureOnFinish
+          )
+          {
+            string texPath = def.graphicData.texPath + "_on";
+            Color color = (Stuff != null) ? Stuff.stuffProps.color : def.graphicData.color;
+            Color colorTwo = def.graphicData.colorTwo;
 
-          return GraphicDatabase.Get(
-            def.graphicData.graphicClass,
-            texPath,
-            def.graphicData.shaderType.Shader,
-            def.graphicData.drawSize,
-            color,
-            colorTwo
-          );
+            return GraphicDatabase.Get(
+              def.graphicData.graphicClass,
+              texPath,
+              def.graphicData.shaderType.Shader,
+              def.graphicData.drawSize,
+              color,
+              colorTwo
+            );
+          }
         }
         return base.Graphic;
       }

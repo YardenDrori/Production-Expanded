@@ -27,6 +27,10 @@
     </graphicData>
     <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
     <!-- should stuff with wood -->
+    <stuffCategories>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>120</costStuffCount>
     <costList>
       <Steel>90</Steel>
     </costList>

@@ -10,6 +10,7 @@ namespace ProductionExpanded
     public float minimumItemsPrecentageForWorkTime = 0.25f;
     public int maxCapacity = 50;
     public bool usesOnTexture = false;
+    public bool keepOnTextureOnFinish = false;
     public bool hasIdlePowerCost = false;
     public bool shouldDecayOnStopped = false;
 
