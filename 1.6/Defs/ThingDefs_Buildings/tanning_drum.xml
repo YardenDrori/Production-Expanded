@@ -28,6 +28,7 @@
     <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
     <costList>
       <Steel>90</Steel>
+      <ComponentIndustrial>2</ComponentIndustrial>
     </costList>
     <altitudeLayer>BuildingOnTop</altitudeLayer>
     <fillPercent>1.0</fillPercent>
@@ -59,16 +60,27 @@
       <!--   <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle> -->
       <!-- </li> -->
       <li Class="CompProperties_Forbiddable"/>
-      <!-- <li Class="CompProperties_Power"> -->
-      <!--   <compClass>CompPowerTrader</compClass> -->
-      <!--   <basePowerConsumption>160</basePowerConsumption> -->
-      <!--   <idlePowerDraw>90</idlePowerDraw> -->
-      <!--   <shortCircuitInRain>true</shortCircuitInRain> -->
-      <!-- </li> -->
-      <!-- <li Class="CompProperties_Flickable"/> -->
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>40</basePowerConsumption>
+        <idlePowerDraw>22</idlePowerDraw>
+        <shortCircuitInRain>true</shortCircuitInRain>
+      </li>
+      <li Class="CompProperties_Refuelable">
+        <fuelConsumptionRate>10</fuelConsumptionRate>
+        <fuelCapacity>20.0</fuelCapacity>
+        <fuelFilter>
+          <thingDefs>
+            <li>PE_Tannin</li>
+          </thingDefs>
+        </fuelFilter>
+        <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
+        <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
+      </li>
+      <li Class="CompProperties_Flickable"/>
       <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
         <maxCapacity>25</maxCapacity>
-        <hasIdlePowerCost>false</hasIdlePowerCost>
+        <hasIdlePowerCost>true</hasIdlePowerCost>
         <usesOnTexture>false</usesOnTexture>
       </li>
     </comps>
@@ -78,7 +90,7 @@
     </placeWorkers>
     <techLevel>Industrial</techLevel>
     <researchPrerequisites>
-      <li>Electricity</li>
+      <li>PE_advancedProcessing</li>
     </researchPrerequisites>
   </ThingDef>
 </Defs>

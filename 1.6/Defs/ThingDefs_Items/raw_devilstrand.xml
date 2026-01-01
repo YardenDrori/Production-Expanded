@@ -2,8 +2,8 @@
 <Defs>
   <ThingDef ParentName="ResourceBase">
     <defName>RawDevilstrand</defName>
-    <label>devilstrand fungus</label>
-    <description>TODO</description>
+    <label>raw devilstrand</label>
+    <description>Unprocessed fibers harvested from devilstrand mushrooms. These genetically-engineered fungal fibers are exceptionally strong but require processing before they can be woven into the legendary devilstrand fabric.</description>
     <graphicData>
       <texPath>Things/Item/Resource/PlantFoodRaw/RawDevilstrand</texPath>
       <graphicClass>Graphic_Single</graphicClass>
@@ -13,7 +13,7 @@
       <MarketValue>4.5</MarketValue>
       <Mass>0.042</Mass>
       <Flammability>0.7</Flammability>
-      <DeteriorationRate>3</DeteriorationRate>
+      <DeteriorationRate>1</DeteriorationRate>
     </statBases>
     <healthAffectsPrice>false</healthAffectsPrice>
   </ThingDef>

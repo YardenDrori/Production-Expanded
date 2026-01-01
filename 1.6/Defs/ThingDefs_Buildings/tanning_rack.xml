@@ -3,7 +3,7 @@
   <ThingDef ParentName="BuildingBase">
     <defName>PE_TanningRack</defName>
     <label>tanning rack</label>
-    <description>TODO</description>
+    <description>A wooden frame used for stretching and treating raw hides with tanning liquor. The tanning process requires careful monitoring and frequent attention to ensure the leather cures properly. Labor-intensive but produces quality results.</description>
     <inspectorTabs>
       <li>ITab_Bills</li>
     </inspectorTabs>
@@ -71,6 +71,17 @@
       <!--   <shortCircuitInRain>true</shortCircuitInRain> -->
       <!-- </li> -->
       <!-- <li Class="CompProperties_Flickable"/> -->
+      <li Class="CompProperties_Refuelable">
+        <fuelConsumptionRate>15</fuelConsumptionRate>
+        <fuelCapacity>10.0</fuelCapacity>
+        <fuelFilter>
+          <thingDefs>
+            <li>PE_Tannin</li>
+          </thingDefs>
+        </fuelFilter>
+        <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
+        <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
+      </li>
       <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
         <maxCapacity>10</maxCapacity>
         <hasIdlePowerCost>false</hasIdlePowerCost>
@@ -83,8 +94,5 @@
       <li>PlaceWorker_PreventInteractionSpotOverlap</li>
     </placeWorkers>
     <techLevel>Industrial</techLevel>
-    <researchPrerequisites>
-      <li>Electricity</li>
-    </researchPrerequisites>
   </ThingDef>
 </Defs>

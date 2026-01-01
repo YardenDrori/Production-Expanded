@@ -2,8 +2,8 @@
 <Defs>
   <ThingDef ParentName="ResourceBase">
     <defName>RawCotton</defName>
-    <label>cotton</label>
-    <description>cotton</description>
+    <label>raw cotton</label>
+    <description>Fluffy cotton bolls freshly harvested from cotton plants. The fibers must be cleaned, carded, and spun before they can be woven into usable cloth.</description>
     <graphicData>
       <texPath>Things/Item/Resource/PlantFoodRaw/RawCotton</texPath>
       <graphicClass>Graphic_Single</graphicClass>

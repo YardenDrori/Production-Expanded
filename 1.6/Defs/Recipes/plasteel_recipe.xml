@@ -54,16 +54,6 @@
         <count>1</count>
       </li>
     </ingredients>
-    <fixedIngredientFilter>
-      <categories>
-        <li>PE_RawLeathers</li>
-      </categories>
-    </fixedIngredientFilter>
-    <defaultIngredientFilter>
-      <categories>
-        <li>PE_RawLeathers</li>
-      </categories>
-    </defaultIngredientFilter>
     <products>
       <Plasteel>1</Plasteel>
     </products>

@@ -53,7 +53,7 @@
     </building>
     <comps>
       <li Class="CompProperties_Refuelable">
-        <fuelConsumptionRate>85.0</fuelConsumptionRate>
+        <fuelConsumptionRate>45.0</fuelConsumptionRate>
         <fuelCapacity>75.0</fuelCapacity>
         <fuelFilter>
           <thingDefs>
@@ -84,8 +84,7 @@
   <ThingDef ParentName="BenchBase">
     <defName>EM_ElectricAlloySmelter</defName>
     <label>electric alloy smelter</label>
-    <description>An electric-powered smelter used for smelting metals and combining them into
-      alloys..</description>
+    <description>An electric-powered smelter used for combining iron with carbon from wood to produce pig iron. Uses electricity instead of fuel, but otherwise functions similarly to its fueled counterpart.</description>
     <thingClass>Building_WorkTable</thingClass>
     <graphicData>
       <texPath>Things/Building/Production/Alloy_Smelter/Electric/PE_ElectricAlloySmelter</texPath>
@@ -162,7 +161,7 @@
       <li>PlaceWorker_PreventInteractionSpotOverlap</li>
     </placeWorkers>
     <researchPrerequisites>
-      <li>Machining</li>
+      <li>PE_advancedProcessing</li>
     </researchPrerequisites>
   </ThingDef>
 </Defs>

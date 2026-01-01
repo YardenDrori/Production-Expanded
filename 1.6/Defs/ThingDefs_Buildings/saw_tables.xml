@@ -1,155 +1,156 @@
 <?xml version="1.0"?>
 <Defs>
-    <ThingDef ParentName="BuildingBase">
-        <defName>PE_SawTable</defName>
-        <label>saw table</label>
-        <description>TODO</description>
-        <inspectorTabs>
-            <li>ITab_Bills</li>
-        </inspectorTabs>
-        <thingClass>Building_WorkTable</thingClass>
-        <graphicData>
-            <texPath>Things/Building/Production/Saw_Table/SawTable</texPath>
-            <graphicClass>Graphic_Multi</graphicClass>
-            <shaderType>CutoutComplex</shaderType>
-            <drawSize>(3.5,1.5)</drawSize>
-            <shadowData>
-                <volume>(2.8, 0.35, 0.59)</volume>
-                <offset>(0, 0, 0.08)</offset>
-            </shadowData>
-            <damageData>
-                <cornerTL>Damage/Corner</cornerTL>
-                <cornerTR>Damage/Corner</cornerTR>
-                <cornerBL>Damage/Corner</cornerBL>
-                <cornerBR>Damage/Corner</cornerBR>
-            </damageData>
-        </graphicData>
-        <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
-        <stuffCategories>
-            <li>Woody</li>
-        </stuffCategories>
-        <costStuffCount>120</costStuffCount>
-        <costList>
-            <Steel>40</Steel>
-            <ComponentIndustrial>1</ComponentIndustrial>
-        </costList>
-        <altitudeLayer>BuildingOnTop</altitudeLayer>
-        <fillPercent>1.0</fillPercent>
-        <useHitPoints>True</useHitPoints>
-        <statBases>
-            <WorkToBuild>1600</WorkToBuild>
-            <MaxHitPoints>140</MaxHitPoints>
-            <Cleanliness>-10</Cleanliness>
-            <Flammability>0.8</Flammability>
-            <Beauty>-10</Beauty>
-        </statBases>
-        <size>(3,1)</size>
-        <designationCategory>Production</designationCategory>
-        <passability>PassThroughOnly</passability>
-        <pathCost>50</pathCost>
-        <hasInteractionCell>True</hasInteractionCell>
-        <interactionCellOffset>(0,0,-1)</interactionCellOffset>
-        <defaultPlacingRot>North</defaultPlacingRot>
-        <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
-        <surfaceType>Item</surfaceType>
-        <comps Inherit="false">
-            <li Class="CompProperties_Forbiddable"/>
-            <li Class="CompProperties_Power">
-                <compClass>CompPowerTrader</compClass>
-                <basePowerConsumption>120</basePowerConsumption>
-                <shortCircuitInRain>true</shortCircuitInRain>
-            </li>
-            <li Class="CompProperties_Flickable"/>
-        <!-- <li Class="ProductionExpanded.CompProperties_ResourceProcessor"> -->
-            <!--   <maxCapacity>70</maxCapacity> -->
-            <!--   <hasIdlePowerCost>false</hasIdlePowerCost> -->
-            <!--   <usesOnTexture>false</usesOnTexture> -->
-            <!-- </li> -->
-        </comps>
-        <tickerType>Rare</tickerType>
-        <placeWorkers>
-            <li>PlaceWorker_PreventInteractionSpotOverlap</li>
-        </placeWorkers>
-        <techLevel>Industrial</techLevel>
-        <researchPrerequisites>
-            <li>Electricity</li>
-        </researchPrerequisites>
-    </ThingDef>
-    <ThingDef ParentName="BuildingBase">
-        <defName>PE_AutoSawTable</defName>
-        <label>auto saw table</label>
-        <description>TODO</description>
-        <inspectorTabs>
-            <li>ITab_Bills</li>
-        </inspectorTabs>
-        <thingClass>ProductionExpanded.Building_Processor</thingClass>
-        <drawerType>MapMeshAndRealTime</drawerType>
-        <graphicData>
-            <texPath>Things/Building/Production/Saw_Table_Auto/SawTableAuto</texPath>
-            <graphicClass>Graphic_Multi</graphicClass>
-            <shaderType>CutoutComplex</shaderType>
-            <drawSize>(6.5,7)</drawSize>
-            <shadowData>
-                <volume>(2.8, 0.35, 0.59)</volume>
-                <offset>(0, 0, 0.08)</offset>
-            </shadowData>
-            <damageData>
-                <cornerTL>Damage/Corner</cornerTL>
-                <cornerTR>Damage/Corner</cornerTR>
-                <cornerBL>Damage/Corner</cornerBL>
-                <cornerBR>Damage/Corner</cornerBR>
-            </damageData>
-        </graphicData>
-        <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
-        <stuffCategories>
-            <li>Woody</li>
-        </stuffCategories>
-        <costStuffCount>150</costStuffCount>
-        <costList>
-            <Steel>190</Steel>
-            <ComponentIndustrial>3</ComponentIndustrial>
-        </costList>
-        <altitudeLayer>BuildingOnTop</altitudeLayer>
-        <fillPercent>1.0</fillPercent>
-        <useHitPoints>True</useHitPoints>
-        <statBases>
-            <WorkToBuild>2600</WorkToBuild>
-            <MaxHitPoints>160</MaxHitPoints>
-            <Cleanliness>-10</Cleanliness>
-            <Flammability>0.8</Flammability>
-            <Beauty>-15</Beauty>
-        </statBases>
-        <size>(3,4)</size>
-        <designationCategory>Production</designationCategory>
-        <passability>PassThroughOnly</passability>
-        <pathCost>50</pathCost>
-        <hasInteractionCell>True</hasInteractionCell>
-        <interactionCellOffset>(0,0,-1)</interactionCellOffset>
-        <defaultPlacingRot>North</defaultPlacingRot>
-        <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
-        <surfaceType>Item</surfaceType>
-        <comps Inherit="false">
-            <li Class="CompProperties_Forbiddable"/>
-            <li Class="CompProperties_Power">
-                <compClass>CompPowerTrader</compClass>
-                <basePowerConsumption>160</basePowerConsumption>
-                <idlePowerDraw>90</idlePowerDraw>
-                <shortCircuitInRain>true</shortCircuitInRain>
-            </li>
-            <li Class="CompProperties_Flickable"/>
-            <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
-                <maxCapacity>120</maxCapacity>
-                <hasIdlePowerCost>true</hasIdlePowerCost>
-                <usesOnTexture>true</usesOnTexture>
-            </li>
-        </comps>
-        <tickerType>Rare</tickerType>
-        <placeWorkers>
-            <li>PlaceWorker_PreventInteractionSpotOverlap</li>
-        </placeWorkers>
-        <techLevel>Industrial</techLevel>
-        <researchPrerequisites>
-            <li>MicroelectronicsBasics</li>
-        </researchPrerequisites>
-    </ThingDef>
+  <ThingDef ParentName="BuildingBase">
+    <defName>PE_SawTable</defName>
+    <label>saw table</label>
+    <description>An electric-powered sawmill table for processing raw logs into lumber planks. The circular blade makes quick work of timber, significantly faster than manual processing at a crafting spot. Requires an operator to work.</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <thingClass>Building_WorkTable</thingClass>
+    <graphicData>
+      <texPath>Things/Building/Production/Saw_Table/SawTable</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(3.5,1.5)</drawSize>
+      <shadowData>
+        <volume>(2.8, 0.35, 0.59)</volume>
+        <offset>(0, 0, 0.08)</offset>
+      </shadowData>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
+    <stuffCategories>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>120</costStuffCount>
+    <costList>
+      <Steel>40</Steel>
+      <ComponentIndustrial>1</ComponentIndustrial>
+    </costList>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <fillPercent>1.0</fillPercent>
+    <useHitPoints>True</useHitPoints>
+    <statBases>
+      <WorkToBuild>1600</WorkToBuild>
+      <MaxHitPoints>140</MaxHitPoints>
+      <Cleanliness>-10</Cleanliness>
+      <Flammability>0.8</Flammability>
+      <Beauty>-10</Beauty>
+    </statBases>
+    <size>(3,1)</size>
+    <designationCategory>Production</designationCategory>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <defaultPlacingRot>North</defaultPlacingRot>
+    <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+    <surfaceType>Item</surfaceType>
+    <comps Inherit="false">
+      <li Class="CompProperties_Forbiddable"/>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>120</basePowerConsumption>
+        <shortCircuitInRain>true</shortCircuitInRain>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <!-- <li Class="ProductionExpanded.CompProperties_ResourceProcessor"> -->
+      <!--   <maxCapacity>70</maxCapacity> -->
+      <!--   <hasIdlePowerCost>false</hasIdlePowerCost> -->
+      <!--   <usesOnTexture>false</usesOnTexture> -->
+      <!-- </li> -->
+    </comps>
+    <tickerType>Rare</tickerType>
+    <placeWorkers>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <techLevel>Industrial</techLevel>
+    <researchPrerequisites>
+      <li>PE_advancedProcessing</li>
+    </researchPrerequisites>
+  </ThingDef>
+  <ThingDef ParentName="BuildingBase">
+    <defName>PE_AutoSawTable</defName>
+    <label>auto saw table</label>
+    <description>An automated sawmill that processes raw logs into finished lumber with minimal supervision. Once loaded, it will continue processing timber automatically. More expensive than a manual saw table but drastically reduces labor requirements for large-scale lumber production.</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <thingClass>ProductionExpanded.Building_Processor</thingClass>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <graphicData>
+      <texPath>Things/Building/Production/Saw_Table_Auto/SawTableAuto</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(6.5,7)</drawSize>
+      <shadowData>
+        <volume>(2.8, 0.35, 0.59)</volume>
+        <offset>(0, 0, 0.08)</offset>
+      </shadowData>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
+    <stuffCategories>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>150</costStuffCount>
+    <costList>
+      <Steel>110</Steel>
+      <ComponentIndustrial>3</ComponentIndustrial>
+    </costList>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <fillPercent>1.0</fillPercent>
+    <useHitPoints>True</useHitPoints>
+    <statBases>
+      <WorkToBuild>2600</WorkToBuild>
+      <MaxHitPoints>160</MaxHitPoints>
+      <Cleanliness>-10</Cleanliness>
+      <Flammability>0.8</Flammability>
+      <Beauty>-15</Beauty>
+    </statBases>
+    <size>(3,4)</size>
+    <designationCategory>Production</designationCategory>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <defaultPlacingRot>North</defaultPlacingRot>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <surfaceType>Item</surfaceType>
+    <comps Inherit="false">
+      <li Class="CompProperties_Forbiddable"/>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>160</basePowerConsumption>
+        <idlePowerDraw>90</idlePowerDraw>
+        <shortCircuitInRain>true</shortCircuitInRain>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
+        <maxCapacity>120</maxCapacity>
+        <hasIdlePowerCost>true</hasIdlePowerCost>
+        <usesOnTexture>true</usesOnTexture>
+      </li>
+    </comps>
+    <tickerType>Rare</tickerType>
+    <placeWorkers>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <techLevel>Industrial</techLevel>
+    <researchPrerequisites>
+      <li>MicroelectronicsBasics</li>
+      <li>PE_advancedProcessing</li>
+    </researchPrerequisites>
+  </ThingDef>
 </Defs>

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <!-- Process raw wood logs into lumber -->
   <RecipeDef>
     <defName>PE_ProcessCottonToCloth</defName>
     <label>process raw cotton into cloth</label>
-    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <description>Process raw cotton into cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
@@ -38,7 +37,7 @@
   <RecipeDef>
     <defName>PE_ProcessCottonToClothBulk</defName>
     <label>process raw cotton into cloth x10</label>
-    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <description>Process raw cotton into cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
@@ -67,16 +66,15 @@
     </recipeUsers>
     <displayPriority>901</displayPriority>
   </RecipeDef>
-  <!-- Process raw wood logs into lumber -->
   <RecipeDef>
     <defName>PE_ProcessCottonToClothWithSpinner</defName>
     <label>process raw cotton into cloth</label>
-    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <description>Process raw cotton into cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>30</workAmount>
+    <workAmount>70</workAmount>
     <ingredients>
       <li>
         <filter>
@@ -98,16 +96,15 @@
     </recipeUsers>
     <displayPriority>40</displayPriority>
   </RecipeDef>
-  <!-- Bulk version -->
   <RecipeDef>
     <defName>PE_ProcessCottonToClothWithSpinnerBulk</defName>
     <label>process raw cotton into cloth x10</label>
-    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <description>Process raw cotton into cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>300</workAmount>
+    <workAmount>700</workAmount>
     <ingredients>
       <li>
         <filter>

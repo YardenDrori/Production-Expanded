@@ -2,7 +2,7 @@
   <ThingDef ParentName="ResourceBase">
     <defName>PE_PigIron</defName>
     <label>pig iron</label>
-    <description>A crude iron-carbon alloy produced from raw iron ore. Its high carbon makes it brittle and unsuitable for most applications. Must be refined in a blast furnace produce usable steel.</description>
+    <description>A crude iron-carbon alloy produced from raw iron ore. Its high carbon content makes it brittle and unsuitable for most applications. Must be refined in a blast furnace to produce usable steel.</description>
     <graphicData>
       <texPath>Things/Item/Resource/PE_PigIron</texPath>
       <graphicClass>Graphic_StackCount</graphicClass>

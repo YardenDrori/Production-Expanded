@@ -3,7 +3,7 @@
   <RecipeDef>
     <defName>PE_ProcessDevilstrand</defName>
     <label>process devilstrand fungus into cloth</label>
-    <description>Process raw devilstrand fungus logs into extremely durable and versatile cloth suitable for use in fabrics.</description>
+    <description>Process raw devilstrand into extremely durable and versatile cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
@@ -36,7 +36,7 @@
   <RecipeDef>
     <defName>PE_ProcessDevilstrandBulk</defName>
     <label>process devilstrand fungus into cloth x4</label>
-    <description>Process raw devilstrand fungus logs into extremely durable and versatile cloth suitable for use in fabrics.</description>
+    <description>Process raw devilstrand into extremely durable and versatile cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
@@ -68,7 +68,7 @@
   <RecipeDef>
     <defName>PE_ProcessDevilstrandWithSpinner</defName>
     <label>process devilstrand fungus into cloth</label>
-    <description>Process raw devilstrand fungus logs into extremely durable and versatile cloth suitable for use in fabrics.</description>
+    <description>Process raw devilstrand into extremely durable and versatile cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
@@ -100,7 +100,7 @@
   <RecipeDef>
     <defName>PE_ProcessDevilstrandWithSpinnerBulk</defName>
     <label>process devilstrand fungus into cloth x4</label>
-    <description>Process raw devilstrand fungus logs into extremely durable and versatile cloth suitable for use in fabrics.</description>
+    <description>Process raw devilstrand into extremely durable and versatile cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>

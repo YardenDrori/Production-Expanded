@@ -3,7 +3,7 @@
   <ThingDef ParentName="BuildingBase">
     <defName>ME_ArcFurnace</defName>
     <label>arc furnace</label>
-    <description>TODO</description>
+    <description>An advanced electric furnace that uses arc welding technology to generate extreme temperatures for refining metals. Once loaded with materials, it processes them automatically with only occasional worker intervention needed. Highly effective but demands substantial power.</description>
     <inspectorTabs>
       <li>ITab_Bills</li>
     </inspectorTabs>
@@ -93,13 +93,13 @@
     </placeWorkers>
     <techLevel>Industrial</techLevel>
     <researchPrerequisites>
-      <li>Machining</li>
+      <li>BasicMicroelectronics</li>
     </researchPrerequisites>
   </ThingDef>
   <ThingDef ParentName="BuildingBase">
     <defName>ME_WoodFiredFurnace</defName>
     <label>fueled furnace</label>
-    <description>TODO</description>
+    <description>A wood-fired furnace constructed from stone blocks. Burns lumber to generate intense heat for refining crude metals into their finished forms. Processes materials automatically but requires regular refueling and periodic worker attention.</description>
     <inspectorTabs>
       <li>ITab_Bills</li>
     </inspectorTabs>
@@ -146,8 +146,8 @@
     <surfaceType>Item</surfaceType>
     <comps Inherit="false">
       <li Class="CompProperties_Refuelable">
-        <fuelConsumptionRate>25</fuelConsumptionRate>
-        <fuelCapacity>45.0</fuelCapacity>
+        <fuelConsumptionRate>35</fuelConsumptionRate>
+        <fuelCapacity>65.0</fuelCapacity>
         <fuelFilter>
           <thingDefs>
             <li>WoodLog</li>
