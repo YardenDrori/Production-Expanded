@@ -13,10 +13,10 @@ namespace ProductionExpanded
     static RawWoolDefGenerator()
     {
       // Run after defs are loaded but before game starts
-      GenerateRawLeatherDefs();
+      GenerateRawWoolDefs();
     }
 
-    private static void GenerateRawLeatherDefs()
+    private static void GenerateRawWoolDefs()
     {
       Log.Message("[Production Expanded] Generating raw wool definitions...");
 
@@ -26,7 +26,7 @@ namespace ProductionExpanded
           def.stuffProps != null
           && def.stuffProps.categories != null
           && def.stuffProps.categories.Contains(StuffCategoryDefOf.Fabric)
-          && def.defName.Contains("wool")
+          && (def.defName.ToLower().Contains("wool") || def.label.ToLower().Contains("wool"))
         )
         .ToList();
 
@@ -36,11 +36,28 @@ namespace ProductionExpanded
         if (finishedWool.defName.StartsWith("PE_RawWool_"))
           continue;
 
-        var rawWool = CreateRawLeatherDef(finishedWool);
+        var rawWool = CreateRawWoolDef(finishedWool);
 
-        // Add to DefDatabase WITHOUT initializing graphics yet
-        // RimWorld will call PostLoad/ResolveReferences during its normal def resolution phase
+        // Add to DefDatabase
         DefGenerator.AddImpliedDef(rawWool);
+
+        // Manually resolve references since we're adding after def loading is done
+        try
+        {
+          rawWool.PostLoad();
+          rawWool.ResolveReferences();
+        }
+        catch (System.Exception e)
+        {
+          Log.Error($"[Production Expanded] Error initializing {rawWool.defName}: {e}");
+        }
+
+        // Manually add to category children since ResolveReferences has already run
+        var rawWoolCategory = DefDatabase<ThingCategoryDef>.GetNamed("PE_RawWools", true);
+        if (rawWoolCategory != null && !rawWoolCategory.childThingDefs.Contains(rawWool))
+        {
+          rawWoolCategory.childThingDefs.Add(rawWool);
+        }
 
         // Register with central registry
         RawToFinishedRegistry.Register(rawWool, finishedWool);
@@ -69,13 +86,13 @@ namespace ProductionExpanded
       }
     }
 
-    private static ThingDef CreateRawLeatherDef(ThingDef finishedWool)
+    private static ThingDef CreateRawWoolDef(ThingDef finishedWool)
     {
       string texturePath = $"Things/Item/Resource/PE_Wool";
       // Create new ThingDef
       var rawWool = new ThingDef
       {
-        defName = $"PE_RawWool_{finishedWool.defName.Replace("Leather_", "")}",
+        defName = $"PE_RawWool_{finishedWool.defName.Replace("Wool", "")}",
         label = $"{finishedWool.label.Replace(" wool", " fleece")}",
         description =
           $"Raw wool freshly sheared from an animal. Still contains natural oils, dirt, and debris that make it unsuitable for weaving. Must be cleaned and spun into usable wool fabric. <link=\"{finishedWool.defName}\">{finishedWool.label}</link>",

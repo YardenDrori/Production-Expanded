@@ -1,182 +1,185 @@
 <?xml version="1.0"?>
 <Defs>
-    <ThingDef ParentName="BuildingBase">
-        <defName>ME_ArcFurnace</defName>
-        <label>arc furnace</label>
-        <description>TODO</description>
-        <inspectorTabs>
-            <li>ITab_Bills</li>
-        </inspectorTabs>
-        <thingClass>ProductionExpanded.Building_Processor</thingClass>
-        <drawerType>MapMeshAndRealTime</drawerType>
-        <graphicData>
-            <texPath>Things/Building/Production/Arc_Furnace/PE_ArcFurnace</texPath>
-            <graphicClass>Graphic_Multi</graphicClass>
-            <shaderType>Cutout</shaderType>
-            <drawSize>(5,4)</drawSize>
-            <damageData>
-                <cornerTL>Damage/Corner</cornerTL>
-                <cornerTR>Damage/Corner</cornerTR>
-                <cornerBL>Damage/Corner</cornerBL>
-                <cornerBR>Damage/Corner</cornerBR>
-            </damageData>
-        </graphicData>
-        <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
-        <costList>
-            <Steel>250</Steel>
-            <ComponentIndustrial>6</ComponentIndustrial>
-        </costList>
-        <altitudeLayer>BuildingOnTop</altitudeLayer>
-        <fillPercent>1.0</fillPercent>
-        <useHitPoints>True</useHitPoints>
-        <statBases>
-            <WorkToBuild>6000</WorkToBuild>
-            <MaxHitPoints>500</MaxHitPoints>
-            <Cleanliness>-30</Cleanliness>
-            <Beauty>-20</Beauty>
-        </statBases>
-        <size>(3,2)</size>
-        <designationCategory>Production</designationCategory>
-        <passability>PassThroughOnly</passability>
-        <pathCost>50</pathCost>
-        <hasInteractionCell>True</hasInteractionCell>
-        <interactionCellOffset>(0,0,-1)</interactionCellOffset>
-        <defaultPlacingRot>North</defaultPlacingRot>
-        <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
-        <surfaceType>Item</surfaceType>
-        <comps Inherit="false">
-            <!-- <li Class="ProcessorFramework.CompProperties_Processor"> -->
-            <!-- 	<capacity>500</capacity> -->
-            <!-- 	<independentProcesses>false</independentProcesses> -->
-            <!-- 	<parallelProcesses>false</parallelProcesses> -->
-            <!-- 	<dropIngredients>true</dropIngredients> -->
-            <!-- 	<showProductIcon>true</showProductIcon> -->
-            <!-- 	<barOffset>(0.0, 0.25)</barOffset> -->
-            <!-- 	<barScale>(1.0, 1.0)</barScale> -->
-            <!-- 	<colorCoded>false</colorCoded> -->
-            <!-- 	<processes> -->
-            <!-- 		<li>DankPyon_SmeltingOre_Iron_Industrial</li> -->
-            <!-- 		<li>DankPyon_SmeltingOre_Steel_Industrial</li> -->
-            <!-- 		<li>DankPyon_SmeltingOre_Silver_Industrial</li> -->
-            <!-- 		<li>DankPyon_SmeltingOre_Gold_Industrial</li> -->
-            <!-- 		<li>DankPyon_SmeltingOre_Plasteel_Industrial</li> -->
-            <!-- 		<li>DankPyon_SmeltingOre_Scrap_Industrial</li> -->
-            <!-- 	</processes> -->
-            <!-- </li> -->
-            <li Class="CompProperties_Forbiddable"/> <li Class="ProductionExpanded.CompProperties_Glower_Processor">
-                <glowRadius>6</glowRadius>
-                <glowColor>(255,172,65)</glowColor>
-            </li>
-            <li Class="CompProperties_HeatPusher">
-                <compClass>CompHeatPusher</compClass>
-                <heatPerSecond>20</heatPerSecond>
-                <heatPushMaxTemperature>50</heatPushMaxTemperature>
-            </li>
-            <li Class="CompProperties_Power">
-                <compClass>CompPowerTrader</compClass>
-                <basePowerConsumption>950</basePowerConsumption>
-                <idlePowerDraw>50</idlePowerDraw>
-                <shortCircuitInRain>true</shortCircuitInRain>
-            </li>
-            <li Class="CompProperties_Flickable"/>
-            <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
-                <maxCapacity>50</maxCapacity>
-                <hasIdlePowerCost>true</hasIdlePowerCost>
-                <usesOnTexture>true</usesOnTexture>
-            </li>
-        </comps>
-        <tickerType>Rare</tickerType>
-        <placeWorkers>
-            <li>PlaceWorker_PreventInteractionSpotOverlap</li>
-        </placeWorkers>
-        <techLevel>Industrial</techLevel>
-        <researchPrerequisites>
-            <li>Machining</li>
-        </researchPrerequisites>
-    </ThingDef>
-    <ThingDef ParentName="BuildingBase">
-        <defName>ME_WoodFiredFurnace</defName>
-        <label>fueled furnace</label>
-        <description>TODO</description>
-        <inspectorTabs>
-            <li>ITab_Bills</li>
-        </inspectorTabs>
-        <thingClass>ProductionExpanded.Building_Processor</thingClass>
-        <drawerType>MapMeshAndRealTime</drawerType>
-        <graphicData>
-            <texPath>Things/Building/Production/Wood_Fired_Furnace/PE_WoodFiredFurnace</texPath>
-            <graphicClass>Graphic_Multi</graphicClass>
-            <shaderType>CutoutComplex</shaderType>
-            <drawSize>(5,4)</drawSize>
-            <damageData>
-                <cornerTL>Damage/Corner</cornerTL>
-                <cornerTR>Damage/Corner</cornerTR>
-                <cornerBL>Damage/Corner</cornerBL>
-                <cornerBR>Damage/Corner</cornerBR>
-            </damageData>
-        </graphicData>
-        <castEdgeShadows>true</castEdgeShadows>
-        <staticSunShadowHeight>0.20</staticSunShadowHeight>
-        <stuffCategories>
-            <li>Stony</li>
-        </stuffCategories>
-        <costStuffCount>200</costStuffCount>
-        <costList>
-            <PE_Iron>80</PE_Iron>
-        </costList>
-        <altitudeLayer>BuildingOnTop</altitudeLayer>
-        <fillPercent>1.0</fillPercent>
-        <useHitPoints>True</useHitPoints>
-        <statBases>
-            <WorkToBuild>6000</WorkToBuild>
-            <MaxHitPoints>500</MaxHitPoints>
-            <Cleanliness>-30</Cleanliness>
-            <Beauty>-20</Beauty>
-        </statBases>
-        <size>(3,2)</size>
-        <designationCategory>Production</designationCategory>
-        <passability>PassThroughOnly</passability>
-        <pathCost>50</pathCost>
-        <hasInteractionCell>True</hasInteractionCell>
-        <interactionCellOffset>(0,0,-1)</interactionCellOffset>
-        <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
-        <defaultPlacingRot>North</defaultPlacingRot>
-        <surfaceType>Item</surfaceType>
-        <comps Inherit="false">
-            <li Class="CompProperties_Refuelable">
-                <fuelConsumptionRate>25</fuelConsumptionRate>
-                <fuelCapacity>45.0</fuelCapacity>
-                <fuelFilter>
-                    <thingDefs>
-                        <li>WoodLog</li>
-                    </thingDefs>
-                </fuelFilter>
-                <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
-                <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
-            </li>
-            <li Class="CompProperties_Forbiddable"/>
-            <li Class="ProductionExpanded.CompProperties_Glower_Processor">
-                <glowRadius>4</glowRadius>
-                <glowColor>(255,72,25)</glowColor>
-            </li>
-            <li Class="CompProperties_HeatPusher">
-                <compClass>CompHeatPusher</compClass>
-                <heatPerSecond>10</heatPerSecond>
-                <heatPushMaxTemperature>45</heatPushMaxTemperature>
-            </li>
-            <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
-                <maxCapacity>30</maxCapacity>
-                <hasIdlePowerCost>true</hasIdlePowerCost>
-                <usesOnTexture>true</usesOnTexture>
-            </li>
-        </comps>
-        <tickerType>Rare</tickerType>
-        <placeWorkers>
-            <li>PlaceWorker_PreventInteractionSpotOverlap</li>
-        </placeWorkers>
-        <techLevel>Industrial</techLevel>
-        <researchPrerequisites>
-            <li>Smithing</li>
-        </researchPrerequisites>
-    </ThingDef>
+  <ThingDef ParentName="BuildingBase">
+    <defName>ME_ArcFurnace</defName>
+    <label>arc furnace</label>
+    <description>TODO</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <thingClass>ProductionExpanded.Building_Processor</thingClass>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <graphicData>
+      <texPath>Things/Building/Production/Arc_Furnace/PE_ArcFurnace</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>Cutout</shaderType>
+      <drawSize>(5,4)</drawSize>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
+    <costList>
+      <Steel>250</Steel>
+      <ComponentIndustrial>6</ComponentIndustrial>
+    </costList>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <fillPercent>1.0</fillPercent>
+    <useHitPoints>True</useHitPoints>
+    <statBases>
+      <WorkToBuild>6000</WorkToBuild>
+      <MaxHitPoints>500</MaxHitPoints>
+      <Cleanliness>-30</Cleanliness>
+      <Beauty>-20</Beauty>
+    </statBases>
+    <size>(3,2)</size>
+    <designationCategory>Production</designationCategory>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <defaultPlacingRot>North</defaultPlacingRot>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <surfaceType>Item</surfaceType>
+    <comps Inherit="false">
+      <!-- <li Class="ProcessorFramework.CompProperties_Processor"> -->
+      <!-- 	<capacity>500</capacity> -->
+      <!-- 	<independentProcesses>false</independentProcesses> -->
+      <!-- 	<parallelProcesses>false</parallelProcesses> -->
+      <!-- 	<dropIngredients>true</dropIngredients> -->
+      <!-- 	<showProductIcon>true</showProductIcon> -->
+      <!-- 	<barOffset>(0.0, 0.25)</barOffset> -->
+      <!-- 	<barScale>(1.0, 1.0)</barScale> -->
+      <!-- 	<colorCoded>false</colorCoded> -->
+      <!-- 	<processes> -->
+      <!-- 		<li>DankPyon_SmeltingOre_Iron_Industrial</li> -->
+      <!-- 		<li>DankPyon_SmeltingOre_Steel_Industrial</li> -->
+      <!-- 		<li>DankPyon_SmeltingOre_Silver_Industrial</li> -->
+      <!-- 		<li>DankPyon_SmeltingOre_Gold_Industrial</li> -->
+      <!-- 		<li>DankPyon_SmeltingOre_Plasteel_Industrial</li> -->
+      <!-- 		<li>DankPyon_SmeltingOre_Scrap_Industrial</li> -->
+      <!-- 	</processes> -->
+      <!-- </li> -->
+      <li Class="CompProperties_Forbiddable"/>
+      <li Class="ProductionExpanded.CompProperties_Glower_Processor">
+        <glowRadius>6</glowRadius>
+        <glowColor>(255,172,65)</glowColor>
+      </li>
+      <li Class="CompProperties_HeatPusher">
+        <compClass>CompHeatPusher</compClass>
+        <heatPerSecond>20</heatPerSecond>
+        <heatPushMaxTemperature>50</heatPushMaxTemperature>
+      </li>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>950</basePowerConsumption>
+        <idlePowerDraw>50</idlePowerDraw>
+        <shortCircuitInRain>true</shortCircuitInRain>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
+        <maxCapacity>50</maxCapacity>
+        <hasIdlePowerCost>true</hasIdlePowerCost>
+        <usesOnTexture>true</usesOnTexture>
+        <shouldDecayOnStopped>true</shouldDecayOnStopped>
+      </li>
+    </comps>
+    <tickerType>Rare</tickerType>
+    <placeWorkers>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <techLevel>Industrial</techLevel>
+    <researchPrerequisites>
+      <li>Machining</li>
+    </researchPrerequisites>
+  </ThingDef>
+  <ThingDef ParentName="BuildingBase">
+    <defName>ME_WoodFiredFurnace</defName>
+    <label>fueled furnace</label>
+    <description>TODO</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <thingClass>ProductionExpanded.Building_Processor</thingClass>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <graphicData>
+      <texPath>Things/Building/Production/Wood_Fired_Furnace/PE_WoodFiredFurnace</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(5,4)</drawSize>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <staticSunShadowHeight>0.20</staticSunShadowHeight>
+    <stuffCategories>
+      <li>Stony</li>
+    </stuffCategories>
+    <costStuffCount>200</costStuffCount>
+    <costList>
+      <PE_Iron>80</PE_Iron>
+    </costList>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <fillPercent>1.0</fillPercent>
+    <useHitPoints>True</useHitPoints>
+    <statBases>
+      <WorkToBuild>6000</WorkToBuild>
+      <MaxHitPoints>500</MaxHitPoints>
+      <Cleanliness>-30</Cleanliness>
+      <Beauty>-20</Beauty>
+    </statBases>
+    <size>(3,2)</size>
+    <designationCategory>Production</designationCategory>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <defaultPlacingRot>North</defaultPlacingRot>
+    <surfaceType>Item</surfaceType>
+    <comps Inherit="false">
+      <li Class="CompProperties_Refuelable">
+        <fuelConsumptionRate>25</fuelConsumptionRate>
+        <fuelCapacity>45.0</fuelCapacity>
+        <fuelFilter>
+          <thingDefs>
+            <li>WoodLog</li>
+          </thingDefs>
+        </fuelFilter>
+        <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
+        <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
+      </li>
+      <li Class="CompProperties_Forbiddable"/>
+      <li Class="ProductionExpanded.CompProperties_Glower_Processor">
+        <glowRadius>4</glowRadius>
+        <glowColor>(255,72,25)</glowColor>
+      </li>
+      <li Class="CompProperties_HeatPusher">
+        <compClass>CompHeatPusher</compClass>
+        <heatPerSecond>10</heatPerSecond>
+        <heatPushMaxTemperature>45</heatPushMaxTemperature>
+      </li>
+      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
+        <maxCapacity>30</maxCapacity>
+        <hasIdlePowerCost>true</hasIdlePowerCost>
+        <usesOnTexture>true</usesOnTexture>
+        <shouldDecayOnStopped>true</shouldDecayOnStopped>
+      </li>
+    </comps>
+    <tickerType>Rare</tickerType>
+    <placeWorkers>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <techLevel>Industrial</techLevel>
+    <researchPrerequisites>
+      <li>Smithing</li>
+    </researchPrerequisites>
+  </ThingDef>
 </Defs>

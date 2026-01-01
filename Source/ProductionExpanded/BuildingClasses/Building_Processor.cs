@@ -9,8 +9,8 @@ namespace ProductionExpanded
   {
     // ============ VANILLA COMPATIBILITY ============
 
-    // Re-implement interface method to prevent manual labor (WorkGiver_DoBill checks this)
-    // This allows the Bills Tab to work, but prevents colonists from reserving the table for manual work.
+    /// Re-implement interface method to prevent manual labor (WorkGiver_DoBill checks this)
+    /// This allows the Bills Tab to work, but prevents colonists from reserving the table for manual work.
     bool IBillGiver.CurrentlyUsableForBills()
     {
       return false;

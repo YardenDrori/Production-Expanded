@@ -42,9 +42,19 @@ namespace ProductionExpanded
 
         var rawLeather = CreateRawLeatherDef(finishedLeather);
 
-        // Add to DefDatabase WITHOUT initializing graphics yet
-        // RimWorld will call PostLoad/ResolveReferences during its normal def resolution phase
+        // Add to DefDatabase
         DefGenerator.AddImpliedDef(rawLeather);
+
+        // Manually resolve references since we're adding after def loading is done
+        try
+        {
+          rawLeather.PostLoad();
+          rawLeather.ResolveReferences();
+        }
+        catch (System.Exception e)
+        {
+          Log.Error($"[Production Expanded] Error initializing {rawLeather.defName}: {e}");
+        }
 
         // Manually add to category children since ResolveReferences has already run
         var rawLeatherCategory = DefDatabase<ThingCategoryDef>.GetNamed("PE_RawLeathers", true);
@@ -63,7 +73,7 @@ namespace ProductionExpanded
         $"[Production Expanded] Generated {generated} raw leather definitions from {allLeathers.Count} finished leathers."
       );
 
-      // Re-resolve vanilla RecipeDefs because their ingredient filters might have cached 
+      // Re-resolve vanilla RecipeDefs because their ingredient filters might have cached
       // an empty list before we populated the PE_RawLeathers category.
       foreach (var recipe in DefDatabase<RecipeDef>.AllDefs)
       {

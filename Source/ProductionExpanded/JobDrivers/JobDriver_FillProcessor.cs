@@ -69,8 +69,9 @@ namespace ProductionExpanded
 
         if (bill != null)
         {
+          // AddMaterials now stores the ingredient in the ThingOwner, so don't destroy it
           processorComp.AddMaterials(bill, Materials, Materials.stackCount);
-          Materials.Destroy();
+          // Materials will be transferred to the processor's container automatically
         }
         else
         {

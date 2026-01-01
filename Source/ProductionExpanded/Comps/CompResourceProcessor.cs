@@ -10,9 +10,7 @@ namespace ProductionExpanded
     public int maxCapacity = 50;
     public bool usesOnTexture = false;
     public bool hasIdlePowerCost = false;
-
-    // These props might be redundant if we strictly use RecipeDef ModExtensions, 
-    // but useful for defaults or non-recipe constraints.
+    public bool shouldDecayOnStopped = false;
 
     public CompProperties_ResourceProcessor()
     {
@@ -20,7 +18,7 @@ namespace ProductionExpanded
     }
   }
 
-  public class CompResourceProcessor : ThingComp
+  public class CompResourceProcessor : ThingComp, IThingHolder
   {
     private CompProperties_ResourceProcessor Props => (CompProperties_ResourceProcessor)props;
 
@@ -41,6 +39,8 @@ namespace ProductionExpanded
 
     private string cachedLabel = null; // Label of the thing being processed
 
+    private ThingOwner<Thing> ingredientContainer;
+
     // Track the active vanilla bill
     private Bill_Production activeBill = null;
 
@@ -56,6 +56,13 @@ namespace ProductionExpanded
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
       base.PostSpawnSetup(respawningAfterLoad);
+
+      // Initialize ingredient container
+      if (ingredientContainer == null)
+      {
+        ingredientContainer = new ThingOwner<Thing>(this);
+      }
+
       powerTrader = parent.GetComp<CompPowerTrader>();
       refuelable = parent.GetComp<CompRefuelable>();
       heatPusher = parent.GetComp<CompHeatPusher>();
@@ -81,7 +88,16 @@ namespace ProductionExpanded
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
     {
-      previousMap?.GetComponent<MapComponent_ProcessorTracker>()?.allProcessors.Remove((Building_Processor)parent);
+      previousMap
+        ?.GetComponent<MapComponent_ProcessorTracker>()
+        ?.allProcessors.Remove((Building_Processor)parent);
+
+      // Drop ingredients if building destroyed
+      if (ingredientContainer != null && ingredientContainer.Count > 0)
+      {
+        ingredientContainer.TryDropAll(parent.Position, previousMap, ThingPlaceMode.Near);
+      }
+
       base.PostDestroy(mode, previousMap);
       if (glower != null && previousMap != null)
       {
@@ -111,7 +127,8 @@ namespace ProductionExpanded
 
         if (currentCanContinue)
         {
-          if (heatPusher != null) heatPusher.enabled = true;
+          if (heatPusher != null)
+            heatPusher.enabled = true;
 
           if (getCapacityRemaining() > 0)
             processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
@@ -132,10 +149,16 @@ namespace ProductionExpanded
         }
         else
         {
-          if (heatPusher != null) heatPusher.enabled = false;
-          // Regress progress if unpowered
-          if (progressTicks > 750) progressTicks -= 750;
-          else progressTicks = 0;
+          if (heatPusher != null)
+            heatPusher.enabled = false;
+          if (Props.shouldDecayOnStopped)
+          {
+            // Regress progress if unpowered
+            if (progressTicks > 750)
+              progressTicks -= 750;
+            else
+              progressTicks = 0;
+          }
 
           if (powerTrader != null && Props.hasIdlePowerCost)
             powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
@@ -151,7 +174,8 @@ namespace ProductionExpanded
         else
           processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
 
-        if (heatPusher != null) heatPusher.enabled = false;
+        if (heatPusher != null)
+          heatPusher.enabled = false;
         if (powerTrader != null && Props.hasIdlePowerCost)
           powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
       }
@@ -170,22 +194,69 @@ namespace ProductionExpanded
 
     public bool CanContinueProcessing()
     {
-      if (powerTrader != null && !powerTrader.PowerOn) return false;
-      if (refuelable != null && !refuelable.HasFuel) return false;
-      if (isWaitingForCycleInteraction) return false;
+      if (powerTrader != null && !powerTrader.PowerOn)
+        return false;
+      if (refuelable != null && !refuelable.HasFuel)
+        return false;
+      if (isWaitingForCycleInteraction)
+        return false;
       return true;
     }
 
     // UPDATED: Now takes Vanilla Bill and Thing
     public void AddMaterials(Bill_Production bill, Thing ingredient, int count)
     {
-      if (bill == null) return;
+      // Validation: Check for null inputs
+      if (bill == null)
+      {
+        Log.Warning("[Production Expanded] AddMaterials called with null bill");
+        return;
+      }
 
-      // Validation against current input type
-      if (isProcessing && ingredient.def != inputType) return;
+      if (ingredient == null)
+      {
+        Log.Error("[Production Expanded] AddMaterials called with null ingredient");
+        return;
+      }
+
+      if (bill.recipe == null)
+      {
+        Log.Error("[Production Expanded] Bill has null recipe");
+        return;
+      }
+
+      // Validation: Count must be positive
+      if (count <= 0)
+      {
+        Log.Warning($"[Production Expanded] AddMaterials called with invalid count: {count}");
+        return;
+      }
+
+      // Validation: Check capacity
+      if (capacityRemaining <= 0)
+      {
+        Log.Warning($"[Production Expanded] Processor at {parent.Position} is full, cannot add materials");
+        return;
+      }
+
+      // Validation: If already processing, ingredient must match current input type
+      if (isProcessing && ingredient.def != inputType)
+      {
+        Log.Warning($"[Production Expanded] Cannot add {ingredient.def.defName} to processor currently processing {inputType?.defName}");
+        return;
+      }
+
+      // Store ingredient in container instead of destroying it
+      if (ingredientContainer == null)
+      {
+        ingredientContainer = new ThingOwner<Thing>(this);
+      }
+
+      ingredientContainer.TryAdd(ingredient, true);
 
       capacityRemaining -= count;
-      if (capacityRemaining < 0) capacityRemaining = 0;
+      if (capacityRemaining < 0)
+        capacityRemaining = 0;
 
       // Update Fill Tracker
       if (getCapacityRemaining() > 0 && CanContinueProcessing())
@@ -203,13 +274,21 @@ namespace ProductionExpanded
         // Add to existing batch
         int totalTicksPassed = totalTicksPerCycle * currentCycle + progressTicks;
         this.inputCount += count;
-        // Calculate output (assume 1:1 if no dynamic mapping found, usually handled inside ProcessDef logic previously)
-        // We need new logic for Output here.
 
-        this.outputCount += count; // Simplified for now, or check Recipe products
-                                   // If Recipe has products, use them. 
-                                   // If Dynamic, we need to replicate 'GetOutputFor'. 
-                                   // For now, assuming 1:1 raw resource mapping or based on Recipe.
+        // Calculate additional output based on recipe
+        if (bill.recipe.products != null && bill.recipe.products.Count > 0)
+        {
+          float ratio = (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count;
+          int additionalOutput = Mathf.Max(1, (int)(count / ratio));
+          this.outputCount += additionalOutput;
+        }
+        else
+        {
+          // Dynamic output or 1:1 fallback
+          float ratio = settings?.ratio ?? 1.0f;
+          int additionalOutput = Mathf.Max(1, (int)(count * ratio));
+          this.outputCount += additionalOutput;
+        }
 
         totalTicksPerCycle = ticksPerItem * this.inputCount;
         // Min time clamps...
@@ -226,7 +305,8 @@ namespace ProductionExpanded
       }
 
       // New Batch
-      if (heatPusher != null) heatPusher.enabled = true;
+      if (heatPusher != null)
+        heatPusher.enabled = true;
       isProcessing = true;
       activeBill = bill;
 
@@ -244,8 +324,9 @@ namespace ProductionExpanded
       {
         this.outputType = bill.recipe.products[0].thingDef;
         // Calculate ratio based on recipe
-        float ratio = (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count;
-        this.outputCount = (int)(count / ratio);
+        float ratio =
+          (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count;
+        this.outputCount = Mathf.Max(1, (int)(count / ratio));
       }
       else
       {
@@ -258,18 +339,23 @@ namespace ProductionExpanded
         else
         {
           this.outputType = ingredient.def; // Fallback
+          Log.Warning($"[Production Expanded] No output mapping found for {ingredient.def.defName}, using same type as fallback");
         }
 
         float ratio = settings?.ratio ?? 1.0f;
-        this.outputCount = (int)(count * ratio);
-        if (this.outputCount < 1) this.outputCount = 1; // Ensure strictly positive output for now
+        this.outputCount = Mathf.Max(1, (int)(count * ratio));
       }
 
       this.cycles = extensionCycles;
-      this.totalTicksPerCycle = ticksPerItem * inputCount;
-      if (this.totalTicksPerCycle < ticksPerItem * 10) this.totalTicksPerCycle = ticksPerItem * 10;
-
       this.inputCount = count;
+      this.totalTicksPerCycle = Mathf.Max(ticksPerItem * 10, ticksPerItem * inputCount);
+
+      // Validate final state
+      if (this.outputCount <= 0)
+      {
+        Log.Error($"[Production Expanded] Invalid outputCount ({this.outputCount}) calculated for {ingredient.def.defName}");
+        this.outputCount = 1; // Emergency fallback
+      }
     }
 
     public void CompleteProcessingCycle()
@@ -308,11 +394,23 @@ namespace ProductionExpanded
           {
             activeBill.Notify_IterationCompleted(null, new List<Thing>());
           }
+          else if (isProcessing)
+          {
+            // Bill was deleted while processing - just log it
+            Log.Error($"[Production Expanded] Completed processing but bill was removed.");
+          }
+        }
+
+        // Clear stored ingredients (they've been consumed during processing)
+        if (ingredientContainer != null)
+        {
+          ingredientContainer.ClearAndDestroyContents();
         }
 
         // Reset
         isFinished = false;
-        if (heatPusher != null) heatPusher.enabled = false;
+        if (heatPusher != null)
+          heatPusher.enabled = false;
         isProcessing = false;
         activeBill = null;
         isWaitingForCycleInteraction = false;
@@ -329,17 +427,25 @@ namespace ProductionExpanded
 
     // Standard accessors
     public bool getIsProcessing() => isProcessing;
+
     public bool getIsFinished() => isFinished;
+
     public int getCapacityRemaining() => capacityRemaining;
+
     public bool getIsReady() => CanContinueProcessing();
+
     public bool getIsWaitingForNextCycle() => isWaitingForCycleInteraction;
+
     public Bill_Production GetActiveBill() => activeBill;
+
     public ThingDef getInputItem() => inputType;
+
     public CompProperties_ResourceProcessor getProps() => Props;
 
     public override string CompInspectStringExtra()
     {
-      if (!parent.Spawned) return "";
+      if (!parent.Spawned)
+        return "";
 
       System.Text.StringBuilder str = new System.Text.StringBuilder();
 
@@ -349,7 +455,9 @@ namespace ProductionExpanded
       }
       else if (isProcessing)
       {
-        str.AppendLine($"Processing {cachedLabel ?? "Material"}: {(float)progressTicks / totalTicksPerCycle:P0}");
+        str.AppendLine(
+          $"Processing {cachedLabel ?? "Material"}: {(float)progressTicks / totalTicksPerCycle:P0}"
+        );
         if (cycles > 1)
         {
           str.AppendLine("Cycles remaining: " + (cycles - currentCycle));
@@ -375,13 +483,43 @@ namespace ProductionExpanded
       Scribe_Values.Look(ref currentCycle, "currentCycle", 0);
       Scribe_Values.Look(ref inputCount, "inputCount", 0);
       Scribe_Values.Look(ref outputCount, "outputCount", 0);
+      Scribe_Values.Look(ref capacityRemaining, "capacityRemaining", Props.maxCapacity);
+      Scribe_Values.Look(ref cachedLabel, "cachedLabel", null);
       Scribe_Defs.Look(ref inputType, "inputType");
       Scribe_Defs.Look(ref outputType, "outputType");
 
-      // We don't save activeBill ref strictly because it's transient in the BillStack?
-      // Actually vanilla tracks bill IDs. For now, we risk losing the link on load if not handled.
-      // But typically we just need to know we ARE processing. Usage of activeBill is mainly for decrementing on finish.
-      // If we load and activeBill is null, we just won't decrement. Acceptable for now.
+      // Save reference to the bill
+      Scribe_References.Look(ref activeBill, "activeBill");
+
+      // Save ingredient container
+      Scribe_Deep.Look(ref ingredientContainer, "ingredientContainer", this);
+
+      // After loading, validate and initialize
+      if (Scribe.mode == LoadSaveMode.PostLoadInit)
+      {
+        if (ingredientContainer == null)
+        {
+          ingredientContainer = new ThingOwner<Thing>(this);
+        }
+
+        if (isProcessing && activeBill == null)
+        {
+          Log.Warning(
+            $"[Production Expanded] Processor at {parent.Position} lost its bill reference on load. Processing will complete but bill won't be decremented."
+          );
+        }
+      }
+    }
+
+    // IThingHolder implementation
+    public ThingOwner GetDirectlyHeldThings()
+    {
+      return ingredientContainer;
+    }
+
+    public void GetChildHolders(List<IThingHolder> outChildren)
+    {
+      ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
     }
   }
 }
