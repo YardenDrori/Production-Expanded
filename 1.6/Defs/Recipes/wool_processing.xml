@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<Defs>
+  <RecipeDef>
+    <defName>PE_Process_SpinWool</defName>
+    <label>spin wool</label>
+    <description>Clean and spin raw wool fleece into usable wool fabric.</description>
+    <jobString>spinning wool</jobString>
+    <workAmount>400</workAmount>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <recipeUsers>
+      <li>HandTailoringBench</li>
+      <li>CraftingSpot</li>
+      <li>ElectricTailoringBench</li>
+    </recipeUsers>
+    <ingredients>
+      <li>
+        <filter>
+          <categories>
+            <li>PE_RawWools</li>
+          </categories>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <categories>
+        <li>PE_RawWools</li>
+      </categories>
+    </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <categories>
+        <li>PE_RawWools</li>
+      </categories>
+    </defaultIngredientFilter>
+    <products>
+      <WoolSheep>1</WoolSheep>
+      <!-- placeholder, will be replaced dynamically -->
+    </products>
+    <modExtensions>
+      <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <useDynamicOutput>true</useDynamicOutput>
+      </li>
+    </modExtensions>
+  </RecipeDef>
+  <RecipeDef>
+    <defName>PE_Process_SpinWoolBulk</defName>
+    <label>spin wool x10</label>
+    <description>Clean and spin raw wool fleece into usable wool fabric.</description>
+    <jobString>spinning wool</jobString>
+    <workAmount>4000</workAmount>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <recipeUsers>
+      <li>HandTailoringBench</li>
+      <li>ElectricTailoringBench</li>
+    </recipeUsers>
+    <ingredients>
+      <li>
+        <filter>
+          <categories>
+            <li>PE_RawWools</li>
+          </categories>
+        </filter>
+        <count>10</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <categories>
+        <li>PE_RawWools</li>
+      </categories>
+    </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <categories>
+        <li>PE_RawWools</li>
+      </categories>
+    </defaultIngredientFilter>
+    <products>
+      <WoolSheep>1</WoolSheep>
+      <!-- placeholder, will be replaced dynamically -->
+    </products>
+    <modExtensions>
+      <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <useDynamicOutput>true</useDynamicOutput>
+      </li>
+    </modExtensions>
+  </RecipeDef>
+  <RecipeDef>
+    <defName>PE_Process_SpinWoolSpinner</defName>
+    <label>spin wool</label>
+    <description>Clean and spin raw wool fleece into usable wool fabric.</description>
+    <jobString>spinning wool</jobString>
+    <workAmount>150</workAmount>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <recipeUsers>
+      <li>PE_ClothSpinner</li>
+    </recipeUsers>
+    <ingredients>
+      <li>
+        <filter>
+          <categories>
+            <li>PE_RawWools</li>
+          </categories>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <categories>
+        <li>PE_RawWools</li>
+      </categories>
+    </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <categories>
+        <li>PE_RawWools</li>
+      </categories>
+    </defaultIngredientFilter>
+    <products>
+      <WoolSheep>1</WoolSheep>
+      <!-- placeholder, will be replaced dynamically -->
+    </products>
+    <modExtensions>
+      <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <useDynamicOutput>true</useDynamicOutput>
+      </li>
+    </modExtensions>
+  </RecipeDef>
+  <RecipeDef>
+    <defName>PE_Process_SpinWoolSpinnerBulk</defName>
+    <label>spin wool x10</label>
+    <description>Clean and spin raw wool fleece into usable wool fabric.</description>
+    <jobString>spinning wool</jobString>
+    <workAmount>1500</workAmount>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <recipeUsers>
+      <li>PE_ClothSpinner</li>
+    </recipeUsers>
+    <ingredients>
+      <li>
+        <filter>
+          <categories>
+            <li>PE_RawWools</li>
+          </categories>
+        </filter>
+        <count>10</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <categories>
+        <li>PE_RawWools</li>
+      </categories>
+    </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <categories>
+        <li>PE_RawWools</li>
+      </categories>
+    </defaultIngredientFilter>
+    <products>
+      <WoolSheep>1</WoolSheep>
+      <!-- placeholder, will be replaced dynamically -->
+    </products>
+    <modExtensions>
+      <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <useDynamicOutput>true</useDynamicOutput>
+      </li>
+    </modExtensions>
+  </RecipeDef>
+</Defs>

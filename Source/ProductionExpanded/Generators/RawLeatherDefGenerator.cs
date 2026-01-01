@@ -107,12 +107,12 @@ namespace ProductionExpanded
       var size = LeatherTypeHelper.GetSizeCategory(finishedLeather);
       string texturePath = LeatherTypeHelper.GetTexturePath(category, size);
 
-      if (Prefs.DevMode)
-      {
-        Log.Message(
-          $"[Production Expanded] Creating raw leather for {finishedLeather.defName}: category={category}, size={size}, texPath={texturePath}"
-        );
-      }
+      // if (Prefs.DevMode)
+      // {
+      //   Log.Message(
+      //     $"[Production Expanded] Creating raw leather for {finishedLeather.defName}: category={category}, size={size}, texPath={texturePath}"
+      //   );
+      // }
 
       // Create new ThingDef
       var rawLeather = new ThingDef

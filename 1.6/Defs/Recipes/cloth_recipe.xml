@@ -28,6 +28,7 @@
     </skillRequirements>
     <recipeUsers>
       <li>HandTailoringBench</li>
+      <li>CraftingSpot</li>
       <li>ElectricTailoringBench</li>
       <!-- <li>TableMachining</li> -->
     </recipeUsers>

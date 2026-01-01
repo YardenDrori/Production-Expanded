@@ -113,9 +113,9 @@ namespace ProductionExpanded
       AnalyzeSourceAnimal(leatherDef, evidence);
 
       // Log the evidence for debugging (always log for now to debug categorization)
-      Log.Message(
-        $"[Production Expanded] Leather categorization for {leatherDef.defName}: {evidence}"
-      );
+      // Log.Message(
+      //   $"[Production Expanded] Leather categorization for {leatherDef.defName}: {evidence}"
+      // );
 
       return evidence.GetWinner();
     }
