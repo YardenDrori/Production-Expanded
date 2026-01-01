@@ -93,7 +93,7 @@
     </placeWorkers>
     <techLevel>Industrial</techLevel>
     <researchPrerequisites>
-      <li>BasicMicroelectronics</li>
+      <li>MicroelectronicsBasics</li>
     </researchPrerequisites>
   </ThingDef>
   <ThingDef ParentName="BuildingBase">

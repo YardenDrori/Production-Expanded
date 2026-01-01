@@ -141,6 +141,7 @@
         <maxCapacity>120</maxCapacity>
         <hasIdlePowerCost>true</hasIdlePowerCost>
         <usesOnTexture>true</usesOnTexture>
+        <keepOnTextureOnFinish>true</keepOnTextureOnFinish>
       </li>
     </comps>
     <tickerType>Rare</tickerType>

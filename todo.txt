@@ -1,3 +1,9 @@
 make passive buildings play sfx upon inserting extracting or starting new cycle
 add translation support
 fix shadows for buildings
+make bills in order
+make vanilla electric building variants use custom research
+make cusom research be positioned correctly
+fix building item x2 capaity factor not working
+add gizmo to see max capacity
+fix timber texture

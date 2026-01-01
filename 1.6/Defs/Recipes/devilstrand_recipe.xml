@@ -8,7 +8,7 @@
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>840</workAmount>
+    <workAmount>940</workAmount>
     <ingredients>
       <li>
         <filter>
@@ -41,7 +41,7 @@
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>3360</workAmount>
+    <workAmount>3760</workAmount>
     <ingredients>
       <li>
         <filter>

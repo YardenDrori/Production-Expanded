@@ -123,6 +123,7 @@
       <WoolSheep>1</WoolSheep>
       <!-- placeholder, will be replaced dynamically -->
     </products>
+    <displayPriority>920</displayPriority>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
         <useDynamicOutput>true</useDynamicOutput>
@@ -165,6 +166,7 @@
       <WoolSheep>1</WoolSheep>
       <!-- placeholder, will be replaced dynamically -->
     </products>
+    <displayPriority>920</displayPriority>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
         <useDynamicOutput>true</useDynamicOutput>
