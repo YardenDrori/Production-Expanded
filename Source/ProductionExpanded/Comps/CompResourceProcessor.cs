@@ -302,7 +302,8 @@ namespace ProductionExpanded
 
       // Read settings from Recipe ModExtension
       var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-      int ticksPerItem = settings?.ticksPerItem ?? 2500; // Default
+      bool isDynamic = settings?.useDynamicOutput ?? false;
+      int ticksPerItem = settings?.ticksPerItem ?? 2500;
       int extensionCycles = settings?.cycles ?? 1;
 
       if (isProcessing)
@@ -314,21 +315,16 @@ namespace ProductionExpanded
         // Calculate additional output based on recipe
         if (bill.recipe.products != null && bill.recipe.products.Count > 0)
         {
-          float ratio =
-            (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count;
-          int additionalOutput = Mathf.Max(1, (int)(count / ratio));
-          this.outputCount += additionalOutput;
-        }
-        else
-        {
-          // Dynamic output or 1:1 fallback
           float ratio = settings?.ratio ?? 1.0f;
           int additionalOutput = Mathf.Max(1, (int)(count * ratio));
           this.outputCount += additionalOutput;
         }
+        else
+        {
+          Log.Error("[Production Expanded] Failed to find bill information");
+        }
 
         totalTicksPerCycle = ticksPerItem * this.inputCount;
-        // Min time clamps...
 
         // Recalculate progress
         currentCycle = 0;
@@ -357,18 +353,29 @@ namespace ProductionExpanded
       this.inputType = ingredient.def;
       this.cachedLabel = ingredient.Label;
 
-      // Determine Output
-      if (bill.recipe.products != null && bill.recipe.products.Count > 0)
+      if (!isDynamic)
       {
-        this.outputType = bill.recipe.products[0].thingDef;
-        // Calculate ratio based on recipe
-        float ratio =
-          (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count;
-        this.outputCount = Mathf.Max(1, (int)(count / ratio));
+        if (bill.recipe.products != null && bill.recipe.products.Count > 0)
+        {
+          this.outputType = bill.recipe.products[0].thingDef;
+          // Use modExtension ratio if specified, otherwise calculate from recipe
+          float ratio =
+            settings?.ratio
+            ?? ((float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count);
+
+          this.outputCount = Mathf.Max(1, (int)(count * ratio));
+        }
+        else
+        {
+          Log.Error(
+            $"[Production Expanded] Static recipe {bill.recipe.defName} has no products defined!"
+          );
+          // Fallback or return
+        }
       }
       else
       {
-        // Dynamic Output
+        // DYNAMIC: Look up in registry
         ThingDef potentialOutput = RawToFinishedRegistry.GetFinished(ingredient.def);
         if (potentialOutput != null)
         {
@@ -376,9 +383,9 @@ namespace ProductionExpanded
         }
         else
         {
-          this.outputType = ingredient.def; // Fallback
+          this.outputType = ingredient.def;
           Log.Warning(
-            $"[Production Expanded] No output mapping found for {ingredient.def.defName}, using same type as fallback"
+            $"[Production Expanded] No output mapping found for {ingredient.def.defName}"
           );
         }
 
@@ -404,8 +411,6 @@ namespace ProductionExpanded
         );
         this.outputCount = 1; // Emergency fallback
       }
-
-      Log.Error($"{ticksPerItem}");
     }
 
     public void CompleteProcessingCycle()
@@ -417,11 +422,11 @@ namespace ProductionExpanded
       if (currentCycle >= cycles)
       {
         parent.DirtyMapMesh(parent.Map);
-        UpdateGlower();
         isWaitingForCycleInteraction = false;
         processorTracker.processorsNeedingEmpty.Add((Building_Processor)parent);
         isFinished = true;
         isInspectStringDirty = true;
+        UpdateGlower();
         return;
       }
       processorTracker.processorsNeedingCycleStart.Add((Building_Processor)parent);
@@ -501,7 +506,7 @@ namespace ProductionExpanded
       else if (isProcessing && cycles == 1)
       {
         inspectMessageCahce =
-          $"Processing {inputType.label ?? "Material"} x{inputCount}: {(float)progressTicks / totalTicksPerCycle:P0}\n\n{totalTicksPerCycle}";
+          $"Processing {inputType.label ?? "Material"} x{inputCount}: {(float)progressTicks / totalTicksPerCycle:P0}";
       }
       else if (isProcessing)
       {
