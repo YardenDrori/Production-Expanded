@@ -312,10 +312,13 @@ namespace ProductionExpanded
         int totalTicksPassed = totalTicksPerCycle * currentCycle + progressTicks;
         this.inputCount += count;
 
-        // Calculate additional output based on recipe
         float ratio =
           settings?.ratio
-          ?? ((float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count);
+          ?? (
+            isDynamic
+              ? 1.0f
+              : (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count
+          );
         int additionalOutput = Mathf.Max(1, (int)(count * ratio));
         this.outputCount += additionalOutput;
 
