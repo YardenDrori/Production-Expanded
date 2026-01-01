@@ -29,7 +29,6 @@ namespace ProductionExpanded
           && comp.getIsProcessing()
           && comp.CanContinueProcessing()
           && !comp.getIsWaitingForNextCycle()
-          && !comp.getIsFinished()
           && comp.getProps().usesOnTexture
         )
         {
