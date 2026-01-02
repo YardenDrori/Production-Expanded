@@ -91,6 +91,7 @@
     <techLevel>Industrial</techLevel>
     <researchPrerequisites>
       <li>PE_advancedProcessing</li>
+      <li>MicroelectronicsBasics</li>
     </researchPrerequisites>
   </ThingDef>
 </Defs>

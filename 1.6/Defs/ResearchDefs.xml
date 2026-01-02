@@ -3,7 +3,7 @@
   <ResearchProjectDef>
     <defName>PE_advancedProcessing</defName>
     <label>industrial processing</label>
-    <description>Unlock advanced industrial processing techniques and machinery. Learn to construct electric-powered equipment for sawmilling, smelting, and textile production that dramatically increases output compared to manual methods.</description>
+    <description>Learn to construct electric-powered equipment that dramatically increases output compared to manual methods.</description>
     <baseCost>600</baseCost>
     <techLevel>Industrial</techLevel>
     <prerequisites>
@@ -11,6 +11,6 @@
       <li>Smithing</li>
     </prerequisites>
     <researchViewX>5.00</researchViewX>
-    <researchViewY>3.50</researchViewY>
+    <researchViewY>2.5</researchViewY>
   </ResearchProjectDef>
 </Defs>

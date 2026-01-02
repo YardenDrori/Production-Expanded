@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<Defs>
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="ElectricCrematorium"]/researchPrerequisites</xpath>
+    <value>
+      <li>PE_advancedProcessing</li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="ElectricSmelter"]/researchPrerequisites</xpath>
+    <value>
+      <li>PE_advancedProcessing</li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="ElectricSmithy"]/researchPrerequisites</xpath>
+    <value>
+      <li>PE_advancedProcessing</li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="ElectricSmithy"]/researchPrerequisites</xpath>
+    <value>
+      <li>PE_advancedProcessing</li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ResearchProjectDef[defName="Fabrication"]/prerequisites</xpath>
+    <value>
+      <li>PE_advancedProcessing</li>
+    </value>
+  </Operation>
+</Defs>
