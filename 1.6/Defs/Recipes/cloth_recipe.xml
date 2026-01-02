@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <!-- Process raw wood logs into lumber -->
   <RecipeDef>
     <defName>PE_ProcessCottonToCloth</defName>
     <label>process raw cotton into cloth</label>
-    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <description>Process raw cotton into cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>180</workAmount>
+    <workAmount>140</workAmount>
     <ingredients>
       <li>
         <filter>
@@ -28,6 +27,7 @@
     </skillRequirements>
     <recipeUsers>
       <li>HandTailoringBench</li>
+      <li>CraftingSpot</li>
       <li>ElectricTailoringBench</li>
       <!-- <li>TableMachining</li> -->
     </recipeUsers>
@@ -37,12 +37,12 @@
   <RecipeDef>
     <defName>PE_ProcessCottonToClothBulk</defName>
     <label>process raw cotton into cloth x10</label>
-    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <description>Process raw cotton into cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>1800</workAmount>
+    <workAmount>1400</workAmount>
     <ingredients>
       <li>
         <filter>
@@ -69,12 +69,12 @@
   <RecipeDef>
     <defName>PE_ProcessCottonToClothWithSpinner</defName>
     <label>process raw cotton into cloth</label>
-    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <description>Process raw cotton into cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>50</workAmount>
+    <workAmount>70</workAmount>
     <ingredients>
       <li>
         <filter>
@@ -96,16 +96,15 @@
     </recipeUsers>
     <displayPriority>40</displayPriority>
   </RecipeDef>
-  <!-- Bulk version -->
   <RecipeDef>
     <defName>PE_ProcessCottonToClothWithSpinnerBulk</defName>
     <label>process raw cotton into cloth x10</label>
-    <description>Process raw cotton logs into cloth suitable for use in fabrics.</description>
+    <description>Process raw cotton into cloth suitable for use in fabrics.</description>
     <jobString>Processing cloth.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>500</workAmount>
+    <workAmount>700</workAmount>
     <ingredients>
       <li>
         <filter>

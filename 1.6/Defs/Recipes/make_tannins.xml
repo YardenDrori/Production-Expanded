@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<Defs>
+  <RecipeDef>
+    <defName>MakeTannins</defName>
+    <label>extract tannins</label>
+    <description>Boil lumber in water to extract natural tannins, producing tanning liquor used for preserving and treating raw hides into leather.</description>
+    <jobString>Extracting tannins.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Smelt</effectWorking>
+    <soundWorking>Recipe_Smelt</soundWorking>
+    <allowMixingIngredients>true</allowMixingIngredients>
+    <workAmount>600</workAmount>
+    <targetCountAdjustment>1</targetCountAdjustment>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>WoodLog</li>
+          </thingDefs>
+        </filter>
+        <count>5</count>
+      </li>
+    </ingredients>
+    <products>
+      <PE_Tannin>10</PE_Tannin>
+    </products>
+    <recipeUsers>
+      <li>CraftingSpot</li>
+      <li>ElectricSmithy</li>
+      <li>FueledSmithy</li>
+    </recipeUsers>
+    <displayPriority>10</displayPriority>
+  </RecipeDef>
+</Defs>

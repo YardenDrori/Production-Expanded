@@ -7,10 +7,6 @@ namespace ProductionExpanded
 {
   public class JobDriver_StartNextProcessorCycle : JobDriver
   {
-    private const TargetIndex ProcessorInd = TargetIndex.A;
-
-    private const int Duration = 200;
-
     protected Building_Processor Processor =>
       (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
 

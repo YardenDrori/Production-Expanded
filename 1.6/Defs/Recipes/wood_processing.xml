@@ -128,22 +128,39 @@
         </recipeUsers>
         <displayPriority>29</displayPriority>
     </RecipeDef>
-    <ProductionExpanded.ProcessDef>
+    <RecipeDef>
         <defName>PE_ProcessWoodViaAutoSaw</defName>
         <label>refine lumber</label>
         <description>Refine logs into lumber.</description>
-        <ticksPerItem>1600</ticksPerItem>
-        <cycles>1</cycles>
-        <ratio>1</ratio>
-        <capacityFactor>1</capacityFactor>
-        <ingredientFilter>
-            <thingDefs>
-                <li>WoodRaw</li>
-            </thingDefs>
-        </ingredientFilter>
-        <outputDef>WoodLog</outputDef>
+        <jobString>refining lumber</jobString>
+        <workAmount>500</workAmount>
         <recipeUsers>
             <li>PE_AutoSawTable</li>
         </recipeUsers>
-    </ProductionExpanded.ProcessDef>
+        <ingredients>
+            <li>
+                <filter>
+                    <thingDefs>
+                        <li>WoodRaw</li>
+                    </thingDefs>
+                </filter>
+                <count>1</count>
+            </li>
+        </ingredients>
+        <fixedIngredientFilter>
+            <thingDefs>
+                <li>WoodRaw</li>
+            </thingDefs>
+        </fixedIngredientFilter>
+        <products>
+            <WoodLog>1</WoodLog>
+        </products>
+        <modExtensions>
+            <li Class="ProductionExpanded.RecipeExtension_Processor">
+                <ticksPerItem>1600</ticksPerItem>
+                <cycles>1</cycles>
+                <capacityFactor>1</capacityFactor>
+            </li>
+        </modExtensions>
+    </RecipeDef>
 </Defs>

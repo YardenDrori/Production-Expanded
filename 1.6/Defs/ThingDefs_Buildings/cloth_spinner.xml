@@ -3,7 +3,7 @@
   <ThingDef ParentName="BenchBase">
     <defName>PE_ClothSpinner</defName>
     <label>cloth spinner</label>
-    <description>TODO</description>
+    <description>An electric spinning machine that processes raw cotton and other plant fibers into usable cloth. The mechanical spindles work much faster than hand-spinning at a tailoring bench. Requires an operator to work.</description>
     <inspectorTabs>
       <li>ITab_Bills</li>
     </inspectorTabs>
@@ -29,7 +29,7 @@
     </graphicData>
     <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
     <costList>
-      <Steel>90</Steel>
+      <Steel>120</Steel>
       <ComponentIndustrial>2</ComponentIndustrial>
     </costList>
     <altitudeLayer>BuildingOnTop</altitudeLayer>
@@ -70,7 +70,7 @@
     </placeWorkers>
     <techLevel>Industrial</techLevel>
     <researchPrerequisites>
-      <li>Electricity</li>
+      <li>PE_advancedProcessing</li>
     </researchPrerequisites>
   </ThingDef>
 </Defs>

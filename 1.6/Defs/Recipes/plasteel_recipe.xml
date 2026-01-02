@@ -1,39 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <ProductionExpanded.ProcessDef>
+  <RecipeDef>
     <defName>PE_ForgePlasteelArcFurnace</defName>
     <label>refine plasteel</label>
     <description>Refine plasteel composite into pure plasteel.</description>
-    <ticksPerItem>4980</ticksPerItem>
-    <cycles>2</cycles>
-    <ratio>1</ratio>
-    <capacityFactor>2</capacityFactor>
-    <ingredientFilter>
-      <thingDefs>
-        <li>PE_UnrefinedPlasteel</li>
-      </thingDefs>
-    </ingredientFilter>
-    <outputDef>Plasteel</outputDef>
+    <jobString>refining plasteel</jobString>
+    <workAmount>500</workAmount>
     <recipeUsers>
       <li>ME_ArcFurnace</li>
     </recipeUsers>
-  </ProductionExpanded.ProcessDef>
-  <ProductionExpanded.ProcessDef>
-    <defName>PE_ForgePlasteelWoodFurnace</defName>
-    <label>extract plasteel</label>
-    <description>Refine plasteel composite into pure plasteel.</description>
-    <ticksPerItem>10000</ticksPerItem>
-    <cycles>3</cycles>
-    <ratio>1</ratio>
-    <capacityFactor>3</capacityFactor>
-    <ingredientFilter>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>PE_UnrefinedPlasteel</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
       <thingDefs>
         <li>PE_UnrefinedPlasteel</li>
       </thingDefs>
-    </ingredientFilter>
-    <outputDef>Plasteel</outputDef>
+    </fixedIngredientFilter>
+    <products>
+      <Plasteel>1</Plasteel>
+    </products>
+    <modExtensions>
+      <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <ticksPerItem>4980</ticksPerItem>
+        <cycles>2</cycles>
+        <capacityFactor>2</capacityFactor>
+      </li>
+    </modExtensions>
+  </RecipeDef>
+  <RecipeDef>
+    <defName>PE_ForgePlasteelWoodFurnace</defName>
+    <label>extract plasteel</label>
+    <description>Refine plasteel composite into pure plasteel.</description>
+    <jobString>extracting plasteel</jobString>
+    <workAmount>500</workAmount>
     <recipeUsers>
       <li>ME_WoodFiredFurnace</li>
     </recipeUsers>
-  </ProductionExpanded.ProcessDef>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>PE_UnrefinedPlasteel</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <products>
+      <Plasteel>1</Plasteel>
+    </products>
+    <modExtensions>
+      <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <ticksPerItem>10000</ticksPerItem>
+        <cycles>3</cycles>
+        <capacityFactor>3</capacityFactor>
+      </li>
+    </modExtensions>
+  </RecipeDef>
 </Defs>

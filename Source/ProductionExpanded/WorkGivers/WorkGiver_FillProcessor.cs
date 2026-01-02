@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -8,184 +8,140 @@ namespace ProductionExpanded
 {
   public class WorkGiver_FillProcessor : WorkGiver_Scanner
   {
-    private static string NoMaterialsTrans;
-    private static string AlreadyFinishedTrans;
-
-    public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForUndefined();
-
     public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
     {
-      MapComponent_ProcessorTracker tracker =
-        pawn.Map.GetComponent<MapComponent_ProcessorTracker>();
-      if (tracker == null)
+      // Use our tracker - return a copy to prevent concurrent modification
+      var tracker = pawn.Map?.GetComponent<MapComponent_ProcessorTracker>();
+      if (tracker != null)
       {
-        yield break;
+        // Create a new list to prevent concurrent modification while multiple pawns iterate
+        return new List<Thing>(tracker.processorsNeedingFill);
       }
-
-      foreach (Building_Processor processor in tracker.processorsNeedingFill)
-      {
-        yield return processor;
-      }
-    }
-
-    public override PathEndMode PathEndMode => PathEndMode.Touch;
-
-    public static void ResetStaticData()
-    {
-      NoMaterialsTrans = "NoMaterials".Translate();
-      AlreadyFinishedTrans = "AlreadyFinished".Translate();
+      Log.Error("[Production Expanded] no mak cache found, fuck you! nah im joking i <3 you!");
+      return base.PotentialWorkThingsGlobal(pawn);
     }
 
     public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
     {
-      Building_Processor processor = t as Building_Processor;
-      if (processor == null)
+      if (!(t is Building_Processor processor))
         return false;
 
       CompResourceProcessor comp = processor.GetComp<CompResourceProcessor>();
-      if (comp == null)
-      {
-        Log.Error(
-          $"[Production Expanded] Building {t.def.defName} is tracked but has no CompResourceProcessor"
-        );
+      if (comp == null || !comp.getIsReady() || comp.getCapacityRemaining() <= 0)
         return false;
-      }
 
-      if (comp.getCapacityRemaining() <= 0)
-      {
-        JobFailReason.IsSilent();
+      if (t.IsForbidden(pawn))
         return false;
-      }
-
-      if (comp.getIsFinished())
-      {
-        JobFailReason.IsSilent();
-        return false;
-      }
-
-      // Check active bills
-      if (processor.activeBills.Count == 0)
-      {
-        JobFailReason.IsSilent();
-        return false;
-      }
-
       if (!pawn.CanReserve(t, 1, -1, null, forced))
-      {
         return false;
+
+      if (comp.getIsProcessing())
+      {
+        // Only accept matching input
+        return FindIngredient(pawn, processor, comp.getInputItem()) != null;
       }
 
-      if (t.def.hasInteractionCell && !pawn.CanReserveSittableOrSpot(t.InteractionCell, t, forced))
+      // Check bills
+      foreach (Bill bill in processor.BillStack)
       {
-        return false;
-      }
-
-      if (pawn.Map.designationManager.DesignationOn(t, DesignationDefOf.Deconstruct) != null)
-      {
-        return false;
-      }
-
-      if (t.IsBurning())
-      {
-        return false;
-      }
-
-      // Check if we can find materials for any active bill
-      // Optimization: Get generic list of valid ingredients first?
-      // Or iterate bills? Iterating bills is safer for logic.
-
-      foreach (ProcessBill bill in processor.activeBills)
-      {
-        // Skip suspended or fulfilled bills
-        if (bill.isSuspended)
-          continue;
-        if (bill.IsFulfilled())
-          continue;
-
-        // Check if this pawn is allowed to work this bill
-        if (bill.allowedWorker == AllowedWorker.Slave && !pawn.IsSlave)
-          continue;  // Try next bill
-        if (bill.allowedWorker == AllowedWorker.Mech && !pawn.IsColonyMechPlayerControlled)
-          continue;  // Try next bill
-        if (bill.allowedWorker == AllowedWorker.SpecificPawn && pawn != bill.worker)
-          continue;  // Try next bill
-
-        Thing foundThing = FindMaterials(pawn, bill, processor);
-        if (foundThing == null)
-          continue;
-
-        if (comp.GetActiveBill() == null)
+        if (bill.ShouldDoNow() && bill.recipe.fixedIngredientFilter != null)
         {
-          return true;
-        }
-        else if (comp.getInputItem() == foundThing.def)
-        {
-          return true;
+          if (FindIngredientForBill(pawn, processor, (Bill_Production)bill) != null)
+            return true;
         }
       }
-
-      JobFailReason.Is(NoMaterialsTrans);
       return false;
     }
 
     public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
     {
-      Building_Processor processor = t as Building_Processor;
-      if (processor == null)
+      if (!(t is Building_Processor processor))
         return null;
 
-      foreach (ProcessBill bill in processor.activeBills)
+      CompResourceProcessor comp = processor.GetComp<CompResourceProcessor>();
+      if (comp == null || !comp.getIsReady() || comp.getCapacityRemaining() <= 0)
+        return null;
+
+      if (t.IsForbidden(pawn) || !pawn.CanReserve(t, 1, -1, null, forced))
+        return null;
+
+      if (comp.getIsProcessing())
       {
-        // Skip suspended or fulfilled bills
-        if (bill.isSuspended)
-          continue;
-        if (bill.IsFulfilled())
-          continue;
+        ThingDef requiredDef = comp.getInputItem();
+        if (requiredDef == null)
+          return null;
 
-        // Check if this pawn is allowed to work this bill
-        if (bill.allowedWorker == AllowedWorker.Slave && !pawn.IsSlave)
-          continue;
-        if (bill.allowedWorker == AllowedWorker.Mech && !pawn.IsColonyMechPlayerControlled)
-          continue;
-        if (bill.allowedWorker == AllowedWorker.SpecificPawn && pawn != bill.worker)
-          continue;
-
-        Thing thing = FindMaterials(pawn, bill, processor);
-        if (thing != null)
+        Thing ingredient = FindIngredient(pawn, processor, requiredDef);
+        if (ingredient != null)
         {
-          Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, thing);
+          Job job = JobMaker.MakeJob(
+            DefDatabase<JobDef>.GetNamed("PE_FillProcessor"),
+            t,
+            ingredient
+          );
+          job.count = Mathf.Min(ingredient.stackCount, comp.getCapacityRemaining());
           return job;
         }
+        return null;
       }
+
+      foreach (Bill_Production bill in processor.BillStack)
+      {
+        if (!bill.ShouldDoNow())
+          continue;
+
+        if (bill.recipe.fixedIngredientFilter != null)
+        {
+          Thing ingredient = FindIngredientForBill(pawn, processor, bill);
+          if (ingredient != null)
+          {
+            Job job = JobMaker.MakeJob(
+              DefDatabase<JobDef>.GetNamed("PE_FillProcessor"),
+              t,
+              ingredient
+            );
+            job.count = Mathf.Min(ingredient.stackCount, comp.getCapacityRemaining());
+            job.bill = bill; // Vanilla field
+            return job;
+          }
+        }
+      }
+
       return null;
     }
 
-    private Thing FindMaterials(Pawn pawn, ProcessBill bill, Building_Processor processor)
+    private Thing FindIngredient(Pawn pawn, Building_Processor processor, ThingDef def)
     {
-      if (bill.processFilter == null)
-        return null;
+      return GenClosest.ClosestThingReachable(
+        pawn.Position,
+        pawn.Map,
+        ThingRequest.ForDef(def),
+        PathEndMode.ClosestTouch,
+        TraverseParms.For(pawn),
+        9999f,
+        (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
+      );
+    }
 
-      Predicate<Thing> validator = (Thing x) =>
-        (!x.IsForbidden(pawn) && pawn.CanReserve(x) && bill.processFilter.Allows(x.def))
-          ? true
-          : false;
-
-      foreach (ThingDef def in bill.processFilter.allowedIngredients)
-      {
-        Thing found = GenClosest.ClosestThingReachable(
-          processor.Position,  // Use processor position, not pawn position
-          pawn.Map,
-          ThingRequest.ForDef(def),
-          PathEndMode.ClosestTouch,
-          TraverseParms.For(pawn),
-          bill.ingredientSearchRadius,
-          validator
-        );
-
-        if (found != null)
-          return found;
-      }
-      return null;
+    private Thing FindIngredientForBill(
+      Pawn pawn,
+      Building_Processor processor,
+      Bill_Production bill
+    )
+    {
+      return GenClosest.ClosestThingReachable(
+        pawn.Position,
+        pawn.Map,
+        ThingRequest.ForGroup(ThingRequestGroup.HaulableEver),
+        PathEndMode.ClosestTouch,
+        TraverseParms.For(pawn),
+        bill.ingredientSearchRadius,
+        (Thing x) =>
+          !x.IsForbidden(pawn)
+          && pawn.CanReserve(x)
+          && bill.recipe.fixedIngredientFilter.Allows(x)
+          && bill.ingredientFilter.Allows(x)
+      );
     }
   }
 }

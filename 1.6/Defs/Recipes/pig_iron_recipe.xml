@@ -3,8 +3,7 @@
   <RecipeDef>
     <defName>SmeltPigIron</defName>
     <label>smelt pig iron</label>
-    <description>Smelt iron with carbon from logs to produce crude pig iron. Must be further refined
-      in a blast furnace to create usable steel.</description>
+    <description>Smelt iron with carbon from wood to produce crude pig iron. Must be further refined in a blast furnace to create usable steel.</description>
     <jobString>Smelting pig iron.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Smelt</effectWorking>
@@ -31,7 +30,7 @@
       </li>
     </ingredients>
     <products>
-      <PE_PigIron>8</PE_PigIron>
+      <PE_PigIron>10</PE_PigIron>
     </products>
     <skillRequirements>
       <Crafting>0</Crafting>
@@ -45,8 +44,7 @@
   <RecipeDef>
     <defName>SmeltPigIronBulk</defName>
     <label>smelt pig iron x4</label>
-    <description>Smelt iron with carbon from logs to produce crude pig iron. Must be further in a
-      blast furnace to create usable steel.</description>
+    <description>Smelt iron with carbon from wood to produce crude pig iron. Must be further refined in a blast furnace to create usable steel.</description>
     <jobString>Smelting pig iron.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Smelt</effectWorking>
@@ -73,7 +71,7 @@
       </li>
     </ingredients>
     <products>
-      <PE_PigIron>32</PE_PigIron>
+      <PE_PigIron>40</PE_PigIron>
     </products>
     <skillRequirements>
       <Crafting>3</Crafting>

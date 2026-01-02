@@ -18,7 +18,12 @@ namespace ProductionExpanded.HarmonyPatches
     /// Replaces any finished leather with corresponding raw leather.
     /// </summary>
     [HarmonyPostfix]
-    public static IEnumerable<Thing> Postfix(IEnumerable<Thing> __result, Pawn __instance, Pawn butcher, float efficiency)
+    public static IEnumerable<Thing> Postfix(
+      IEnumerable<Thing> __result,
+      Pawn __instance,
+      Pawn butcher,
+      float efficiency
+    )
     {
       foreach (var thing in __result)
       {
@@ -29,12 +34,7 @@ namespace ProductionExpanded.HarmonyPatches
         {
           // Replace with raw leather version
           Thing rawThing = ThingMaker.MakeThing(rawLeather);
-          rawThing.stackCount = thing.stackCount;  // Keep same quantity
-
-          if (Prefs.DevMode && Prefs.LogVerbose)
-          {
-            Log.Message($"[Production Expanded] Butchering {__instance.LabelShort}: Replaced {thing.stackCount}x {thing.def.label} with {rawThing.stackCount}x {rawLeather.label}");
-          }
+          rawThing.stackCount = thing.stackCount; // Keep same quantity
 
           yield return rawThing;
         }

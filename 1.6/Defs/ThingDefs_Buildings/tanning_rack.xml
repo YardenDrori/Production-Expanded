@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <Defs>
   <ThingDef ParentName="BuildingBase">
-    <defName>PE_TanningDrum</defName>
-    <label>tanning drum</label>
-    <description>A rotating drum that soaks raw hides in tannin solution, preserving and softening them into usable leather.</description>
+    <defName>PE_TanningRack</defName>
+    <label>tanning rack</label>
+    <description>A wooden frame used for stretching and treating raw hides with tanning liquor. The tanning process requires careful monitoring and frequent attention to ensure the leather cures properly. Labor-intensive but produces quality results.</description>
     <inspectorTabs>
       <li>ITab_Bills</li>
     </inspectorTabs>
     <thingClass>ProductionExpanded.Building_Processor</thingClass>
     <drawerType>MapMeshAndRealTime</drawerType>
     <graphicData>
-      <texPath>Things/Building/Production/Tanning_Drum/TanningDrum</texPath>
+      <texPath>Things/Building/Production/PE_TanningRack/PE_TanningRack</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <shaderType>CutoutComplex</shaderType>
       <drawSize>(4,3)</drawSize>
@@ -26,9 +26,13 @@
       </damageData>
     </graphicData>
     <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
+    <!-- should stuff with wood -->
+    <stuffCategories>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>120</costStuffCount>
     <costList>
       <Steel>90</Steel>
-      <ComponentIndustrial>2</ComponentIndustrial>
     </costList>
     <altitudeLayer>BuildingOnTop</altitudeLayer>
     <fillPercent>1.0</fillPercent>
@@ -36,7 +40,7 @@
     <statBases>
       <WorkToBuild>1200</WorkToBuild>
       <MaxHitPoints>120</MaxHitPoints>
-      <Flammability>0.4</Flammability>
+      <Flammability>0.9</Flammability>
     </statBases>
     <size>(2,1)</size>
     <designationCategory>Production</designationCategory>
@@ -45,7 +49,7 @@
     <hasInteractionCell>True</hasInteractionCell>
     <interactionCellOffset>(0,0,-1)</interactionCellOffset>
     <defaultPlacingRot>North</defaultPlacingRot>
-    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
     <surfaceType>Item</surfaceType>
     <comps Inherit="false">
       <!-- <li Class="CompProperties_Refuelable"> -->
@@ -60,15 +64,16 @@
       <!--   <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle> -->
       <!-- </li> -->
       <li Class="CompProperties_Forbiddable"/>
-      <li Class="CompProperties_Power">
-        <compClass>CompPowerTrader</compClass>
-        <basePowerConsumption>40</basePowerConsumption>
-        <idlePowerDraw>22</idlePowerDraw>
-        <shortCircuitInRain>true</shortCircuitInRain>
-      </li>
+      <!-- <li Class="CompProperties_Power"> -->
+      <!--   <compClass>CompPowerTrader</compClass> -->
+      <!--   <basePowerConsumption>160</basePowerConsumption> -->
+      <!--   <idlePowerDraw>90</idlePowerDraw> -->
+      <!--   <shortCircuitInRain>true</shortCircuitInRain> -->
+      <!-- </li> -->
+      <!-- <li Class="CompProperties_Flickable"/> -->
       <li Class="CompProperties_Refuelable">
-        <fuelConsumptionRate>10</fuelConsumptionRate>
-        <fuelCapacity>20.0</fuelCapacity>
+        <fuelConsumptionRate>15</fuelConsumptionRate>
+        <fuelCapacity>10.0</fuelCapacity>
         <fuelFilter>
           <thingDefs>
             <li>PE_Tannin</li>
@@ -77,11 +82,11 @@
         <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
         <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
       </li>
-      <li Class="CompProperties_Flickable"/>
       <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
-        <maxCapacity>25</maxCapacity>
-        <hasIdlePowerCost>true</hasIdlePowerCost>
-        <usesOnTexture>false</usesOnTexture>
+        <maxCapacity>10</maxCapacity>
+        <hasIdlePowerCost>false</hasIdlePowerCost>
+        <usesOnTexture>true</usesOnTexture>
+        <keepOnTextureOnFinish>true</keepOnTextureOnFinish>
       </li>
     </comps>
     <tickerType>Rare</tickerType>
@@ -89,8 +94,5 @@
       <li>PlaceWorker_PreventInteractionSpotOverlap</li>
     </placeWorkers>
     <techLevel>Industrial</techLevel>
-    <researchPrerequisites>
-      <li>PE_advancedProcessing</li>
-    </researchPrerequisites>
   </ThingDef>
 </Defs>

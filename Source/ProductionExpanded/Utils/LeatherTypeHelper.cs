@@ -113,9 +113,9 @@ namespace ProductionExpanded
       AnalyzeSourceAnimal(leatherDef, evidence);
 
       // Log the evidence for debugging (always log for now to debug categorization)
-      Log.Message(
-        $"[Production Expanded] Leather categorization for {leatherDef.defName}: {evidence}"
-      );
+      // Log.Message(
+      //   $"[Production Expanded] Leather categorization for {leatherDef.defName}: {evidence}"
+      // );
 
       return evidence.GetWinner();
     }
@@ -471,17 +471,17 @@ namespace ProductionExpanded
       if (category == LeatherCategory.Fur)
       {
         categoryDesc =
-          $"An untanned pelt with fur still attached. Must be processed at a tanning station to produce <link=\"{finishedLeatherDef.defName}\">{finishedLeatherDef.label}</link>.";
+          $"An untanned pelt with fur still attached. Must be processed at a tanning station to produce <link={finishedLeatherDef.defName}>{finishedLeatherDef.label}</link>.";
       }
       else if (category == LeatherCategory.Scale)
       {
         categoryDesc =
-          $"Raw reptilian skin with scales intact. Must be processed at a tanning station to produce <link=\"{finishedLeatherDef.defName}\">{finishedLeatherDef.label}</link>.";
+          $"Raw reptilian skin with scales intact. Must be processed at a tanning station to produce <link={finishedLeatherDef.defName}>{finishedLeatherDef.label}</link>.";
       }
       else
       {
         categoryDesc =
-          $"An untanned animal hide. Must be processed at a tanning station to produce <link=\"{finishedLeatherDef.defName}\">{finishedLeatherDef.label}</link>.";
+          $"An untanned animal hide. Must be processed at a tanning station to produce <link={finishedLeatherDef.defName}>{finishedLeatherDef.label}</link>.";
       }
 
       return categoryDesc;

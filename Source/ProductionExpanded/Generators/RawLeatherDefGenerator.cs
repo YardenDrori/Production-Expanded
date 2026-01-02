@@ -14,7 +14,6 @@ namespace ProductionExpanded
   [StaticConstructorOnStartup]
   public static class RawLeatherDefGenerator
   {
-
     static RawLeatherDefGenerator()
     {
       // Run after defs are loaded but before game starts
@@ -42,9 +41,19 @@ namespace ProductionExpanded
 
         var rawLeather = CreateRawLeatherDef(finishedLeather);
 
-        // Add to DefDatabase WITHOUT initializing graphics yet
-        // RimWorld will call PostLoad/ResolveReferences during its normal def resolution phase
+        // Add to DefDatabase
         DefGenerator.AddImpliedDef(rawLeather);
+
+        // Manually resolve references since we're adding after def loading is done
+        try
+        {
+          rawLeather.PostLoad();
+          rawLeather.ResolveReferences();
+        }
+        catch (System.Exception e)
+        {
+          Log.Error($"[Production Expanded] Error initializing {rawLeather.defName}: {e}");
+        }
 
         // Manually add to category children since ResolveReferences has already run
         var rawLeatherCategory = DefDatabase<ThingCategoryDef>.GetNamed("PE_RawLeathers", true);
@@ -63,11 +72,31 @@ namespace ProductionExpanded
         $"[Production Expanded] Generated {generated} raw leather definitions from {allLeathers.Count} finished leathers."
       );
 
-      // Re-resolve all ProcessDef filters because they may have cached an empty list
-      // before we populated the PE_RawLeathers category.
-      foreach (var processDef in DefDatabase<ProcessDef>.AllDefs)
+      RimWorld.ResourceCounter.ResetDefs();
+
+      // Re-resolve vanilla RecipeDefs because their ingredient filters might have cached
+      // an empty list before we populated the PE_RawLeathers category.
+      foreach (var recipe in DefDatabase<RecipeDef>.AllDefs)
       {
-        processDef.ResolveReferences();
+        // We specifically target recipes that might use our categories
+        if (recipe.defName.StartsWith("PE_"))
+        {
+          if (recipe.ingredients != null)
+          {
+            foreach (var ing in recipe.ingredients)
+            {
+              ing.ResolveReferences();
+            }
+          }
+          if (recipe.fixedIngredientFilter != null)
+          {
+            recipe.fixedIngredientFilter.ResolveReferences();
+          }
+          if (recipe.defaultIngredientFilter != null)
+          {
+            recipe.defaultIngredientFilter.ResolveReferences();
+          }
+        }
       }
     }
 
@@ -78,12 +107,12 @@ namespace ProductionExpanded
       var size = LeatherTypeHelper.GetSizeCategory(finishedLeather);
       string texturePath = LeatherTypeHelper.GetTexturePath(category, size);
 
-      if (Prefs.DevMode)
-      {
-        Log.Message(
-          $"[Production Expanded] Creating raw leather for {finishedLeather.defName}: category={category}, size={size}, texPath={texturePath}"
-        );
-      }
+      // if (Prefs.DevMode)
+      // {
+      //   Log.Message(
+      //     $"[Production Expanded] Creating raw leather for {finishedLeather.defName}: category={category}, size={size}, texPath={texturePath}"
+      //   );
+      // }
 
       // Create new ThingDef
       var rawLeather = new ThingDef
@@ -139,6 +168,7 @@ namespace ProductionExpanded
         alwaysHaulable = true,
         rotatable = false,
         pathCost = DefGenerator.StandardItemPathCost,
+        hiddenWhileUndiscovered = false,
 
         // Thing class
         thingClass = typeof(ThingWithComps),

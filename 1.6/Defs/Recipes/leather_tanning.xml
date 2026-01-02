@@ -1,19 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <ProductionExpanded.ProcessDef>
+  <RecipeDef>
     <defName>PE_Process_TanLeather</defName>
     <label>tan leather</label>
     <description>Tan raw hides into finished leather.</description>
-    <ingredientFilter>
-      <categories>
-        <li>PE_RawLeathers</li>
-      </categories>
-    </ingredientFilter>
+    <jobString>tanning leather</jobString>
+    <workAmount>500</workAmount>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Cook</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
     <recipeUsers>
       <li>PE_TanningDrum</li>
     </recipeUsers>
-    <ticksPerItem>2500</ticksPerItem>
-    <ratio>1.0</ratio>
-    <capacityFactor>1</capacityFactor>
-  </ProductionExpanded.ProcessDef>
+    <ingredients>
+      <li>
+        <filter>
+          <categories>
+            <li>PE_RawLeathers</li>
+          </categories>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <categories>
+        <li>PE_RawLeathers</li>
+      </categories>
+    </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <categories>
+        <li>PE_RawLeathers</li>
+      </categories>
+    </defaultIngredientFilter>
+    <products>
+      <Leather_Plain>1</Leather_Plain>
+    </products>
+    <modExtensions>
+      <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <ticksPerItem>2500</ticksPerItem>
+        <useDynamicOutput>true</useDynamicOutput>
+        <ratio>1.0</ratio>
+        <capacityFactor>1</capacityFactor>
+      </li>
+    </modExtensions>
+  </RecipeDef>
+  <RecipeDef>
+    <defName>PE_Process_TanLeatherRack</defName>
+    <label>tan leather</label>
+    <description>Tan raw hides into finished leather.</description>
+    <jobString>tanning leather</jobString>
+    <workAmount>500</workAmount>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Cook</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
+    <recipeUsers>
+      <li>PE_TanningRack</li>
+    </recipeUsers>
+    <ingredients>
+      <li>
+        <filter>
+          <categories>
+            <li>PE_RawLeathers</li>
+          </categories>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <categories>
+        <li>PE_RawLeathers</li>
+      </categories>
+    </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <categories>
+        <li>PE_RawLeathers</li>
+      </categories>
+    </defaultIngredientFilter>
+    <products>
+      <Leather_Plain>1</Leather_Plain>
+    </products>
+    <modExtensions>
+      <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <ticksPerItem>1100</ticksPerItem>
+        <useDynamicOutput>true</useDynamicOutput>
+        <ratio>0.75</ratio>
+        <cycles>5</cycles>
+        <capacityFactor>1</capacityFactor>
+      </li>
+    </modExtensions>
+  </RecipeDef>
 </Defs>

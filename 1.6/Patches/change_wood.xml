@@ -13,13 +13,12 @@
       <texPath>Things/Item/Resource/WoodPlank</texPath>
     </value>
   </Operation>
-  <!-- make wood deteriorate faster -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>Defs/ThingDef[defName="WoodLog"]/statBases/DeteriorationRate</xpath>
-    <value>
-      <DeteriorationRate>1.5</DeteriorationRate>
-    </value>
-  </Operation>
+  <!-- <Operation Class="PatchOperationReplace"> -->
+  <!--   <xpath>Defs/ThingDef[defName="WoodLog"]/statBases/DeteriorationRate</xpath> -->
+  <!--   <value> -->
+  <!--     <DeteriorationRate>1.5</DeteriorationRate> -->
+  <!--   </value> -->
+  <!-- </Operation> -->
   <!-- change display name -->
   <Operation Class="PatchOperationReplace">
     <xpath>Defs/ThingDef[defName="WoodLog"]/label</xpath>

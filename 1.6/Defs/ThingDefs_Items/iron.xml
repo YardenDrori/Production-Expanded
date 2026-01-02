@@ -2,7 +2,7 @@
   <ThingDef ParentName="ResourceBase">
     <defName>PE_Iron</defName>
     <label>iron</label>
-    <description>Pure iron metal, soft and malleable compared to steel. While usable for tools weapons, it lacks the hardness and durability that carbon-enriched steel provides. Most is refined into pig iron and then steel for superior performance.</description>
+    <description>Pure iron metal, soft and malleable compared to steel. While usable for tools and weapons, it lacks the hardness and durability that carbon-enriched steel provides. Most is refined into pig iron and then steel for superior performance.</description>
     <graphicData>
       <texPath>Things/Item/Resource/PE_Iron</texPath>
       <graphicClass>Graphic_StackCount</graphicClass>

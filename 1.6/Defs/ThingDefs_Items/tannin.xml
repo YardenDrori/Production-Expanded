@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Defs>
   <ThingDef ParentName="ResourceBase">
-    <defName>DankPyon_TanningLiquor</defName>
+    <defName>PE_Tannin</defName>
     <label>tanning liquor</label>
     <description>Tannins leeched from various natural sources have been concentrated into this liquor. It can be used to treat raw hides into tanned leathers.</description>
     <graphicData>
@@ -17,7 +17,7 @@
       <DeteriorationRate>1.0</DeteriorationRate>
       <MarketValue>2.2</MarketValue>
       <Mass>0.8</Mass>
-      <Flammability>0.05</Flammability>
+      <Flammability>0.2</Flammability>
       <MaxHitPoints>60</MaxHitPoints>
     </statBases>
   </ThingDef>
