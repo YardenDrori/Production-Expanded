@@ -87,6 +87,9 @@
         <hasIdlePowerCost>false</hasIdlePowerCost>
         <usesOnTexture>true</usesOnTexture>
         <keepOnTextureOnFinish>true</keepOnTextureOnFinish>
+        <soundInput>Corpse_Drop</soundInput>
+        <soundStartCycle>Roof_Start</soundStartCycle>
+        <soundExtract>Standard_Drop</soundExtract>
       </li>
     </comps>
     <tickerType>Rare</tickerType>

@@ -199,6 +199,9 @@
         <hasIdlePowerCost>true</hasIdlePowerCost>
         <usesOnTexture>true</usesOnTexture>
         <keepOnTextureOnFinish>true</keepOnTextureOnFinish>
+        <soundInput>Standard_Drop</soundInput>
+        <soundStartCycle>FlickSwitch</soundStartCycle>
+        <soundExtract>Standard_Drop</soundExtract>
       </li>
     </comps>
     <tickerType>Rare</tickerType>

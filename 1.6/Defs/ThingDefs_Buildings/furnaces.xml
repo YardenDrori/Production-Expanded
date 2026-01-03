@@ -89,6 +89,9 @@
         <hasIdlePowerCost>true</hasIdlePowerCost>
         <usesOnTexture>true</usesOnTexture>
         <shouldDecayOnStopped>true</shouldDecayOnStopped>
+        <soundInput>Metal_Drop</soundInput>
+        <soundStartCycle>FlickSwitch</soundStartCycle>
+        <soundExtract>Metal_Drop</soundExtract>
       </li>
     </comps>
     <tickerType>Rare</tickerType>
@@ -177,6 +180,9 @@
         <hasIdlePowerCost>true</hasIdlePowerCost>
         <usesOnTexture>true</usesOnTexture>
         <shouldDecayOnStopped>true</shouldDecayOnStopped>
+        <soundInput>Metal_Drop</soundInput>
+        <soundStartCycle>Roof_Start</soundStartCycle>
+        <soundExtract>Metal_Drop</soundExtract>
       </li>
     </comps>
     <tickerType>Rare</tickerType>

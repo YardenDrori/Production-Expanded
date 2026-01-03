@@ -82,6 +82,9 @@
         <maxCapacity>25</maxCapacity>
         <hasIdlePowerCost>true</hasIdlePowerCost>
         <usesOnTexture>false</usesOnTexture>
+        <soundInput>Corpse_Drop</soundInput>
+        <soundStartCycle>FlickSwitch</soundStartCycle>
+        <soundExtract>Standard_Drop</soundExtract>
       </li>
     </comps>
     <tickerType>Rare</tickerType>
