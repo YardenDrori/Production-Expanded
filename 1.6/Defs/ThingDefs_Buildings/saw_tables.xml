@@ -38,7 +38,7 @@
     <statBases>
       <WorkToBuild>1900</WorkToBuild>
       <MaxHitPoints>120</MaxHitPoints>
-      <Cleanliness>-10</Cleanliness>
+      <Cleanliness>-20</Cleanliness>
       <Flammability>0.8</Flammability>
       <Beauty>-10</Beauty>
     </statBases>
@@ -51,28 +51,11 @@
     <defaultPlacingRot>North</defaultPlacingRot>
     <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
     <surfaceType>Item</surfaceType>
-    <comps Inherit="false">
-      <li Class="CompProperties_Forbiddable"/>
-      <li Class="CompProperties_Power">
-        <compClass>CompPowerTrader</compClass>
-        <basePowerConsumption>120</basePowerConsumption>
-        <shortCircuitInRain>true</shortCircuitInRain>
-      </li>
-      <li Class="CompProperties_Flickable"/>
-      <!-- <li Class="ProductionExpanded.CompProperties_ResourceProcessor"> -->
-      <!--   <maxCapacity>70</maxCapacity> -->
-      <!--   <hasIdlePowerCost>false</hasIdlePowerCost> -->
-      <!--   <usesOnTexture>false</usesOnTexture> -->
-      <!-- </li> -->
-    </comps>
     <tickerType>Rare</tickerType>
     <placeWorkers>
       <li>PlaceWorker_PreventInteractionSpotOverlap</li>
     </placeWorkers>
-    <techLevel>Industrial</techLevel>
-    <researchPrerequisites>
-      <li>PE_advancedProcessing</li>
-    </researchPrerequisites>
+    <techLevel>Neolithic</techLevel>
   </ThingDef>
   <ThingDef ParentName="BuildingBase">
     <defName>PE_SawTable</defName>
