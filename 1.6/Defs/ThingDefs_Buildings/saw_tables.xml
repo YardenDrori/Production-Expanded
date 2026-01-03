@@ -1,9 +1,83 @@
 <?xml version="1.0"?>
 <Defs>
   <ThingDef ParentName="BuildingBase">
+    <defName>PE_ManualSawTable</defName>
+    <label>trestle</label>
+    <description>A simple wooden workbench for cutting raw logs into usable lumber. The craftsman uses hand tools to strip bark and cut planks, a slow but essential process for early construction. Gets the job done until proper sawmill equipment becomes available.</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <thingClass>Building_WorkTable</thingClass>
+    <graphicData>
+      <texPath>Things/Building/Production/Trestle/Trestle</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(3.5,1.5)</drawSize>
+      <shadowData>
+        <volume>(2.8, 0.35, 0.59)</volume>
+        <offset>(0, 0, 0.08)</offset>
+      </shadowData>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <!-- <uiIconPath>Things/Building/Production/BlastFurnace/BlastFurnace</uiIconPath> -->
+    <stuffCategories>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>140</costStuffCount>
+    <costList>
+      <Steel>40</Steel>
+    </costList>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <fillPercent>1.0</fillPercent>
+    <useHitPoints>True</useHitPoints>
+    <statBases>
+      <WorkToBuild>1900</WorkToBuild>
+      <MaxHitPoints>120</MaxHitPoints>
+      <Cleanliness>-10</Cleanliness>
+      <Flammability>0.8</Flammability>
+      <Beauty>-10</Beauty>
+    </statBases>
+    <size>(3,1)</size>
+    <designationCategory>Production</designationCategory>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <defaultPlacingRot>North</defaultPlacingRot>
+    <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+    <surfaceType>Item</surfaceType>
+    <comps Inherit="false">
+      <li Class="CompProperties_Forbiddable"/>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>120</basePowerConsumption>
+        <shortCircuitInRain>true</shortCircuitInRain>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <!-- <li Class="ProductionExpanded.CompProperties_ResourceProcessor"> -->
+      <!--   <maxCapacity>70</maxCapacity> -->
+      <!--   <hasIdlePowerCost>false</hasIdlePowerCost> -->
+      <!--   <usesOnTexture>false</usesOnTexture> -->
+      <!-- </li> -->
+    </comps>
+    <tickerType>Rare</tickerType>
+    <placeWorkers>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <techLevel>Industrial</techLevel>
+    <researchPrerequisites>
+      <li>PE_advancedProcessing</li>
+    </researchPrerequisites>
+  </ThingDef>
+  <ThingDef ParentName="BuildingBase">
     <defName>PE_SawTable</defName>
     <label>saw table</label>
-    <description>An electric-powered sawmill table for processing raw logs into lumber planks. The circular blade makes quick work of timber, significantly faster than manual processing at a crafting spot. Requires an operator to work.</description>
+    <description>An electric-powered sawmill table for processing raw logs into lumber planks. The circular blade makes quick work of timber, significantly faster than manual processing. Requires an operator to work.</description>
     <inspectorTabs>
       <li>ITab_Bills</li>
     </inspectorTabs>
@@ -28,16 +102,16 @@
     <stuffCategories>
       <li>Woody</li>
     </stuffCategories>
-    <costStuffCount>120</costStuffCount>
+    <costStuffCount>140</costStuffCount>
     <costList>
-      <Steel>40</Steel>
-      <ComponentIndustrial>1</ComponentIndustrial>
+      <Steel>90</Steel>
+      <ComponentIndustrial>2</ComponentIndustrial>
     </costList>
     <altitudeLayer>BuildingOnTop</altitudeLayer>
     <fillPercent>1.0</fillPercent>
     <useHitPoints>True</useHitPoints>
     <statBases>
-      <WorkToBuild>1600</WorkToBuild>
+      <WorkToBuild>2200</WorkToBuild>
       <MaxHitPoints>140</MaxHitPoints>
       <Cleanliness>-10</Cleanliness>
       <Flammability>0.8</Flammability>
@@ -113,7 +187,7 @@
     <fillPercent>1.0</fillPercent>
     <useHitPoints>True</useHitPoints>
     <statBases>
-      <WorkToBuild>2600</WorkToBuild>
+      <WorkToBuild>3900</WorkToBuild>
       <MaxHitPoints>160</MaxHitPoints>
       <Cleanliness>-10</Cleanliness>
       <Flammability>0.8</Flammability>

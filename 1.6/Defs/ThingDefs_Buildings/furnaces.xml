@@ -30,9 +30,9 @@
     <fillPercent>1.0</fillPercent>
     <useHitPoints>True</useHitPoints>
     <statBases>
-      <WorkToBuild>6000</WorkToBuild>
-      <MaxHitPoints>500</MaxHitPoints>
-      <Cleanliness>-30</Cleanliness>
+      <WorkToBuild>8000</WorkToBuild>
+      <MaxHitPoints>400</MaxHitPoints>
+      <Cleanliness>-20</Cleanliness>
       <Beauty>-20</Beauty>
     </statBases>
     <size>(3,2)</size>
@@ -130,9 +130,9 @@
     <fillPercent>1.0</fillPercent>
     <useHitPoints>True</useHitPoints>
     <statBases>
-      <WorkToBuild>6000</WorkToBuild>
+      <WorkToBuild>9000</WorkToBuild>
       <MaxHitPoints>500</MaxHitPoints>
-      <Cleanliness>-30</Cleanliness>
+      <Cleanliness>-10</Cleanliness>
       <Beauty>-20</Beauty>
     </statBases>
     <size>(3,2)</size>

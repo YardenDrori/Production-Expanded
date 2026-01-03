@@ -31,7 +31,7 @@
       <li>ElectricTailoringBench</li>
       <!-- <li>TableMachining</li> -->
     </recipeUsers>
-    <displayPriority>900</displayPriority>
+    <displayPriority>3</displayPriority>
   </RecipeDef>
   <!-- Bulk version -->
   <RecipeDef>
@@ -64,7 +64,7 @@
       <li>ElectricTailoringBench</li>
       <!-- <li>TableMachining</li> -->
     </recipeUsers>
-    <displayPriority>901</displayPriority>
+    <displayPriority>4</displayPriority>
   </RecipeDef>
   <RecipeDef>
     <defName>PE_ProcessCottonToClothWithSpinner</defName>

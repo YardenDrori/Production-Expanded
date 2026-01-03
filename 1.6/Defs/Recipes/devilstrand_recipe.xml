@@ -30,7 +30,7 @@
       <li>ElectricTailoringBench</li>
       <!-- <li>TableMachining</li> -->
     </recipeUsers>
-    <displayPriority>950</displayPriority>
+    <displayPriority>7</displayPriority>
   </RecipeDef>
   <!-- Bulk version -->
   <RecipeDef>
@@ -63,7 +63,7 @@
       <li>ElectricTailoringBench</li>
       <!-- <li>TableMachining</li> -->
     </recipeUsers>
-    <displayPriority>951</displayPriority>
+    <displayPriority>8</displayPriority>
   </RecipeDef>
   <RecipeDef>
     <defName>PE_ProcessDevilstrandWithSpinner</defName>

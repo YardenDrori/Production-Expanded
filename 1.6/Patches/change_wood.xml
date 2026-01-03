@@ -34,8 +34,8 @@
     </value>
   </Operation>
   <!-- Ensure color is in stuffProps too -->
-  <Operation Class="PatchOperationAdd">
-    <xpath>Defs/ThingDef[defName="WoodLog"]/stuffProps</xpath>
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="WoodLog"]/stuffProps/color</xpath>
     <value>
       <color>(139, 102, 71)</color>
     </value>
