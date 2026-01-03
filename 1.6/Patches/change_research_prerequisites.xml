@@ -3,29 +3,36 @@
   <Operation Class="PatchOperationReplace">
     <xpath>Defs/ThingDef[defName="ElectricCrematorium"]/researchPrerequisites</xpath>
     <value>
-      <li>PE_advancedProcessing</li>
+      <researchPrerequisites>
+        <li>PE_advancedProcessing</li>
+      </researchPrerequisites>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>Defs/ThingDef[defName="ElectricSmelter"]/researchPrerequisites</xpath>
     <value>
-      <li>PE_advancedProcessing</li>
+      <researchPrerequisites>
+        <li>PE_advancedProcessing</li>
+      </researchPrerequisites>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>Defs/ThingDef[defName="ElectricSmithy"]/researchPrerequisites</xpath>
     <value>
-      <li>PE_advancedProcessing</li>
+      <researchPrerequisites>
+        <li>PE_advancedProcessing</li>
+        <li>Smithing</li>
+      </researchPrerequisites>
     </value>
   </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>Defs/ThingDef[defName="ElectricSmithy"]/researchPrerequisites</xpath>
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ResearchProjectDef[defName="Fabrication"]/prerequisites</xpath>
     <value>
       <li>PE_advancedProcessing</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>Defs/ResearchProjectDef[defName="Fabrication"]/prerequisites</xpath>
+    <xpath>Defs/ResearchProjectDef[defName="BiofuelRefining"]/prerequisites</xpath>
     <value>
       <li>PE_advancedProcessing</li>
     </value>
