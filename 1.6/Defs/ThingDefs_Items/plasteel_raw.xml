@@ -20,6 +20,9 @@
     <thingCategories>
       <li>ResourcesRaw</li>
     </thingCategories>
+    <deepCommonality>1</deepCommonality>
+    <deepCountPerPortion>10</deepCountPerPortion>
+    <deepLumpSizeRange>2~10</deepLumpSizeRange>
     <descriptionHyperlinks>
       <ThingDef>PE_UnrefinedPlasteel</ThingDef>
       <ThingDef>Plasteel</ThingDef>

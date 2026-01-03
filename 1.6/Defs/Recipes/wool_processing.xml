@@ -79,7 +79,7 @@
       </categories>
     </defaultIngredientFilter>
     <products>
-      <WoolSheep>1</WoolSheep>
+      <WoolSheep>10</WoolSheep>
       <!-- placeholder, will be replaced dynamically -->
     </products>
     <modExtensions>
@@ -165,7 +165,7 @@
       </categories>
     </defaultIngredientFilter>
     <products>
-      <WoolSheep>1</WoolSheep>
+      <WoolSheep>10</WoolSheep>
       <!-- placeholder, will be replaced dynamically -->
     </products>
     <displayPriority>920</displayPriority>

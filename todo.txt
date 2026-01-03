@@ -1,7 +1,5 @@
 make passive buildings play sfx upon inserting extracting or starting new cycle
 add translation support
-fix shadows for buildings
 fix building item x2 capaity factor not working
-add gizmo to see max capacity
 fix timber texture
 wool doesnt output correct amount

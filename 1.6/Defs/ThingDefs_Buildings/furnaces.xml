@@ -14,6 +14,10 @@
       <graphicClass>Graphic_Multi</graphicClass>
       <shaderType>Cutout</shaderType>
       <drawSize>(5,4)</drawSize>
+      <shadowData>
+        <volume>(2.8, 0.5, 1.8)</volume>
+        <offset>(0, 0, 0)</offset>
+      </shadowData>
       <damageData>
         <cornerTL>Damage/Corner</cornerTL>
         <cornerTR>Damage/Corner</cornerTR>
@@ -110,6 +114,10 @@
       <graphicClass>Graphic_Multi</graphicClass>
       <shaderType>CutoutComplex</shaderType>
       <drawSize>(5,4)</drawSize>
+      <shadowData>
+        <volume>(2.8, 0.5, 1.8)</volume>
+        <offset>(0, 0, 0)</offset>
+      </shadowData>
       <damageData>
         <cornerTL>Damage/Corner</cornerTL>
         <cornerTR>Damage/Corner</cornerTR>
@@ -117,8 +125,6 @@
         <cornerBR>Damage/Corner</cornerBR>
       </damageData>
     </graphicData>
-    <castEdgeShadows>true</castEdgeShadows>
-    <staticSunShadowHeight>0.20</staticSunShadowHeight>
     <stuffCategories>
       <li>Stony</li>
     </stuffCategories>
