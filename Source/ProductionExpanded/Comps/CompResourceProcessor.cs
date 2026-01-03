@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace ProductionExpanded
 {
@@ -13,6 +14,11 @@ namespace ProductionExpanded
     public bool keepOnTextureOnFinish = false;
     public bool hasIdlePowerCost = false;
     public bool shouldDecayOnStopped = false;
+
+    // Sound effects
+    public SoundDef soundInput;
+    public SoundDef soundStartCycle;
+    public SoundDef soundExtract;
 
     public CompProperties_ResourceProcessor()
     {
@@ -294,6 +300,14 @@ namespace ProductionExpanded
         // Spawn the thing we couldn't add so it doesn't disappear
         GenSpawn.Spawn(thingToAdd, parent.Position, parent.Map);
       }
+      else
+      {
+        // Play input sound when materials are successfully added
+        if (Props.soundInput != null)
+        {
+          Props.soundInput.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
+        }
+      }
 
       capacityRemaining -= (int)(count * capacityFactor);
       if (capacityRemaining < 0)
@@ -429,6 +443,13 @@ namespace ProductionExpanded
         UpdateGlower();
         return;
       }
+
+      // Play cycle start sound when advancing to next cycle
+      if (Props.soundStartCycle != null)
+      {
+        Props.soundStartCycle.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
+      }
+
       processorTracker.processorsNeedingCycleStart.Add((Building_Processor)parent);
       isWaitingForCycleInteraction = true;
       isInspectStringDirty = true;
@@ -444,6 +465,12 @@ namespace ProductionExpanded
           Thing item = ThingMaker.MakeThing(outputType);
           item.stackCount = outputCount;
           GenSpawn.Spawn(item, parent.InteractionCell, parent.Map);
+
+          // Play extract sound when items are extracted
+          if (Props.soundExtract != null)
+          {
+            Props.soundExtract.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
+          }
 
           // Notify Bill (Decrement count)
           if (activeBill != null)
