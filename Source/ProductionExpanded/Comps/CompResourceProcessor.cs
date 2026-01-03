@@ -574,5 +574,19 @@ namespace ProductionExpanded
     {
       ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
     }
+
+    public override IEnumerable<Gizmo> CompGetGizmosExtra()
+    {
+      foreach (Gizmo gizmo in base.CompGetGizmosExtra())
+      {
+        yield return gizmo;
+      }
+
+      // Only show for selected single object
+      if (Find.Selector.SingleSelectedThing == parent)
+      {
+        yield return new Gizmo_ProcessorStatus(this);
+      }
+    }
   }
 }
