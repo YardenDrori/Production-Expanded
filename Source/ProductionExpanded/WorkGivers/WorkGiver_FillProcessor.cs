@@ -74,12 +74,23 @@ namespace ProductionExpanded
         Thing ingredient = FindIngredient(pawn, processor, requiredDef);
         if (ingredient != null)
         {
+          // Get capacityFactor from active bill
+          Bill_Production activeBill = comp.GetActiveBill();
+          float capacityFactor = 1f;
+          if (activeBill != null)
+          {
+            var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
+            capacityFactor = settings?.capacityFactor ?? 1f;
+          }
+
+          int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
+
           Job job = JobMaker.MakeJob(
             DefDatabase<JobDef>.GetNamed("PE_FillProcessor"),
             t,
             ingredient
           );
-          job.count = Mathf.Min(ingredient.stackCount, comp.getCapacityRemaining());
+          job.count = Mathf.Min(ingredient.stackCount, maxItemsThatFit);
           return job;
         }
         return null;
@@ -95,12 +106,17 @@ namespace ProductionExpanded
           Thing ingredient = FindIngredientForBill(pawn, processor, bill);
           if (ingredient != null)
           {
+            // Get capacityFactor from bill recipe
+            var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+            float capacityFactor = settings?.capacityFactor ?? 1f;
+            int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
+
             Job job = JobMaker.MakeJob(
               DefDatabase<JobDef>.GetNamed("PE_FillProcessor"),
               t,
               ingredient
             );
-            job.count = Mathf.Min(ingredient.stackCount, comp.getCapacityRemaining());
+            job.count = Mathf.Min(ingredient.stackCount, maxItemsThatFit);
             job.bill = bill; // Vanilla field
             return job;
           }

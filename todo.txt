@@ -2,4 +2,3 @@ make passive buildings play sfx upon inserting extracting or starting new cycle
 add translation support
 fix building item x2 capaity factor not working
 fix timber texture
-wool doesnt output correct amount

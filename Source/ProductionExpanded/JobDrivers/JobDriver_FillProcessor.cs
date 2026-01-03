@@ -33,7 +33,21 @@ namespace ProductionExpanded
 
       yield return Toils_General.DoAtomic(delegate
       {
-        job.count = processorComp.getCapacityRemaining();
+        // Get capacityFactor to calculate actual item count
+        Bill_Production bill = (Bill_Production)job.bill;
+        if (bill == null && processorComp.getIsProcessing())
+        {
+          bill = processorComp.GetActiveBill();
+        }
+
+        float capacityFactor = 1f;
+        if (bill != null)
+        {
+          var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+          capacityFactor = settings?.capacityFactor ?? 1f;
+        }
+
+        job.count = Mathf.Max(1, (int)(processorComp.getCapacityRemaining() / capacityFactor));
       });
 
       Toil reserveMaterials = Toils_Reserve.Reserve(TargetIndex.B);

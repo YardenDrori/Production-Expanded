@@ -274,6 +274,10 @@ namespace ProductionExpanded
         return;
       }
 
+      // Read settings from Recipe ModExtension
+      var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+      float capacityFactor = settings?.capacityFactor ?? 1f;
+
       // Store ingredient in container instead of destroying it
       if (ingredientContainer == null)
       {
@@ -291,7 +295,7 @@ namespace ProductionExpanded
         GenSpawn.Spawn(thingToAdd, parent.Position, parent.Map);
       }
 
-      capacityRemaining -= count;
+      capacityRemaining -= (int)(count * capacityFactor);
       if (capacityRemaining < 0)
         capacityRemaining = 0;
 
@@ -300,9 +304,6 @@ namespace ProductionExpanded
         processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
       else
         processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
-
-      // Read settings from Recipe ModExtension
-      var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
       bool isDynamic = settings?.useDynamicOutput ?? false;
       int ticksPerItem = settings?.ticksPerItem ?? 2500;
       int extensionCycles = settings?.cycles ?? 1;
