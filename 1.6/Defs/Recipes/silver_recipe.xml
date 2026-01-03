@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <Defs>
   <RecipeDef>
-    <defName>PE_ForgeSteelArcFurnace</defName>
-    <label>refine steel</label>
-    <description>Refine pig iron into steel.</description>
-    <jobString>refining steel</jobString>
+    <defName>PE_ForgeSilverArc</defName>
+    <label>extract silver</label>
+    <description>extract silver metal from ore.</description>
+    <jobString>extracting silver</jobString>
     <workAmount>500</workAmount>
     <recipeUsers>
       <li>PE_ArcFurnace</li>
@@ -13,7 +13,7 @@
       <li>
         <filter>
           <thingDefs>
-            <li>PE_PigIron</li>
+            <li>PE_RawSilver</li>
           </thingDefs>
         </filter>
         <count>1</count>
@@ -21,26 +21,26 @@
     </ingredients>
     <fixedIngredientFilter>
       <thingDefs>
-        <li>PE_PigIron</li>
+        <li>PE_RawSilver</li>
       </thingDefs>
     </fixedIngredientFilter>
     <products>
-      <Steel>1</Steel>
+      <Silver>1</Silver>
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
         <ticksPerItem>800</ticksPerItem>
         <cycles>1</cycles>
-        <capacityFactor>1</capacityFactor>
+        <capacityFactor>0.1</capacityFactor>
       </li>
     </modExtensions>
-    <displayPriority>200</displayPriority>
+    <displayPriority>500</displayPriority>
   </RecipeDef>
   <RecipeDef>
-    <defName>PE_ForgeSteelWoodFurnace</defName>
-    <label>refine steel</label>
-    <description>Refine pig iron into steel.</description>
-    <jobString>refining steel</jobString>
+    <defName>PE_ForgeSilverBlast</defName>
+    <label>extract silver</label>
+    <description>extract silver metal from ore.</description>
+    <jobString>extracting silver</jobString>
     <workAmount>500</workAmount>
     <recipeUsers>
       <li>PE_WoodFiredFurnace</li>
@@ -49,7 +49,7 @@
       <li>
         <filter>
           <thingDefs>
-            <li>PE_PigIron</li>
+            <li>PE_RawSilver</li>
           </thingDefs>
         </filter>
         <count>1</count>
@@ -57,19 +57,19 @@
     </ingredients>
     <fixedIngredientFilter>
       <thingDefs>
-        <li>PE_PigIron</li>
+        <li>PE_RawSilver</li>
       </thingDefs>
     </fixedIngredientFilter>
     <products>
-      <Steel>1</Steel>
+      <Silver>1</Silver>
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItem>1250</ticksPerItem>
-        <cycles>2</cycles>
-        <capacityFactor>1</capacityFactor>
+        <ticksPerItem>700</ticksPerItem>
+        <cycles>3</cycles>
+        <capacityFactor>0.2</capacityFactor>
       </li>
     </modExtensions>
-    <displayPriority>200</displayPriority>
+    <displayPriority>500</displayPriority>
   </RecipeDef>
 </Defs>

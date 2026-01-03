@@ -18,4 +18,26 @@
   <Operation Class="PatchOperationRemove">
     <xpath>Defs/ThingDef[defName="Steel"]/deepLumpSizeRange</xpath>
   </Operation>
+
+  <!-- Remove deep drill properties from Gold -->
+  <Operation Class="PatchOperationRemove">
+    <xpath>Defs/ThingDef[defName="Gold"]/deepCommonality</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>Defs/ThingDef[defName="Gold"]/deepCountPerPortion</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>Defs/ThingDef[defName="Gold"]/deepLumpSizeRange</xpath>
+  </Operation>
+
+  <!-- Remove deep drill properties from Silver -->
+  <Operation Class="PatchOperationRemove">
+    <xpath>Defs/ThingDef[defName="Silver"]/deepCommonality</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>Defs/ThingDef[defName="Silver"]/deepCountPerPortion</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>Defs/ThingDef[defName="Silver"]/deepLumpSizeRange</xpath>
+  </Operation>
 </Patch>

@@ -121,6 +121,12 @@ namespace ProductionExpanded
         label = LeatherTypeHelper.GetRawLeatherLabel(finishedLeather),
         description = LeatherTypeHelper.GetRawLeatherDescription(finishedLeather),
 
+        // Hyperlinks to finished leather
+        descriptionHyperlinks = new List<DefHyperlink>
+        {
+          new DefHyperlink(finishedLeather),
+        },
+
         // Categories
         thingCategories = new List<ThingCategoryDef>
         {

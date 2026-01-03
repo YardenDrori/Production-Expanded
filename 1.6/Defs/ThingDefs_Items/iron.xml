@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <Defs>
   <ThingDef ParentName="ResourceBase">
     <defName>PE_Iron</defName>
@@ -25,9 +26,6 @@
     <thingCategories>
       <li>ResourcesRaw</li>
     </thingCategories>
-    <deepCommonality>4</deepCommonality>
-    <deepCountPerPortion>45</deepCountPerPortion>
-    <deepLumpSizeRange>20~30</deepLumpSizeRange>
     <burnableByRecipe>false</burnableByRecipe>
     <smeltable>true</smeltable>
     <stuffProps>
@@ -54,5 +52,9 @@
     <thingSetMakerTags>
       <li>TraderStock</li>
     </thingSetMakerTags>
+    <descriptionHyperlinks>
+      <ThingDef>PE_PigIron</ThingDef>
+      <ThingDef>Steel</ThingDef>
+    </descriptionHyperlinks>
   </ThingDef>
 </Defs>

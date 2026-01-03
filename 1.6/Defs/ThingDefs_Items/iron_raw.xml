@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="ResourceBase">
+    <defName>PE_RawIron</defName>
+    <label>iron ore</label>
+    <description>A chunk of raw iron-bearing rock extracted from the earth. Must be smelted at a furnace to separate the iron from worthless stone. The refined iron can be further processed into pig iron and steel, or used directly for simple tools and weapons.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PE_IronOre</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <soundInteract>Metal_Drop</soundInteract>
+    <soundDrop>Metal_Drop</soundDrop>
+    <statBases>
+      <MarketValue>0.5</MarketValue>
+      <Mass>1.0</Mass>
+    </statBases>
+    <useHitPoints>false</useHitPoints>
+    <stackLimit>75</stackLimit>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <thingCategories>
+      <li>ResourcesRaw</li>
+    </thingCategories>
+    <deepCommonality>4</deepCommonality>
+    <deepCountPerPortion>45</deepCountPerPortion>
+    <deepLumpSizeRange>20~30</deepLumpSizeRange>
+    <descriptionHyperlinks>
+      <ThingDef>PE_Iron</ThingDef>
+      <ThingDef>PE_PigIron</ThingDef>
+      <ThingDef>Steel</ThingDef>
+    </descriptionHyperlinks>
+  </ThingDef>
+</Defs>

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="ResourceBase">
+    <defName>PE_RawPlasteel</defName>
+    <label>plasteel debris</label>
+    <description>Ancient compacted rubble rich in plasteel compounds. Must be processed at an advanced smelter to extract the plasteel composite, which then needs further refinement to yield pure plasteel alloy. This rare material is essential for advanced construction and armor.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PE_PlasteelOre</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <soundInteract>Metal_Drop</soundInteract>
+    <soundDrop>Metal_Drop</soundDrop>
+    <statBases>
+      <MarketValue>4.5</MarketValue>
+      <Mass>0.5</Mass>
+    </statBases>
+    <useHitPoints>false</useHitPoints>
+    <stackLimit>75</stackLimit>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <thingCategories>
+      <li>ResourcesRaw</li>
+    </thingCategories>
+    <descriptionHyperlinks>
+      <ThingDef>PE_UnrefinedPlasteel</ThingDef>
+      <ThingDef>Plasteel</ThingDef>
+    </descriptionHyperlinks>
+  </ThingDef>
+</Defs>

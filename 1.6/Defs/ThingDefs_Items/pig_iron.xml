@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <Defs>
   <ThingDef ParentName="ResourceBase">
     <defName>PE_PigIron</defName>
@@ -18,5 +19,8 @@
     <thingCategories>
       <li>ResourcesRaw</li>
     </thingCategories>
+    <descriptionHyperlinks>
+      <ThingDef>Steel</ThingDef>
+    </descriptionHyperlinks>
   </ThingDef>
 </Defs>

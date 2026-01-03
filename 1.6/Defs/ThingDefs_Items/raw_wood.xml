@@ -41,5 +41,8 @@
         <cooldownTime>2</cooldownTime>
       </li>
     </tools>
+    <descriptionHyperlinks>
+      <ThingDef>WoodLog</ThingDef>
+    </descriptionHyperlinks>
   </ThingDef>
 </Defs>

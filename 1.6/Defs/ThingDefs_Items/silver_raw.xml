@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="ResourceBase">
+    <defName>PE_RawSilver</defName>
+    <label>silver ore</label>
+    <description>A chunk of raw silver-bearing rock extracted from the earth. Must be smelted at a furnace to separate the precious metal from worthless stone. The refined silver can be used as currency, crafted into jewelry, or traded.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PE_SilverOre</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <soundInteract>Metal_Drop</soundInteract>
+    <soundDrop>Metal_Drop</soundDrop>
+    <statBases>
+      <MarketValue>0.5</MarketValue>
+      <Mass>0.016</Mass>
+    </statBases>
+    <useHitPoints>false</useHitPoints>
+    <stackLimit>150</stackLimit>
+    <smallVolume>true</smallVolume>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <thingCategories>
+      <li>ResourcesRaw</li>
+    </thingCategories>
+    <deepCommonality>0.5</deepCommonality>
+    <deepCountPerPortion>70</deepCountPerPortion>
+    <deepLumpSizeRange>2~10</deepLumpSizeRange>
+    <descriptionHyperlinks>
+      <ThingDef>Silver</ThingDef>
+    </descriptionHyperlinks>
+  </ThingDef>
+</Defs>

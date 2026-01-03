@@ -7,7 +7,7 @@
     <jobString>refining plasteel</jobString>
     <workAmount>500</workAmount>
     <recipeUsers>
-      <li>ME_ArcFurnace</li>
+      <li>PE_ArcFurnace</li>
     </recipeUsers>
     <ingredients>
       <li>
@@ -29,11 +29,12 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItem>4980</ticksPerItem>
+        <ticksPerItem>1250</ticksPerItem>
         <cycles>2</cycles>
         <capacityFactor>2</capacityFactor>
       </li>
     </modExtensions>
+    <displayPriority>400</displayPriority>
   </RecipeDef>
   <RecipeDef>
     <defName>PE_ForgePlasteelWoodFurnace</defName>
@@ -42,7 +43,7 @@
     <jobString>extracting plasteel</jobString>
     <workAmount>500</workAmount>
     <recipeUsers>
-      <li>ME_WoodFiredFurnace</li>
+      <li>PE_WoodFiredFurnace</li>
     </recipeUsers>
     <ingredients>
       <li>
@@ -54,15 +55,21 @@
         <count>1</count>
       </li>
     </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>PE_UnrefinedPlasteel</li>
+      </thingDefs>
+    </fixedIngredientFilter>
     <products>
       <Plasteel>1</Plasteel>
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItem>10000</ticksPerItem>
-        <cycles>3</cycles>
-        <capacityFactor>3</capacityFactor>
+        <ticksPerItem>4000</ticksPerItem>
+        <cycles>2</cycles>
+        <capacityFactor>5</capacityFactor>
       </li>
     </modExtensions>
+    <displayPriority>400</displayPriority>
   </RecipeDef>
 </Defs>

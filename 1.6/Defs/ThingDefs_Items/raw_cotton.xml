@@ -16,5 +16,8 @@
       <Mass>0.03</Mass>
       <Flammability>1.5</Flammability>
     </statBases>
+    <descriptionHyperlinks>
+      <ThingDef>Cloth</ThingDef>
+    </descriptionHyperlinks>
   </ThingDef>
 </Defs>

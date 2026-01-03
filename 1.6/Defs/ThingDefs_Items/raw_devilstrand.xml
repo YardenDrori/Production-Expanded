@@ -16,5 +16,8 @@
       <DeteriorationRate>1</DeteriorationRate>
     </statBases>
     <healthAffectsPrice>false</healthAffectsPrice>
+    <descriptionHyperlinks>
+      <ThingDef>DevilstrandCloth</ThingDef>
+    </descriptionHyperlinks>
   </ThingDef>
 </Defs>

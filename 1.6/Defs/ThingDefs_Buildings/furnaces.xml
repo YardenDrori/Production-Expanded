@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Defs>
   <ThingDef ParentName="BuildingBase">
-    <defName>ME_ArcFurnace</defName>
+    <defName>PE_ArcFurnace</defName>
     <label>arc furnace</label>
     <description>An advanced electric furnace that uses arc welding technology to generate extreme temperatures for refining metals. Once loaded with materials, it processes them automatically with only occasional worker intervention needed. Highly effective but demands substantial power.</description>
     <inspectorTabs>
@@ -97,7 +97,7 @@
     </researchPrerequisites>
   </ThingDef>
   <ThingDef ParentName="BuildingBase">
-    <defName>ME_WoodFiredFurnace</defName>
+    <defName>PE_WoodFiredFurnace</defName>
     <label>fueled furnace</label>
     <description>A wood-fired furnace constructed from stone blocks. Burns lumber to generate intense heat for refining crude metals into their finished forms. Processes materials automatically but requires regular refueling and periodic worker attention.</description>
     <inspectorTabs>

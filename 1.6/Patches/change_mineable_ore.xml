@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<Patch>
+  <!-- GOLD -->
+  <!-- Change mineable gold to drop raw gold ore -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="MineableGold"]/building/mineableThing</xpath>
+    <value>
+      <mineableThing>PE_RawGold</mineableThing>
+    </value>
+  </Operation>
+  <!-- Update gold ore description -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="MineableGold"]/description</xpath>
+    <value>
+      <description>Rock containing bits of gold. Mine it to extract gold ore which must be smelted to obtain pure gold.</description>
+    </value>
+  </Operation>
+  <!-- Add hyperlinks for gold -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="MineableGold"]</xpath>
+    <value>
+      <descriptionHyperlinks>
+        <ThingDef>PE_RawGold</ThingDef>
+        <ThingDef>Gold</ThingDef>
+      </descriptionHyperlinks>
+    </value>
+  </Operation>
+  <!-- SILVER -->
+  <!-- Change mineable silver to drop raw silver ore -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="MineableSilver"]/building/mineableThing</xpath>
+    <value>
+      <mineableThing>PE_RawSilver</mineableThing>
+    </value>
+  </Operation>
+  <!-- Update silver ore description -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="MineableSilver"]/description</xpath>
+    <value>
+      <description>Rock containing bits of silver. Mine it to extract silver ore which must be smelted to obtain pure silver.</description>
+    </value>
+  </Operation>
+  <!-- Add hyperlinks for silver -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="MineableSilver"]</xpath>
+    <value>
+      <descriptionHyperlinks>
+        <ThingDef>PE_RawSilver</ThingDef>
+        <ThingDef>Silver</ThingDef>
+      </descriptionHyperlinks>
+    </value>
+  </Operation>
+  <!-- IRON (MineableSteel) -->
+  <!-- Change mineable steel (iron) to drop raw iron ore -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="MineableSteel"]/building/mineableThing</xpath>
+    <value>
+      <mineableThing>PE_RawIron</mineableThing>
+    </value>
+  </Operation>
+  <!-- Update label to reflect iron -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="MineableSteel"]/label</xpath>
+    <value>
+      <label>iron ore</label>
+    </value>
+  </Operation>
+  <!-- Update description to describe iron ore -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="MineableSteel"]/description</xpath>
+    <value>
+      <description>Rock containing bits of iron. Mine it to extract iron ore which must be smelted to obtain pure iron, then further processed into steel.</description>
+    </value>
+  </Operation>
+  <!-- Add hyperlinks for iron -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="MineableSteel"]</xpath>
+    <value>
+      <descriptionHyperlinks>
+        <ThingDef>PE_RawIron</ThingDef>
+        <ThingDef>PE_Iron</ThingDef>
+        <ThingDef>PE_PigIron</ThingDef>
+        <ThingDef>Steel</ThingDef>
+      </descriptionHyperlinks>
+    </value>
+  </Operation>
+  <!-- PLASTEEL -->
+  <!-- Change mineable plasteel to drop raw plasteel ore -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="MineablePlasteel"]/building/mineableThing</xpath>
+    <value>
+      <mineableThing>PE_RawPlasteel</mineableThing>
+    </value>
+  </Operation>
+  <!-- Update plasteel ore description -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="MineablePlasteel"]/description</xpath>
+    <value>
+      <description>The remains of some ancient, collapsed structure. Rich plasteel compounds. Mine it to extract plasteel ore which must be processed to yield usable plasteel.</description>
+    </value>
+  </Operation>
+  <!-- Add hyperlinks for plasteel -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="MineablePlasteel"]</xpath>
+    <value>
+      <descriptionHyperlinks>
+        <ThingDef>PE_RawPlasteel</ThingDef>
+        <ThingDef>PE_UnrefinedPlasteel</ThingDef>
+        <ThingDef>Plasteel</ThingDef>
+      </descriptionHyperlinks>
+    </value>
+  </Operation>
+</Patch>

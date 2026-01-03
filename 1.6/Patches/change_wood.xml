@@ -10,7 +10,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>Defs/ThingDef[defName="WoodLog"]/graphicData/texPath</xpath>
     <value>
-      <texPath>Things/Item/Resource/WoodPlank</texPath>
+      <texPath>Things/Item/Resource/PE_WoodPlank</texPath>
     </value>
   </Operation>
   <!-- <Operation Class="PatchOperationReplace"> -->
@@ -44,7 +44,7 @@
   <Operation Class="PatchOperationAdd">
     <xpath>Defs/ThingDef[defName="WoodLog"]</xpath>
     <value>
-      <uiIconPath>Things/Item/Resource/WoodPlank/WoodPlank_UIIcon</uiIconPath>
+      <uiIconPath>Things/Item/Resource/PE_WoodPlank/WoodPlank_UIIcon</uiIconPath>
     </value>
   </Operation>
 </Patch>

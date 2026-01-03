@@ -23,5 +23,8 @@
     <deepCountPerPortion>10</deepCountPerPortion>
     <deepLumpSizeRange>2~10</deepLumpSizeRange>
     <burnableByRecipe>false</burnableByRecipe>
+    <descriptionHyperlinks>
+      <ThingDef>Plasteel</ThingDef>
+    </descriptionHyperlinks>
   </ThingDef>
 </Defs>

@@ -9,7 +9,48 @@
     <effectWorking>Smelt</effectWorking>
     <soundWorking>Recipe_Smelt</soundWorking>
     <allowMixingIngredients>true</allowMixingIngredients>
-    <workAmount>1920</workAmount>
+    <workAmount>102</workAmount>
+    <targetCountAdjustment>1</targetCountAdjustment>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>PE_Iron</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>WoodLog</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <products>
+      <PE_PigIron>1</PE_PigIron>
+    </products>
+    <skillRequirements>
+      <Crafting>0</Crafting>
+    </skillRequirements>
+    <recipeUsers>
+      <li>PE_FueledAlloySmelter</li>
+      <li>EM_ElectricAlloySmelter</li>
+    </recipeUsers>
+    <displayPriority>90</displayPriority>
+  </RecipeDef>
+  <RecipeDef>
+    <defName>SmeltPigIronBulk</defName>
+    <label>smelt pig iron x10</label>
+    <description>Smelt iron with carbon from wood to produce crude pig iron. Must be further refined in a blast furnace to create usable steel.</description>
+    <jobString>Smelting pig iron.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Smelt</effectWorking>
+    <soundWorking>Recipe_Smelt</soundWorking>
+    <allowMixingIngredients>true</allowMixingIngredients>
+    <workAmount>1020</workAmount>
     <targetCountAdjustment>1</targetCountAdjustment>
     <ingredients>
       <li>
@@ -42,15 +83,15 @@
     <displayPriority>100</displayPriority>
   </RecipeDef>
   <RecipeDef>
-    <defName>SmeltPigIronBulk</defName>
-    <label>smelt pig iron x4</label>
+    <defName>SmeltPigIronBulkExtra</defName>
+    <label>smelt pig iron x40</label>
     <description>Smelt iron with carbon from wood to produce crude pig iron. Must be further refined in a blast furnace to create usable steel.</description>
     <jobString>Smelting pig iron.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Smelt</effectWorking>
     <soundWorking>Recipe_Smelt</soundWorking>
     <allowMixingIngredients>true</allowMixingIngredients>
-    <workAmount>7680</workAmount>
+    <workAmount>4080</workAmount>
     <targetCountAdjustment>1</targetCountAdjustment>
     <ingredients>
       <li>
@@ -82,256 +123,4 @@
     </recipeUsers>
     <displayPriority>200</displayPriority>
   </RecipeDef>
-  <!-- <RecipeDef> -->
-  <!--   <defName>SmeltSteelAdvanced</defName> -->
-  <!--   <label>smelt steel</label> -->
-  <!--   <description>Smelt iron with chemfuel using advanced arc smelting technology. Skips the pig
-  iron -->
-  <!--     stage entirely for rapid steel production.</description> -->
-  <!--   <jobString>Smelting steel.</jobString> -->
-  <!--   <workSpeedStat>GeneralLaborSpeed</workSpeedStat> -->
-  <!--   <effectWorking>Smelt</effectWorking> -->
-  <!--   <soundWorking>Recipe_Smelt</soundWorking> -->
-  <!--   <allowMixingIngredients>true</allowMixingIngredients> -->
-  <!--   <workAmount>800</workAmount> -->
-  <!--   <targetCountAdjustment>1</targetCountAdjustment> -->
-  <!--   <ingredients> -->
-  <!--     <li> -->
-  <!--       <filter> -->
-  <!--         <thingDefs> -->
-  <!--           <li>PE_Iron</li> -->
-  <!--         </thingDefs> -->
-  <!--       </filter> -->
-  <!--       <count>10</count> -->
-  <!--     </li> -->
-  <!--     <li> -->
-  <!--       <filter> -->
-  <!--         <thingDefs> -->
-  <!--           <li>Chemfuel</li> -->
-  <!--         </thingDefs> -->
-  <!--       </filter> -->
-  <!--       <count>2</count> -->
-  <!--     </li> -->
-  <!--   </ingredients> -->
-  <!--   <products> -->
-  <!--     <Steel>10</Steel> -->
-  <!--   </products> -->
-  <!--   <skillRequirements> -->
-  <!--     <Crafting>6</Crafting> -->
-  <!--   </skillRequirements> -->
-  <!--   <recipeUsers> -->
-  <!--     <li>PE_ArcSmelter</li> -->
-  <!--   </recipeUsers> -->
-  <!--   <researchPrerequisite>Microelectronics</researchPrerequisite> -->
-  <!--   <displayPriority>13</displayPriority> -->
-  <!-- </RecipeDef> -->
-  <!---->
-  <!-- <RecipeDef> -->
-  <!--   <defName>SmeltSteelAdvancedBulk</defName> -->
-  <!--   <label>smelt steel x4</label> -->
-  <!--   <description>Smelt iron with chemfuel using advanced arc smelting technology. Skips the pig
-  iron -->
-  <!--     stage entirely for rapid steel production.</description> -->
-  <!--   <jobString>Smelting steel.</jobString> -->
-  <!--   <workSpeedStat>GeneralLaborSpeed</workSpeedStat> -->
-  <!--   <effectWorking>Smelt</effectWorking> -->
-  <!--   <soundWorking>Recipe_Smelt</soundWorking> -->
-  <!--   <allowMixingIngredients>true</allowMixingIngredients> -->
-  <!--   <workAmount>3200</workAmount> -->
-  <!--   <targetCountAdjustment>1</targetCountAdjustment> -->
-  <!--   <ingredients> -->
-  <!--     <li> -->
-  <!--       <filter> -->
-  <!--         <thingDefs> -->
-  <!--           <li>PE_Iron</li> -->
-  <!--         </thingDefs> -->
-  <!--       </filter> -->
-  <!--       <count>40</count> -->
-  <!--     </li> -->
-  <!--     <li> -->
-  <!--       <filter> -->
-  <!--         <thingDefs> -->
-  <!--           <li>Chemfuel</li> -->
-  <!--         </thingDefs> -->
-  <!--       </filter> -->
-  <!--       <count>8</count> -->
-  <!--     </li> -->
-  <!--   </ingredients> -->
-  <!--   <products> -->
-  <!--     <Steel>40</Steel> -->
-  <!--   </products> -->
-  <!--   <skillRequirements> -->
-  <!--     <Crafting>8</Crafting> -->
-  <!--   </skillRequirements> -->
-  <!--   <recipeUsers> -->
-  <!--     <li>PE_ArcSmelter</li> -->
-  <!--   </recipeUsers> -->
-  <!--   <researchPrerequisite>Microelectronics</researchPrerequisite> -->
-  <!--   <displayPriority>12</displayPriority> -->
-  <!-- </RecipeDef> -->
-  <!---->
-  <!-- <Defs> -->
-  <!--   <RecipeDef> -->
-  <!--     <defName>RefinePlasteel</defName> -->
-  <!--     <label>extract plasteel</label> -->
-  <!--     <description>Refine raw plasteel ore using steel and silver to create pure plasteel. The
-  steel -->
-  <!--       provides structural strength while silver acts as a catalyst in the refinement
-process.</description> -->
-  <!--     <jobString>Extracting plasteel.</jobString> -->
-  <!--     <workSpeedStat>GeneralLaborSpeed</workSpeedStat> -->
-  <!--     <effectWorking>Smelt</effectWorking> -->
-  <!--     <soundWorking>Recipe_Smelt</soundWorking> -->
-  <!--     <allowMixingIngredients>true</allowMixingIngredients> -->
-  <!--     <workAmount>6400</workAmount> -->
-  <!--     <targetCountAdjustment>1</targetCountAdjustment> -->
-  <!--     <ingredients> -->
-  <!--       <li> -->
-  <!--         <filter> -->
-  <!--           <thingDefs> -->
-  <!--             <li>PE_UnrefinedPlasteel</li> -->
-  <!--           </thingDefs> -->
-  <!--         </filter> -->
-  <!--         <count>15</count> -->
-  <!--       </li> -->
-  <!--       <li> -->
-  <!--         <filter> -->
-  <!--           <thingDefs> -->
-  <!--             <li>Steel</li> -->
-  <!--           </thingDefs> -->
-  <!--         </filter> -->
-  <!--         <count>30</count> -->
-  <!--       </li> -->
-  <!--       <li> -->
-  <!--         <filter> -->
-  <!--           <thingDefs> -->
-  <!--             <li>Gold</li> -->
-  <!--           </thingDefs> -->
-  <!--         </filter> -->
-  <!--         <count>0.5</count> -->
-  <!--       </li> -->
-  <!--     </ingredients> -->
-  <!--     <products> -->
-  <!--       <Plasteel>10</Plasteel> -->
-  <!--     </products> -->
-  <!--     <skillRequirements> -->
-  <!--       <Crafting>6</Crafting> -->
-  <!--     </skillRequirements> -->
-  <!--     <recipeUsers> -->
-  <!--       <li>ElectricSmelter</li> -->
-  <!--     </recipeUsers> -->
-  <!--     <researchPrerequisite>Microelectronics</researchPrerequisite> -->
-  <!--     <displayPriority>14</displayPriority> -->
-  <!--   </RecipeDef> -->
-  <!---->
-  <!--   <RecipeDef> -->
-  <!--     <defName>RefinePlasteelAdvanced</defName> -->
-  <!--     <label>refine plasteel</label> -->
-  <!--     <description>Advanced plasteel refinement using chemfuel for intense heat. Faster than
-  standard -->
-  <!--       refinement and requires less additional resources.</description> -->
-  <!--     <jobString>Refining plasteel.</jobString> -->
-  <!--     <workSpeedStat>GeneralLaborSpeed</workSpeedStat> -->
-  <!--     <effectWorking>Smelt</effectWorking> -->
-  <!--     <soundWorking>Recipe_Smelt</soundWorking> -->
-  <!--     <allowMixingIngredients>true</allowMixingIngredients> -->
-  <!--     <workAmount>2400</workAmount> -->
-  <!--     <targetCountAdjustment>1</targetCountAdjustment> -->
-  <!--     <ingredients> -->
-  <!--       <li> -->
-  <!--         <filter> -->
-  <!--           <thingDefs> -->
-  <!--             <li>PE_UnrefinedPlasteel</li> -->
-  <!--           </thingDefs> -->
-  <!--         </filter> -->
-  <!--         <count>10</count> -->
-  <!--       </li> -->
-  <!--       <li> -->
-  <!--         <filter> -->
-  <!--           <thingDefs> -->
-  <!--             <li>Gold</li> -->
-  <!--           </thingDefs> -->
-  <!--         </filter> -->
-  <!--         <count>0.1</count> -->
-  <!--       </li> -->
-  <!--       <li> -->
-  <!--         <filter> -->
-  <!--           <thingDefs> -->
-  <!--             <li>Chemfuel</li> -->
-  <!--           </thingDefs> -->
-  <!--         </filter> -->
-  <!--         <count>5</count> -->
-  <!--       </li> -->
-  <!--     </ingredients> -->
-  <!--     <products> -->
-  <!--       <Plasteel>10</Plasteel> -->
-  <!--     </products> -->
-  <!--     <skillRequirements> -->
-  <!--       <Crafting>7</Crafting> -->
-  <!--     </skillRequirements> -->
-  <!--     <recipeUsers> -->
-  <!--       <li>ElectricSmelter</li> -->
-  <!--     </recipeUsers> -->
-  <!--     <researchPrerequisites> -->
-  <!--       <li>Microelectronics</li> -->
-  <!--       <li>BiofuelRefining</li> -->
-  <!--     </researchPrerequisites> -->
-  <!--     <displayPriority>12</displayPriority> -->
-  <!--   </RecipeDef> -->
-  <!---->
-  <!--   <RecipeDef> -->
-  <!--     <defName>RefinePlaysteelAdvancedBulk</defName> -->
-  <!--     <label>refine plasteel x4</label> -->
-  <!--     <description>Advanced plasteel refinement using chemfuel for intense heat. Faster than
-  standard -->
-  <!--       refinement and requires less additional resources.</description> -->
-  <!--     <jobString>Refining plasteel.</jobString> -->
-  <!--     <workSpeedStat>GeneralLaborSpeed</workSpeedStat> -->
-  <!--     <effectWorking>Smelt</effectWorking> -->
-  <!--     <soundWorking>Recipe_Smelt</soundWorking> -->
-  <!--     <allowMixingIngredients>true</allowMixingIngredients> -->
-  <!--     <workAmount>9600</workAmount> -->
-  <!--     <targetCountAdjustment>1</targetCountAdjustment> -->
-  <!--     <ingredients> -->
-  <!--       <li> -->
-  <!--         <filter> -->
-  <!--           <thingDefs> -->
-  <!--             <li>PE_UnrefinedPlasteel</li> -->
-  <!--           </thingDefs> -->
-  <!--         </filter> -->
-  <!--         <count>40</count> -->
-  <!--       </li> -->
-  <!--       <li> -->
-  <!--         <filter> -->
-  <!--           <thingDefs> -->
-  <!--             <li>Gold</li> -->
-  <!--           </thingDefs> -->
-  <!--         </filter> -->
-  <!--         <count>0.4</count> -->
-  <!--       </li> -->
-  <!--       <li> -->
-  <!--         <filter> -->
-  <!--           <thingDefs> -->
-  <!--             <li>Chemfuel</li> -->
-  <!--           </thingDefs> -->
-  <!--         </filter> -->
-  <!--         <count>20</count> -->
-  <!--       </li> -->
-  <!--     </ingredients> -->
-  <!--     <products> -->
-  <!--       <Plasteel>40</Plasteel> -->
-  <!--     </products> -->
-  <!--     <skillRequirements> -->
-  <!--       <Crafting>9</Crafting> -->
-  <!--     </skillRequirements> -->
-  <!--     <recipeUsers> -->
-  <!--       <li>ElectricSmelter</li> -->
-  <!--     </recipeUsers> -->
-  <!--     <researchPrerequisites> -->
-  <!--       <li>Microelectronics</li> -->
-  <!--       <li>BiofuelRefining</li> -->
-  <!--     </researchPrerequisites> -->
-  <!--     <displayPriority>13</displayPriority> -->
-  <!--   </RecipeDef> -->
-  <!-- </Defs> -->
 </Defs>
