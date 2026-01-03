@@ -212,6 +212,11 @@ namespace ProductionExpanded
 
     public void StartNextCycle()
     {
+      // Play cycle start sound when advancing to next cycle
+      if (Props.soundStartCycle != null)
+      {
+        Props.soundStartCycle.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
+      }
       isWaitingForCycleInteraction = false;
       isInspectStringDirty = true;
       processorTracker.processorsNeedingCycleStart.Remove((Building_Processor)parent);
@@ -442,12 +447,6 @@ namespace ProductionExpanded
         isInspectStringDirty = true;
         UpdateGlower();
         return;
-      }
-
-      // Play cycle start sound when advancing to next cycle
-      if (Props.soundStartCycle != null)
-      {
-        Props.soundStartCycle.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
       }
 
       processorTracker.processorsNeedingCycleStart.Add((Building_Processor)parent);
