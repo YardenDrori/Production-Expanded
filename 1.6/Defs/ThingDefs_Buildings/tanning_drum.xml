@@ -82,6 +82,10 @@
         <maxCapacity>25</maxCapacity>
         <hasIdlePowerCost>true</hasIdlePowerCost>
         <usesOnTexture>false</usesOnTexture>
+        <hasTempRequirements>true</hasTempRequirements>
+        <hasTempRequirements>true</hasTempRequirements>
+        <maxTempC>34</maxTempC>
+        <minTempC>6</minTempC>
         <soundInput>Corpse_Drop</soundInput>
         <soundStartCycle>FlickSwitch</soundStartCycle>
         <soundExtract>Standard_Drop</soundExtract>
