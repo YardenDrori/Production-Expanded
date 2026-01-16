@@ -7,6 +7,11 @@ namespace ProductionExpanded
 {
   public class Building_Processor : Building_WorkTable, IBillGiver
   {
+    // Cached references for performance
+    private CompResourceProcessor cachedComp;
+    private Graphic cachedOnGraphic;
+    private string cachedOnTexPath;
+
     // ============ VANILLA COMPATIBILITY ============
 
     /// Re-implement interface method to prevent manual labor (WorkGiver_DoBill checks this)
@@ -16,42 +21,63 @@ namespace ProductionExpanded
       return false;
     }
 
+    public override void SpawnSetup(Map map, bool respawningAfterLoad)
+    {
+      base.SpawnSetup(map, respawningAfterLoad);
+      cachedComp = this.GetComp<CompResourceProcessor>();
+
+      // Pre-cache the "_on" texture path
+      if (def.graphicData != null)
+      {
+        cachedOnTexPath = def.graphicData.texPath + "_on";
+      }
+    }
+
     // ============ GRAPHIC LOGIC ============
-    // (Preserved from previous version)
+
+    private bool ShouldShowOnGraphic()
+    {
+      if (cachedComp == null)
+        return false;
+
+      var props = cachedComp.getProps();
+      if (!props.usesOnTexture)
+        return false;
+
+      if (!cachedComp.getIsProcessing() || !cachedComp.getIsReady() || cachedComp.getIsWaitingForNextCycle())
+        return false;
+
+      if (cachedComp.getIsFinished() && !props.keepOnTextureOnFinish)
+        return false;
+
+      return true;
+    }
 
     public override Graphic Graphic
     {
       get
       {
-        CompResourceProcessor comp = this.GetComp<CompResourceProcessor>();
-        if (
-          comp != null
-          && comp.getIsProcessing()
-          && comp.CanContinueProcessing()
-          && !comp.getIsWaitingForNextCycle()
-          && comp.getProps().usesOnTexture
-        )
-        {
-          if (
-            !comp.getIsFinished()
-            || comp.getIsFinished() && comp.getProps().keepOnTextureOnFinish
-          )
-          {
-            string texPath = def.graphicData.texPath + "_on";
-            Color color = (Stuff != null) ? Stuff.stuffProps.color : def.graphicData.color;
-            Color colorTwo = def.graphicData.colorTwo;
+        if (!ShouldShowOnGraphic())
+          return base.Graphic;
 
-            return GraphicDatabase.Get(
-              def.graphicData.graphicClass,
-              texPath,
-              def.graphicData.shaderType.Shader,
-              def.graphicData.drawSize,
-              color,
-              colorTwo
-            );
-          }
-        }
-        return base.Graphic;
+        // Return cached graphic if available
+        if (cachedOnGraphic != null)
+          return cachedOnGraphic;
+
+        // Build and cache the "_on" graphic
+        Color color = (Stuff != null) ? Stuff.stuffProps.color : def.graphicData.color;
+        Color colorTwo = def.graphicData.colorTwo;
+
+        cachedOnGraphic = GraphicDatabase.Get(
+          def.graphicData.graphicClass,
+          cachedOnTexPath,
+          def.graphicData.shaderType.Shader,
+          def.graphicData.drawSize,
+          color,
+          colorTwo
+        );
+
+        return cachedOnGraphic;
       }
     }
   }

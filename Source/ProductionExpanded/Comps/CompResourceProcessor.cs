@@ -14,6 +14,10 @@ namespace ProductionExpanded
     public bool keepOnTextureOnFinish = false;
     public bool hasIdlePowerCost = false;
     public bool shouldDecayOnStopped = false;
+    public bool hasTempRequirements = false;
+    public int maxTempC = 0;
+    public int minTempC = 0;
+    public int ticksToRuin = 15000;
 
     // Sound effects
     public SoundDef soundInput;
@@ -28,14 +32,30 @@ namespace ProductionExpanded
 
   public class CompResourceProcessor : ThingComp, IThingHolder
   {
-    private CompProperties_ResourceProcessor Props => (CompProperties_ResourceProcessor)props;
+    private enum RuinReason
+    {
+      TooHot,
+      TooCold,
+      Paused,
+      None,
+    };
+
+    private CompProperties_ResourceProcessor cachedProps;
+    private CompProperties_ResourceProcessor Props => cachedProps;
 
     // State variables
     private bool isProcessing = false;
     private bool isFinished = false;
     private bool isWaitingForCycleInteraction = false;
-    private bool previousCanContinue = false;
+    private RuinReason previousRuinReason = RuinReason.None;
     private bool isInspectStringDirty = true;
+    private RuinReason isRuinReason = RuinReason.None;
+    private int ruinTicks = 0;
+
+    // State tracking for HashSet operations (avoid redundant add/remove)
+    private bool cachedNeedsFill = false;
+    private bool cachedNeedsEmpty = false;
+    private bool cachedNeedsCycleStart = false;
 
     // Progress
     private int progressTicks = 0;
@@ -71,7 +91,7 @@ namespace ProductionExpanded
 
     public int getCapacityRemaining() => capacityRemaining;
 
-    public bool getIsReady() => CanContinueProcessing();
+    public bool getIsReady() => CanContinueProcessing() == RuinReason.None;
 
     public bool getIsWaitingForNextCycle() => isWaitingForCycleInteraction;
 
@@ -84,6 +104,9 @@ namespace ProductionExpanded
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
       base.PostSpawnSetup(respawningAfterLoad);
+
+      // Cache props to avoid repeated casting
+      cachedProps = (CompProperties_ResourceProcessor)props;
 
       // Initialize ingredient container
       if (ingredientContainer == null)
@@ -105,13 +128,46 @@ namespace ProductionExpanded
       if (processorTracker != null)
       {
         processorTracker.allProcessors.Add((Building_Processor)parent);
-        if (getCapacityRemaining() > 0 && CanContinueProcessing())
-        {
-          processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
-        }
+        // Initialize fill state
+        UpdateTrackerState(needsFill: getCapacityRemaining() > 0 && getIsReady());
       }
 
       UpdateGlower();
+    }
+
+    private void UpdateTrackerState(bool? needsFill = null, bool? needsEmpty = null, bool? needsCycleStart = null)
+    {
+      if (processorTracker == null)
+        return;
+
+      var processor = (Building_Processor)parent;
+
+      if (needsFill.HasValue && needsFill.Value != cachedNeedsFill)
+      {
+        cachedNeedsFill = needsFill.Value;
+        if (cachedNeedsFill)
+          processorTracker.processorsNeedingFill.Add(processor);
+        else
+          processorTracker.processorsNeedingFill.Remove(processor);
+      }
+
+      if (needsEmpty.HasValue && needsEmpty.Value != cachedNeedsEmpty)
+      {
+        cachedNeedsEmpty = needsEmpty.Value;
+        if (cachedNeedsEmpty)
+          processorTracker.processorsNeedingEmpty.Add(processor);
+        else
+          processorTracker.processorsNeedingEmpty.Remove(processor);
+      }
+
+      if (needsCycleStart.HasValue && needsCycleStart.Value != cachedNeedsCycleStart)
+      {
+        cachedNeedsCycleStart = needsCycleStart.Value;
+        if (cachedNeedsCycleStart)
+          processorTracker.processorsNeedingCycleStart.Add(processor);
+        else
+          processorTracker.processorsNeedingCycleStart.Remove(processor);
+      }
     }
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
@@ -147,22 +203,19 @@ namespace ProductionExpanded
       if (isProcessing)
       {
         isInspectStringDirty = true;
-        bool currentCanContinue = CanContinueProcessing();
-        if (currentCanContinue != previousCanContinue)
+        RuinReason currentRuinReason = CanContinueProcessing();
+        if (currentRuinReason != previousRuinReason)
         {
-          previousCanContinue = currentCanContinue;
+          previousRuinReason = currentRuinReason;
           UpdateGlower();
         }
 
-        if (currentCanContinue)
+        if (currentRuinReason == RuinReason.None)
         {
           if (heatPusher != null)
             heatPusher.enabled = true;
 
-          if (getCapacityRemaining() > 0)
-            processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
-          else
-            processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
+          UpdateTrackerState(needsFill: getCapacityRemaining() > 0);
 
           progressTicks += 250;
 
@@ -188,20 +241,21 @@ namespace ProductionExpanded
             else
               progressTicks = 0;
           }
+          if (Props.hasTempRequirements && currentRuinReason != RuinReason.Paused)
+          {
+            ruinTicks += 250;
+          }
 
           if (powerTrader != null && Props.hasIdlePowerCost)
             powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
 
-          processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
+          UpdateTrackerState(needsFill: false);
         }
       }
       else
       {
         // Idle state updates
-        if (CanContinueProcessing())
-          processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
-        else
-          processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
+        UpdateTrackerState(needsFill: getIsReady());
 
         if (heatPusher != null)
           heatPusher.enabled = false;
@@ -219,23 +273,29 @@ namespace ProductionExpanded
       }
       isWaitingForCycleInteraction = false;
       isInspectStringDirty = true;
-      processorTracker.processorsNeedingCycleStart.Remove((Building_Processor)parent);
-      if (getCapacityRemaining() > 0 && CanContinueProcessing())
-      {
-        processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
-      }
+      UpdateTrackerState(
+        needsCycleStart: false,
+        needsFill: getCapacityRemaining() > 0 && getIsReady()
+      );
       UpdateGlower();
     }
 
-    public bool CanContinueProcessing()
+    private RuinReason CanContinueProcessing()
     {
       if (powerTrader != null && !powerTrader.PowerOn)
-        return false;
+        return RuinReason.Paused;
       if (refuelable != null && !refuelable.HasFuel)
-        return false;
+        return RuinReason.Paused;
       if (isWaitingForCycleInteraction)
-        return false;
-      return true;
+        return RuinReason.Paused;
+      if (Props.hasTempRequirements)
+      {
+        if (parent.AmbientTemperature > Props.maxTempC)
+          return RuinReason.TooHot;
+        if (parent.AmbientTemperature < Props.minTempC)
+          return RuinReason.TooCold;
+      }
+      return RuinReason.None;
     }
 
     // UPDATED: Now takes Vanilla Bill and Thing
@@ -319,10 +379,8 @@ namespace ProductionExpanded
         capacityRemaining = 0;
 
       // Update Fill Tracker
-      if (getCapacityRemaining() > 0 && CanContinueProcessing())
-        processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
-      else
-        processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
+      UpdateTrackerState(needsFill: getCapacityRemaining() > 0 && getIsReady());
+
       bool isDynamic = settings?.useDynamicOutput ?? false;
       int ticksPerItem = settings?.ticksPerItem ?? 2500;
       int extensionCycles = settings?.cycles ?? 1;
@@ -436,20 +494,20 @@ namespace ProductionExpanded
     {
       currentCycle++;
       progressTicks = 0;
-      processorTracker.processorsNeedingFill.Remove((Building_Processor)parent);
+      UpdateTrackerState(needsFill: false);
 
       if (currentCycle >= cycles)
       {
         parent.DirtyMapMesh(parent.Map);
         isWaitingForCycleInteraction = false;
-        processorTracker.processorsNeedingEmpty.Add((Building_Processor)parent);
+        UpdateTrackerState(needsEmpty: true);
         isFinished = true;
         isInspectStringDirty = true;
         UpdateGlower();
         return;
       }
 
-      processorTracker.processorsNeedingCycleStart.Add((Building_Processor)parent);
+      UpdateTrackerState(needsCycleStart: true);
       isWaitingForCycleInteraction = true;
       isInspectStringDirty = true;
       UpdateGlower();
@@ -500,10 +558,10 @@ namespace ProductionExpanded
         outputCount = 0;
         isInspectStringDirty = true;
         capacityRemaining = Props.maxCapacity;
+        ruinTicks = 0;
+        isRuinReason = RuinReason.None;
 
-        if (CanContinueProcessing())
-          processorTracker.processorsNeedingFill.Add((Building_Processor)parent);
-        processorTracker.processorsNeedingEmpty.Remove((Building_Processor)parent);
+        UpdateTrackerState(needsFill: getIsReady(), needsEmpty: false);
         UpdateGlower();
       }
     }
@@ -529,15 +587,26 @@ namespace ProductionExpanded
         inspectMessageCahce =
           $"Waiting for colonist interaction to resume processing.\ncycles remaining: {cycles - currentCycle}";
       }
-      else if (isProcessing && cycles == 1)
-      {
-        inspectMessageCahce =
-          $"Processing {inputType.label ?? "Material"} x{inputCount}: {(float)progressTicks / totalTicksPerCycle:P0}";
-      }
       else if (isProcessing)
       {
         inspectMessageCahce =
-          $"Processing {inputType.label ?? "Material"} x{inputCount}: {(float)progressTicks / totalTicksPerCycle:P0}\ncycles remaining: {cycles - currentCycle}";
+          $"Processing {inputType.label ?? "Material"} x{inputCount}: {(float)progressTicks / totalTicksPerCycle:P0}";
+        if (cycles != 1)
+        {
+          inspectMessageCahce += $"\ncycles remaining: {cycles - currentCycle}";
+        }
+        if (Props.hasTempRequirements)
+        {
+          if (previousRuinReason == RuinReason.TooCold)
+          {
+            inspectMessageCahce += $"\nFreezing ";
+          }
+          else
+          {
+            inspectMessageCahce += $"\nOverheating ";
+          }
+          inspectMessageCahce += $"({(ruinTicks / Props.ticksToRuin) * 100})";
+        }
       }
       isInspectStringDirty = false;
     }
@@ -565,6 +634,8 @@ namespace ProductionExpanded
       Scribe_Values.Look(ref outputCount, "outputCount", 0);
       Scribe_Values.Look(ref capacityRemaining, "capacityRemaining", Props.maxCapacity);
       Scribe_Values.Look(ref cachedLabel, "cachedLabel", null);
+      Scribe_Values.Look(ref isRuinReason, "isRuinReason", RuinReason.None);
+      Scribe_Values.Look(ref ruinTicks, "ruinTicks", 0);
       Scribe_Defs.Look(ref inputType, "inputType");
       Scribe_Defs.Look(ref outputType, "outputType");
 
