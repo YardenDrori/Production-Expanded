@@ -6,20 +6,22 @@ using Verse;
 
 namespace ProductionExpanded
 {
-  [StaticConstructorOnStartup]
+  /// <summary>
+  /// Dynamically generates raw wool ThingDefs for all finished wools
+  /// (vanilla + modded) during the implied defs phase. Creates a 1:1 mapping
+  /// where each finished wool gets a corresponding raw version.
+  ///
+  /// Called by DefGenerator_ImpliedDefs_Patch during GenerateImpliedDefs_PreResolve,
+  /// which ensures the defs are created BEFORE category resolution occurs.
+  /// </summary>
   public static class RawWoolDefGenerator
   {
-    static RawWoolDefGenerator()
+    /// <summary>
+    /// Generates raw wool ThingDefs for all wool materials in the game.
+    /// Uses yield return to integrate with the implied defs system.
+    /// </summary>
+    public static IEnumerable<ThingDef> ImpliedRawWoolDefs()
     {
-      // Run after defs are loaded but before game starts
-      GenerateRawWoolDefs();
-    }
-
-    private static void GenerateRawWoolDefs()
-    {
-      Log.Message("[Production Expanded] Generating raw wool definitions...");
-
-      int generated = 0;
       var allWool = DefDatabase<ThingDef>
         .AllDefs.Where(def =>
           def.stuffProps != null
@@ -31,76 +33,30 @@ namespace ProductionExpanded
 
       foreach (var finishedWool in allWool)
       {
+        // Skip if already a raw wool (prevents infinite loops)
         if (finishedWool.defName.StartsWith("PE_RawWool_"))
           continue;
 
         var rawWool = CreateRawWoolDef(finishedWool);
 
-        // Add to DefDatabase
-        DefGenerator.AddImpliedDef(rawWool);
-
-        // Manually resolve references since we're adding after def loading is done
-        try
-        {
-          rawWool.PostLoad();
-          rawWool.ResolveReferences();
-        }
-        catch (System.Exception e)
-        {
-          Log.Error($"[Production Expanded] Error initializing {rawWool.defName}: {e}");
-        }
-
-        // Manually add to category children since ResolveReferences has already run
-        var rawWoolCategory = DefDatabase<ThingCategoryDef>.GetNamed("PE_RawWools", true);
-        if (rawWoolCategory != null && !rawWoolCategory.childThingDefs.Contains(rawWool))
-        {
-          rawWoolCategory.childThingDefs.Add(rawWool);
-        }
-
-        // Register with central registry
+        // Register with central registry for product replacement patches
         RawToFinishedRegistry.Register(rawWool, finishedWool);
 
-        generated++;
-      }
-
-      Log.Message(
-        $"[Production Expanded] Generated {generated} raw wool definitions from {allWool.Count} finished wools."
-      );
-
-      RimWorld.ResourceCounter.ResetDefs();
-
-      // Re-resolve vanilla RecipeDefs
-      foreach (var recipe in DefDatabase<RecipeDef>.AllDefs)
-      {
-        if (recipe.defName.StartsWith("PE_"))
-        {
-          if (recipe.ingredients != null)
-          {
-            foreach (var ing in recipe.ingredients)
-              ing.ResolveReferences();
-          }
-          if (recipe.fixedIngredientFilter != null)
-          {
-            recipe.fixedIngredientFilter.ResolveReferences();
-          }
-          if (recipe.defaultIngredientFilter != null)
-          {
-            recipe.defaultIngredientFilter.ResolveReferences();
-          }
-        }
+        yield return rawWool;
       }
     }
 
     private static ThingDef CreateRawWoolDef(ThingDef finishedWool)
     {
-      string texturePath = $"Things/Item/Resource/PE_Wool";
+      string texturePath = "Things/Item/Resource/PE_Wool";
+
       // Create new ThingDef
       var rawWool = new ThingDef
       {
         defName = $"PE_RawWool_{finishedWool.defName.Replace("Wool", "")}",
-        label = $"{finishedWool.label.Replace(" wool", " fleece")}",
+        label = finishedWool.label.Replace(" wool", " fleece"),
         description =
-          $"Raw wool freshly sheared from an animal. Still contains natural oils, dirt, and debris that make it unsuitable for weaving. Must be cleaned and spun into usable wool fabric.",
+          "Raw wool freshly sheared from an animal. Still contains natural oils, dirt, and debris that make it unsuitable for weaving. Must be cleaned and spun into usable wool fabric.",
 
         // Hyperlinks to finished wool
         descriptionHyperlinks = new List<DefHyperlink>
@@ -108,11 +64,8 @@ namespace ProductionExpanded
           new DefHyperlink(finishedWool),
         },
 
-        // Categories
-        thingCategories = new List<ThingCategoryDef>
-        {
-          DefDatabase<ThingCategoryDef>.GetNamed("PE_RawWools", true),
-        },
+        // Initialize empty list - cross-ref loader will populate it
+        thingCategories = new List<ThingCategoryDef>(),
 
         // Graphics - use category-based texture with color tint
         graphicData = new GraphicData
@@ -132,7 +85,7 @@ namespace ProductionExpanded
           new StatModifier { stat = StatDefOf.MaxHitPoints, value = 40 },
           new StatModifier { stat = StatDefOf.DeteriorationRate, value = 4 },
           new StatModifier { stat = StatDefOf.Mass, value = 0.04f }, // Slightly heavier
-          new StatModifier { stat = StatDefOf.Flammability, value = 1f }, // More flammable (not treated)
+          new StatModifier { stat = StatDefOf.Flammability, value = 1f },
           new StatModifier
           {
             stat = StatDefOf.MarketValue,
@@ -140,7 +93,7 @@ namespace ProductionExpanded
           }, // 40% value of finished
         },
 
-        // NOT usable as stuff (must be tanned first)
+        // NOT usable as stuff (must be processed first)
         stuffProps = null,
 
         // Misc properties
@@ -170,8 +123,17 @@ namespace ProductionExpanded
         },
       };
 
+      // Copy burnable property from finished wool
       if (finishedWool.burnableByRecipe)
-        finishedWool.burnableByRecipe = true;
+        rawWool.burnableByRecipe = true;
+
+      // Register category cross-reference for proper filter integration
+      // This tells the cross-ref system to add PE_RawWools to thingCategories during resolution
+      DirectXmlCrossRefLoader.RegisterListWantsCrossRef(
+        rawWool.thingCategories,
+        "PE_RawWools",
+        rawWool
+      );
 
       return rawWool;
     }

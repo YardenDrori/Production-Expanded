@@ -8,23 +8,20 @@ namespace ProductionExpanded
 {
   /// <summary>
   /// Dynamically generates raw leather ThingDefs for all finished leathers
-  /// (vanilla + modded) at game startup. Creates a 1:1 mapping where each
-  /// finished leather gets a corresponding raw version.
+  /// (vanilla + modded) during the implied defs phase. Creates a 1:1 mapping
+  /// where each finished leather gets a corresponding raw version.
+  ///
+  /// Called by DefGenerator_ImpliedDefs_Patch during GenerateImpliedDefs_PreResolve,
+  /// which ensures the defs are created BEFORE category resolution occurs.
   /// </summary>
-  [StaticConstructorOnStartup]
   public static class RawLeatherDefGenerator
   {
-    static RawLeatherDefGenerator()
+    /// <summary>
+    /// Generates raw leather ThingDefs for all leathery materials in the game.
+    /// Uses yield return to integrate with the implied defs system.
+    /// </summary>
+    public static IEnumerable<ThingDef> ImpliedRawLeatherDefs()
     {
-      // Run after defs are loaded but before game starts
-      GenerateRawLeatherDefs();
-    }
-
-    private static void GenerateRawLeatherDefs()
-    {
-      Log.Message("[Production Expanded] Generating raw leather definitions...");
-
-      int generated = 0;
       var allLeathers = DefDatabase<ThingDef>
         .AllDefs.Where(def =>
           def.stuffProps != null
@@ -41,62 +38,10 @@ namespace ProductionExpanded
 
         var rawLeather = CreateRawLeatherDef(finishedLeather);
 
-        // Add to DefDatabase
-        DefGenerator.AddImpliedDef(rawLeather);
-
-        // Manually resolve references since we're adding after def loading is done
-        try
-        {
-          rawLeather.PostLoad();
-          rawLeather.ResolveReferences();
-        }
-        catch (System.Exception e)
-        {
-          Log.Error($"[Production Expanded] Error initializing {rawLeather.defName}: {e}");
-        }
-
-        // Manually add to category children since ResolveReferences has already run
-        var rawLeatherCategory = DefDatabase<ThingCategoryDef>.GetNamed("PE_RawLeathers", true);
-        if (rawLeatherCategory != null && !rawLeatherCategory.childThingDefs.Contains(rawLeather))
-        {
-          rawLeatherCategory.childThingDefs.Add(rawLeather);
-        }
-
-        // Register with central registry
+        // Register with central registry for product replacement patches
         RawToFinishedRegistry.Register(rawLeather, finishedLeather);
 
-        generated++;
-      }
-
-      Log.Message(
-        $"[Production Expanded] Generated {generated} raw leather definitions from {allLeathers.Count} finished leathers."
-      );
-
-      RimWorld.ResourceCounter.ResetDefs();
-
-      // Re-resolve vanilla RecipeDefs because their ingredient filters might have cached
-      // an empty list before we populated the PE_RawLeathers category.
-      foreach (var recipe in DefDatabase<RecipeDef>.AllDefs)
-      {
-        // We specifically target recipes that might use our categories
-        if (recipe.defName.StartsWith("PE_"))
-        {
-          if (recipe.ingredients != null)
-          {
-            foreach (var ing in recipe.ingredients)
-            {
-              ing.ResolveReferences();
-            }
-          }
-          if (recipe.fixedIngredientFilter != null)
-          {
-            recipe.fixedIngredientFilter.ResolveReferences();
-          }
-          if (recipe.defaultIngredientFilter != null)
-          {
-            recipe.defaultIngredientFilter.ResolveReferences();
-          }
-        }
+        yield return rawLeather;
       }
     }
 
@@ -106,13 +51,6 @@ namespace ProductionExpanded
       var category = LeatherTypeHelper.GetLeatherCategory(finishedLeather);
       var size = LeatherTypeHelper.GetSizeCategory(finishedLeather);
       string texturePath = LeatherTypeHelper.GetTexturePath(category, size);
-
-      // if (Prefs.DevMode)
-      // {
-      //   Log.Message(
-      //     $"[Production Expanded] Creating raw leather for {finishedLeather.defName}: category={category}, size={size}, texPath={texturePath}"
-      //   );
-      // }
 
       // Create new ThingDef
       var rawLeather = new ThingDef
@@ -127,11 +65,8 @@ namespace ProductionExpanded
           new DefHyperlink(finishedLeather),
         },
 
-        // Categories
-        thingCategories = new List<ThingCategoryDef>
-        {
-          DefDatabase<ThingCategoryDef>.GetNamed("PE_RawLeathers", true),
-        },
+        // Initialize empty list - cross-ref loader will populate it
+        thingCategories = new List<ThingCategoryDef>(),
 
         // Graphics - use category-based texture with color tint
         graphicData = new GraphicData
@@ -198,6 +133,14 @@ namespace ProductionExpanded
       // Copy some properties from finished leather
       if (finishedLeather.burnableByRecipe)
         rawLeather.burnableByRecipe = true;
+
+      // Register category cross-reference for proper filter integration
+      // This tells the cross-ref system to add PE_RawLeathers to thingCategories during resolution
+      DirectXmlCrossRefLoader.RegisterListWantsCrossRef(
+        rawLeather.thingCategories,
+        "PE_RawLeathers",
+        rawLeather
+      );
 
       return rawLeather;
     }

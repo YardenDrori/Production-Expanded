@@ -2,8 +2,8 @@
 <Defs>
   <ThingCategoryDef>
     <defName>PE_RawWools</defName>
-    <label>raw wools</label>
-    <parent>Wools</parent>
+    <label>raw fleece</label>
+    <parent>ResourcesRaw</parent>
     <iconPath>UI/Icons/ThingCategories/Wools</iconPath>
     <resourceReadoutRoot>true</resourceReadoutRoot>
   </ThingCategoryDef>

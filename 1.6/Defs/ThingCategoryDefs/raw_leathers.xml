@@ -2,8 +2,8 @@
 <Defs>
   <ThingCategoryDef>
     <defName>PE_RawLeathers</defName>
-    <label>raw leathers</label>
-    <parent>Leathers</parent>
+    <label>raw hides</label>
+    <parent>ResourcesRaw</parent>
     <iconPath>UI/Icons/ThingCategories/Leathers</iconPath>
     <resourceReadoutRoot>true</resourceReadoutRoot>
   </ThingCategoryDef>
