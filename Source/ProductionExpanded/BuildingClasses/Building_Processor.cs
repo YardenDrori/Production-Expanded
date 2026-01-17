@@ -44,7 +44,11 @@ namespace ProductionExpanded
       if (!props.usesOnTexture)
         return false;
 
-      if (!cachedComp.getIsProcessing() || !cachedComp.getIsReady() || cachedComp.getIsWaitingForNextCycle())
+      if (
+        !cachedComp.getIsProcessing()
+        || (!cachedComp.getIsReady() && !cachedComp.getIsBadTemp())
+        || cachedComp.getIsWaitingForNextCycle()
+      )
         return false;
 
       if (cachedComp.getIsFinished() && !props.keepOnTextureOnFinish)

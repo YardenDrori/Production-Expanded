@@ -13,18 +13,7 @@ namespace ProductionExpanded
 
     public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
     {
-      MapComponent_ProcessorTracker tracker =
-        pawn.Map.GetComponent<MapComponent_ProcessorTracker>();
-
-      if (tracker == null)
-      {
-        yield break;
-      }
-
-      foreach (Building_Processor processor in tracker.processorsNeedingEmpty)
-      {
-        yield return processor;
-      }
+      return pawn.Map?.GetComponent<MapComponent_ProcessorTracker>()?.processorsNeedingEmpty;
     }
 
     public override PathEndMode PathEndMode => PathEndMode.InteractionCell;

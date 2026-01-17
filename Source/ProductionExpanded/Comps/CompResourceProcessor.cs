@@ -87,6 +87,9 @@ namespace ProductionExpanded
     // Standard accessors
     public bool getIsProcessing() => isProcessing;
 
+    public bool getIsBadTemp() =>
+      previousRuinReason == RuinReason.TooCold || previousRuinReason == RuinReason.TooHot;
+
     public bool getIsFinished() => isFinished;
 
     public int getCapacityRemaining() => capacityRemaining;
@@ -135,7 +138,11 @@ namespace ProductionExpanded
       UpdateGlower();
     }
 
-    private void UpdateTrackerState(bool? needsFill = null, bool? needsEmpty = null, bool? needsCycleStart = null)
+    private void UpdateTrackerState(
+      bool? needsFill = null,
+      bool? needsEmpty = null,
+      bool? needsCycleStart = null
+    )
     {
       if (processorTracker == null)
         return;
@@ -243,7 +250,14 @@ namespace ProductionExpanded
           }
           if (Props.hasTempRequirements && currentRuinReason != RuinReason.Paused)
           {
-            ruinTicks += 250;
+            if (ruinTicks >= Props.ticksToRuin)
+            {
+              RuinBatch();
+            }
+            else
+            {
+              ruinTicks += 250;
+            }
           }
 
           if (powerTrader != null && Props.hasIdlePowerCost)
@@ -513,6 +527,27 @@ namespace ProductionExpanded
       UpdateGlower();
     }
 
+    private void RuinBatch()
+    {
+      if (ingredientContainer != null)
+      {
+        ingredientContainer.ClearAndDestroyContents();
+      }
+      // Reset
+      isFinished = true;
+      if (heatPusher != null)
+        heatPusher.enabled = false;
+      isProcessing = true;
+      isWaitingForCycleInteraction = false;
+      outputType = null;
+      outputCount = 0;
+      isInspectStringDirty = true;
+      cycles = 1;
+
+      UpdateTrackerState(needsFill: false, needsEmpty: true, needsCycleStart: false);
+      UpdateGlower();
+    }
+
     public void EmptyBuilding()
     {
       if (isFinished)
@@ -536,7 +571,6 @@ namespace ProductionExpanded
           }
           else if (isProcessing)
           {
-            // Bill was deleted while processing - just log it
             Log.Error($"[Production Expanded] Completed processing but bill was removed.");
           }
         }
@@ -560,6 +594,7 @@ namespace ProductionExpanded
         capacityRemaining = Props.maxCapacity;
         ruinTicks = 0;
         isRuinReason = RuinReason.None;
+        previousRuinReason = RuinReason.None;
 
         UpdateTrackerState(needsFill: getIsReady(), needsEmpty: false);
         UpdateGlower();
@@ -577,7 +612,7 @@ namespace ProductionExpanded
       {
         inspectMessageCahce = "";
       }
-      else if (isFinished)
+      else if (isFinished && Props.ticksToRuin > ruinTicks)
       {
         inspectMessageCahce =
           $"Finished. Waiting for colonist to extract {outputType.label} x{outputCount}";
@@ -595,18 +630,34 @@ namespace ProductionExpanded
         {
           inspectMessageCahce += $"\ncycles remaining: {cycles - currentCycle}";
         }
-        if (Props.hasTempRequirements)
+      }
+
+      if (Props.hasTempRequirements)
+      {
+        if (previousRuinReason == RuinReason.TooCold || previousRuinReason == RuinReason.TooHot)
         {
-          if (previousRuinReason == RuinReason.TooCold)
+          if (ruinTicks < Props.ticksToRuin)
           {
-            inspectMessageCahce += $"\nFreezing ";
+            if (!string.IsNullOrEmpty(inspectMessageCahce))
+              inspectMessageCahce += "\n";
+            if (previousRuinReason == RuinReason.TooCold)
+            {
+              inspectMessageCahce += "Freezing ";
+            }
+            else
+            {
+              inspectMessageCahce += "Overheating ";
+            }
+            inspectMessageCahce += $"({(float)ruinTicks / Props.ticksToRuin:P0})";
           }
           else
           {
-            inspectMessageCahce += $"\nOverheating ";
+            inspectMessageCahce = $"Ruined by temperature";
           }
-          inspectMessageCahce += $"({(ruinTicks / Props.ticksToRuin) * 100})";
         }
+        if (!string.IsNullOrEmpty(inspectMessageCahce))
+          inspectMessageCahce += "\n";
+        inspectMessageCahce += $"Ideal temperature: {Props.minTempC}~{Props.maxTempC}";
       }
       isInspectStringDirty = false;
     }

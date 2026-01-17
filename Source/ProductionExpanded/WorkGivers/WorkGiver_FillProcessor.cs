@@ -10,15 +10,12 @@ namespace ProductionExpanded
   {
     public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
     {
-      // Use our tracker - return a copy to prevent concurrent modification
       var tracker = pawn.Map?.GetComponent<MapComponent_ProcessorTracker>();
       if (tracker != null)
       {
-        // Create a new list to prevent concurrent modification while multiple pawns iterate
-        return new List<Thing>(tracker.processorsNeedingFill);
+        return tracker.processorsNeedingFill;
       }
-      Log.Error("[Production Expanded] no mak cache found, fuck you! nah im joking i <3 you!");
-      return base.PotentialWorkThingsGlobal(pawn);
+      return null;
     }
 
     public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -86,7 +83,7 @@ namespace ProductionExpanded
           int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
 
           Job job = JobMaker.MakeJob(
-            DefDatabase<JobDef>.GetNamed("PE_FillProcessor"),
+            JobDefOf_ProductionExpanded.PE_FillProcessor,
             t,
             ingredient
           );
@@ -112,7 +109,7 @@ namespace ProductionExpanded
             int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
 
             Job job = JobMaker.MakeJob(
-              DefDatabase<JobDef>.GetNamed("PE_FillProcessor"),
+              JobDefOf_ProductionExpanded.PE_FillProcessor,
               t,
               ingredient
             );

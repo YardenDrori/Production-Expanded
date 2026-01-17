@@ -10,7 +10,8 @@ namespace ProductionExpanded
   {
     // C is used for Destination Cell
 
-    protected Building_Processor Processor => (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
+    protected Building_Processor Processor =>
+      (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
     {
@@ -25,7 +26,8 @@ namespace ProductionExpanded
       // Go to processor's interaction cell
       yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
 
-      yield return Toils_General.Wait(90)
+      yield return Toils_General
+        .Wait(90)
         .FailOnDestroyedNullOrForbidden(TargetIndex.A)
         .FailOnCannotTouch(TargetIndex.A, PathEndMode.Touch)
         .WithProgressBarToilDelay(TargetIndex.A);
@@ -137,7 +139,16 @@ namespace ProductionExpanded
         // Best Stockpile (Fallback)
         if (!found)
         {
-          if (StoreUtility.TryFindBestBetterStoreCellFor(item, actor, actor.Map, StoragePriority.Unstored, actor.Faction, out IntVec3 c))
+          if (
+            StoreUtility.TryFindBestBetterStoreCellFor(
+              item,
+              actor,
+              actor.Map,
+              StoragePriority.Unstored,
+              actor.Faction,
+              out IntVec3 c
+            )
+          )
           {
             dest = c;
             found = true;
