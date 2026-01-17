@@ -22,11 +22,13 @@ namespace ProductionExpanded
     /// </summary>
     public static IEnumerable<ThingDef> ImpliedRawLeatherDefs()
     {
+      // During GenerateImpliedDefs_PreResolve, cross-references haven't been resolved yet,
+      // so stuffProps.categories is empty. We detect leathers by naming convention instead.
+      // Vanilla leathers use defName "Leather_X" pattern.
       var allLeathers = DefDatabase<ThingDef>
         .AllDefs.Where(def =>
-          def.stuffProps != null
-          && def.stuffProps.categories != null
-          && def.stuffProps.categories.Contains(StuffCategoryDefOf.Leathery)
+          def.defName.StartsWith("Leather_")
+          && def.stuffProps != null // Must have stuffProps to be a material
         )
         .ToList();
 

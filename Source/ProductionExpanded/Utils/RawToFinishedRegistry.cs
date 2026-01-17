@@ -8,22 +8,33 @@ namespace ProductionExpanded
   /// All generators (leather, wool, etc.) register their mappings here.
   /// This allows ProcessDef to look up any dynamic output without
   /// knowing about specific generators.
+  ///
+  /// Uses defName strings as keys because ThingDef.GetHashCode() is based on
+  /// shortHash, which isn't assigned until after def resolution. Since we
+  /// register during GenerateImpliedDefs_PreResolve, using ThingDef directly
+  /// as keys would cause all entries to hash to 0, then fail lookup later
+  /// when shortHash is populated.
   /// </summary>
   public static class RawToFinishedRegistry
   {
     /// <summary>
-    /// Maps raw/unprocessed ThingDefs to their finished/processed versions.
-    /// Example: PE_RawLeather_Dog → Leather_Dog
+    /// Maps raw/unprocessed defNames to their finished/processed ThingDefs.
+    /// Example: "PE_RawLeather_Dog" → Leather_Dog
     /// </summary>
-    public static Dictionary<ThingDef, ThingDef> RawToFinishedMap { get; } =
-      new Dictionary<ThingDef, ThingDef>();
+    private static Dictionary<string, ThingDef> RawToFinishedMap { get; } =
+      new Dictionary<string, ThingDef>();
 
     /// <summary>
-    /// Reverse mapping: finished → raw.
-    /// Example: Leather_Dog → PE_RawLeather_Dog
+    /// Reverse mapping: finished defName → raw ThingDef.
+    /// Example: "Leather_Dog" → PE_RawLeather_Dog
     /// </summary>
-    public static Dictionary<ThingDef, ThingDef> FinishedToRawMap { get; } =
-      new Dictionary<ThingDef, ThingDef>();
+    private static Dictionary<string, ThingDef> FinishedToRawMap { get; } =
+      new Dictionary<string, ThingDef>();
+
+    /// <summary>
+    /// Gets the number of registered mappings.
+    /// </summary>
+    public static int Count => RawToFinishedMap.Count;
 
     /// <summary>
     /// Registers a raw→finished mapping. Called by generators during startup.
@@ -38,8 +49,8 @@ namespace ProductionExpanded
         return;
       }
 
-      RawToFinishedMap[rawDef] = finishedDef;
-      FinishedToRawMap[finishedDef] = rawDef;
+      RawToFinishedMap[rawDef.defName] = finishedDef;
+      FinishedToRawMap[finishedDef.defName] = rawDef;
     }
 
     /// <summary>
@@ -48,7 +59,7 @@ namespace ProductionExpanded
     /// <returns>The finished ThingDef, or null if not found</returns>
     public static ThingDef GetFinished(ThingDef rawDef)
     {
-      if (rawDef != null && RawToFinishedMap.TryGetValue(rawDef, out var finished))
+      if (rawDef != null && RawToFinishedMap.TryGetValue(rawDef.defName, out var finished))
       {
         return finished;
       }
@@ -61,7 +72,7 @@ namespace ProductionExpanded
     /// <returns>The raw ThingDef, or null if not found</returns>
     public static ThingDef GetRaw(ThingDef finishedDef)
     {
-      if (finishedDef != null && FinishedToRawMap.TryGetValue(finishedDef, out var raw))
+      if (finishedDef != null && FinishedToRawMap.TryGetValue(finishedDef.defName, out var raw))
       {
         return raw;
       }

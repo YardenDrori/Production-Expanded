@@ -22,12 +22,12 @@ namespace ProductionExpanded
     /// </summary>
     public static IEnumerable<ThingDef> ImpliedRawWoolDefs()
     {
+      // During GenerateImpliedDefs_PreResolve, cross-references haven't been resolved yet,
+      // so stuffProps.categories is empty. We detect wools by naming convention instead.
       var allWool = DefDatabase<ThingDef>
         .AllDefs.Where(def =>
-          def.stuffProps != null
-          && def.stuffProps.categories != null
-          && def.stuffProps.categories.Contains(StuffCategoryDefOf.Fabric)
-          && (def.defName.ToLower().Contains("wool") || def.label.ToLower().Contains("wool"))
+          def.stuffProps != null // Must have stuffProps to be a material
+          && (def.defName.Contains("Wool") || (def.label != null && def.label.ToLower().Contains("wool")))
         )
         .ToList();
 

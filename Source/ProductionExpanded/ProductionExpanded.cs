@@ -24,8 +24,6 @@ namespace ProductionExpanded
       // Initialize Harmony early so patches are applied before def loading
       var harmony = new Harmony("blacksparrow.productionexpanded");
       harmony.PatchAll();
-
-      Log.Message("[Production Expanded] Harmony patches applied (early initialization).");
     }
   }
 

@@ -44,11 +44,12 @@ namespace ProductionExpanded
       if (!props.usesOnTexture)
         return false;
 
-      if (
-        !cachedComp.getIsProcessing()
-        || (!cachedComp.getIsReady() && !cachedComp.getIsBadTemp())
-        || cachedComp.getIsWaitingForNextCycle()
-      )
+      // Show "on" texture if processing (including waiting for cycle interaction)
+      if (!cachedComp.getIsProcessing())
+        return false;
+
+      // Show "off" if paused due to power/fuel/temp issues (but not if just waiting for cycle)
+      if (!cachedComp.getIsReady() && !cachedComp.getIsBadTemp() && !cachedComp.getIsWaitingForNextCycle())
         return false;
 
       if (cachedComp.getIsFinished() && !props.keepOnTextureOnFinish)

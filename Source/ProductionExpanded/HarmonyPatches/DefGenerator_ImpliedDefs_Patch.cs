@@ -15,8 +15,6 @@ namespace ProductionExpanded
     [HarmonyPostfix]
     public static void Postfix()
     {
-      Log.Message("[Production Expanded] Generating implied defs (pre-resolve phase)...");
-
       int leatherCount = 0;
       foreach (var def in RawLeatherDefGenerator.ImpliedRawLeatherDefs())
       {
