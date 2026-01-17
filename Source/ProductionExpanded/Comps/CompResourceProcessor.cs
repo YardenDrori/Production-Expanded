@@ -17,7 +17,7 @@ namespace ProductionExpanded
     public bool hasTempRequirements = false;
     public int maxTempC = 0;
     public int minTempC = 0;
-    public int ticksToRuin = 15000;
+    public int ticksToRuin = 9500;
 
     // Sound effects
     public SoundDef soundInput;
@@ -582,6 +582,7 @@ namespace ProductionExpanded
         }
 
         // Reset
+        parent.DirtyMapMesh(parent.Map);
         isFinished = false;
         if (heatPusher != null)
           heatPusher.enabled = false;
