@@ -37,7 +37,7 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItem>2200</ticksPerItem>
+        <ticksPerItem>2350</ticksPerItem>
         <cycles>2</cycles>
         <useDynamicOutput>true</useDynamicOutput>
         <ratio>1.0</ratio>
