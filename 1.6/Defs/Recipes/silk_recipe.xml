@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<Defs>
+  <RecipeDef>
+    <defName>PE_RefineSilk</defName>
+    <label>grow silk</label>
+    <description>grow silky cocoons from silk worms</description>
+    <jobString>growing silk</jobString>
+    <workAmount>500</workAmount>
+    <recipeUsers>
+      <li>PE_SilkBed</li>
+    </recipeUsers>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>PE_Silkworm</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>PE_Silkworm</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <products>
+      <PE_Silk>1</PE_Silk>
+    </products>
+    <modExtensions>
+      <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <ticksPerItem>900</ticksPerItem>
+        <cycles>2</cycles>
+        <capacityFactor>1</capacityFactor>
+      </li>
+    </modExtensions>
+    <displayPriority>100</displayPriority>
+  </RecipeDef>
+</Defs>

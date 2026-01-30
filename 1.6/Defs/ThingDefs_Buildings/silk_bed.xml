@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="BuildingBase">
+    <defName>PE_SilkBed</defName>
+    <label>silk bed</label>
+    <description>A wooden platform designed to hold silkworms during their cocoon life cycle and are harvested for silk once they have after fully spinning the cocoon.</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <thingClass>ProductionExpanded.Building_Processor</thingClass>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <graphicData>
+      <texPath>Things/Building/Production/SilkBed/SilkBed</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>2,2</drawSize>
+      <damageData>
+        <rect>(0.05,0.1,0.9,0.9)</rect>
+      </damageData>
+      <shadowData>
+        <volume>(0.75, 0.35, 0.33)</volume>
+      </shadowData>
+    </graphicData>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <fillPercent>0.45</fillPercent>
+    <passability>PassThroughOnly</passability>
+    <pathCost>42</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <surfaceType>Item</surfaceType>
+    <size>(1,1)</size>
+    <statBases>
+      <WorkToBuild>600</WorkToBuild>
+      <Mass>10</Mass>
+      <MaxHitPoints>100</MaxHitPoints>
+      <Flammability>1.0</Flammability>
+    </statBases>
+    <costList>
+      <Steel>30</Steel>
+    </costList>
+    <stuffCategories>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>60</costStuffCount>
+    <comps>
+      <li Class="ProductionExpanded.CompProperties_ResourceProcessor">
+        <maxCapacity>25</maxCapacity>
+        <hasIdlePowerCost>false</hasIdlePowerCost>
+        <usesOnTexture>true</usesOnTexture>
+        <keepOnTextureOnFinish>true</keepOnTextureOnFinish>
+        <hasTempRequirements>true</hasTempRequirements>
+        <maxTempC>36</maxTempC>
+        <minTempC>8</minTempC>
+        <soundInput>Corpse_Drop</soundInput>
+        <soundStartCycle>Roof_Start</soundStartCycle>
+        <soundExtract>Standard_Drop</soundExtract>
+      </li>
+      <li Class="CompProperties_Forbiddable"/>
+    </comps>
+    <tickerType>Rare</tickerType>
+    <building>
+      <buildingTags>
+        <li>Production</li>
+      </buildingTags>
+      <destroySound>BuildingDestroyed_Wood_Small</destroySound>
+    </building>
+    <designationCategory>Production</designationCategory>
+    <researchPrerequisites>
+      <li>PE_advancedProcessing</li>
+    </researchPrerequisites>
+  </ThingDef>
+</Defs>

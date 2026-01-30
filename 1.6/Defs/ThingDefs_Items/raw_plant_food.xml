@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="PlantFoodRawBase">
+    <defName>PE_RawMulberry</defName>
+    <label>mulberry</label>
+    <description>Sweet purple berries with a delicate flavor. Can be eaten raw or used in cooking.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PlantFoodRaw/RawMulberry</texPath>
+    </graphicData>
+    <statBases>
+      <MarketValue>1.1</MarketValue>
+      <Nutrition>0.05</Nutrition>
+    </statBases>
+    <ingestible Inherit="False">
+      <preferability>RawBad</preferability>
+      <ingestEffect>EatVegetarian</ingestEffect>
+      <ingestSound>RawVegetable_Eat</ingestSound>
+      <foodType>VegetableOrFruit</foodType>
+    </ingestible>
+    <comps>
+      <li Class="CompProperties_Rottable">
+        <daysToRotStart>15</daysToRotStart>
+        <rotDestroys>true</rotDestroys>
+      </li>
+    </comps>
+  </ThingDef>
+</Defs>

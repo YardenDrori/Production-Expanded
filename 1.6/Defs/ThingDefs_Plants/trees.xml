@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="TreeBase">
+    <defName>PE_Tree_Mulberry</defName>
+    <label>mulberry tree</label>
+    <description>A small and fast-growing tree they yields sweet mulberries. They are commonly known to host mulberry worms that can produce precious silk.</description>
+    <descriptionHyperlinks>
+      <ThingDef>PE_RawMulberry</ThingDef>
+      <ThingDef>PE_Silkworm</ThingDef>
+    </descriptionHyperlinks>
+    <thingClass>ProductionExpanded.Plant_SecondaryDrop</thingClass>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <Nutrition>1.5</Nutrition>
+    </statBases>
+    <graphicData>
+      <texPath>Things/Plants/Trees/TreeMulberry</texPath>
+      <graphicClass>Graphic_Random</graphicClass>
+    </graphicData>
+    <selectable>true</selectable>
+    <pathCost>10</pathCost>
+    <ingestible/>
+    <plant>
+      <dieIfLeafless>False</dieIfLeafless>
+      <sowTags>
+        <li>Ground</li>
+      </sowTags>
+      <fertilitySensitivity>0.7</fertilitySensitivity>
+      <growDays>19.5</growDays>
+      <harvestTag>Standard</harvestTag>
+      <harvestAfterGrowth>0.30</harvestAfterGrowth>
+      <harvestedThingDef>PE_RawMulberry</harvestedThingDef>
+      <harvestYield>6</harvestYield>
+      <sowMinSkill>3</sowMinSkill>
+      <mustBeWildToSow>false</mustBeWildToSow>
+      <sowResearchPrerequisites Inherit="False">
+        <li>Cocoa</li>
+      </sowResearchPrerequisites>
+      <topWindExposure>0.1</topWindExposure>
+      <wildOrder>2</wildOrder>
+      <immatureGraphicPath>Things/Plants/Trees/TreeMulberry_Immature</immatureGraphicPath>
+      <purpose>Food</purpose>
+    </plant>
+    <modExtensions>
+      <li Class="ProductionExpanded.ModExtension_SecondaryPlantDrop">
+        <SecondDropItem>PE_Silkworm</SecondDropItem>
+        <secondItemChance>1</secondItemChance>
+        <secondItemRange>3~3</secondItemRange>
+        <dropSecondWhenLeafless>false</dropSecondWhenLeafless>
+      </li>
+    </modExtensions>
+  </ThingDef>
+</Defs>

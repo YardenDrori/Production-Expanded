@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="RoughPlantBase">
+    <defName>PE_Silkworm</defName>
+    <label>silkworm</label>
+    <description>Small wormy critters that produces silk for their cocoons that can be harvested to create fine silk.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PE_Silkworm</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <statBases>
+      <MarketValue>5</MarketValue>
+    </statBases>
+    <ingestible>
+      <foodType>Seed</foodType>
+      <preferability>NeverForNutrition</preferability>
+    </ingestible>
+    <comps>
+      <li Class="CompProperties_Rottable">
+        <daysToRotStart>10</daysToRotStart>
+        <rotDestroys>true</rotDestroys>
+      </li>
+    </comps>
+    <thingCategories>
+      <li>FoodRaw</li>
+    </thingCategories>
+  </ThingDef>
+  <ThingDef ParentName="ResourceBase">
+    <defName>PE_Silk</defName>
+    <label>silk</label>
+    <description>A soft and luxurious fabric frequently tailored for noble apparel.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PE_SilkFabric</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(162,157,152)</color>
+    </graphicData>
+    <statBases>
+      <StuffPower_Armor_Sharp>0.3</StuffPower_Armor_Sharp>
+      <StuffPower_Armor_Blunt>0</StuffPower_Armor_Blunt>
+      <StuffPower_Armor_Heat>0.15</StuffPower_Armor_Heat>
+      <StuffPower_Insulation_Cold>12</StuffPower_Insulation_Cold>
+      <StuffPower_Insulation_Heat>12</StuffPower_Insulation_Heat>
+      <MaxHitPoints>60</MaxHitPoints>
+      <MarketValue>3</MarketValue>
+      <Mass>0.022</Mass>
+      <Flammability>0.8</Flammability>
+      <DeteriorationRate>4</DeteriorationRate>
+    </statBases>
+    <burnableByRecipe>true</burnableByRecipe>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <minRewardCount>30</minRewardCount>
+    <stuffProps>
+      <statFactors>
+        <Flammability>0.8</Flammability>
+        <Beauty>2</Beauty>
+      </statFactors>
+      <categories>
+        <li>Fabric</li>
+      </categories>
+      <color>(245,240,230)</color>
+      <commonality>0.3</commonality>
+      <allowColorGenerators>true</allowColorGenerators>
+      <canSuggestUseDefaultStuff>true</canSuggestUseDefaultStuff>
+    </stuffProps>
+    <thingCategories>
+      <li>Textiles</li>
+    </thingCategories>
+    <comps>
+      <li>
+        <compClass>CompColorable</compClass>
+      </li>
+    </comps>
+    <colorGeneratorInTraderStock Class="ColorGenerator_Options">
+      <options>
+        <li>
+          <weight>5</weight>
+          <only>(0.33,0.33,0.33,1)</only>
+        </li>
+        <li>
+          <weight>10</weight>
+          <min>(0.3,0.3,0.3,1)</min>
+          <max>(0.9,0.9,0.9,1)</max>
+        </li>
+        <li>
+          <weight>5</weight>
+          <only>(0.9,0.9,0.9,1)</only>
+        </li>
+      </options>
+    </colorGeneratorInTraderStock>
+    <allowedArchonexusCount>20</allowedArchonexusCount>
+  </ThingDef>
+</Defs>
