@@ -1,2 +1,3 @@
 add translation support -- maybe
 make silk trees spawn
+make flax spawn
