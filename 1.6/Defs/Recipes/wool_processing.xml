@@ -43,7 +43,7 @@
         <useDynamicOutput>true</useDynamicOutput>
       </li>
     </modExtensions>
-    <displayPriority>5</displayPriority>
+    <displayPriority>6</displayPriority>
   </RecipeDef>
   <RecipeDef>
     <defName>PE_Process_SpinWoolBulk</defName>
@@ -87,7 +87,7 @@
         <useDynamicOutput>true</useDynamicOutput>
       </li>
     </modExtensions>
-    <displayPriority>6</displayPriority>
+    <displayPriority>7</displayPriority>
   </RecipeDef>
   <RecipeDef>
     <defName>PE_Process_SpinWoolSpinner</defName>

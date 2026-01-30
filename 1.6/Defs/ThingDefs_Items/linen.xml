@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="ResourceBase">
+    <defName>PE_RawFlax</defName>
+    <label>raw flax</label>
+    <description>Stalks of plant fibre. Its fibre can be utilized for its stringy properties and will make good fabric.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PlantFoodRaw/PE_RawFlax</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <thingCategories>
+      <li>ResourcesRaw</li>
+    </thingCategories>
+    <statBases>
+      <MarketValue>0.7</MarketValue>
+      <Mass>0.010</Mass>
+      <Flammability>1.8</Flammability>
+    </statBases>
+    <descriptionHyperlinks>
+      <ThingDef>PE_Linen</ThingDef>
+    </descriptionHyperlinks>
+  </ThingDef>
+  <ThingDef ParentName="ResourceBase">
+    <defName>PE_Linen</defName>
+    <label>linen</label>
+    <description>A resillient fabric made out of dried fibres of flax.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PE_Linen</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(202,195,170)</color>
+    </graphicData>
+    <statBases>
+      <StuffPower_Armor_Sharp>0.38</StuffPower_Armor_Sharp>
+      <StuffPower_Armor_Blunt>0</StuffPower_Armor_Blunt>
+      <StuffPower_Armor_Heat>0.18</StuffPower_Armor_Heat>
+      <StuffPower_Insulation_Cold>10</StuffPower_Insulation_Cold>
+      <StuffPower_Insulation_Heat>10</StuffPower_Insulation_Heat>
+      <MaxHitPoints>90</MaxHitPoints>
+      <MarketValue>1.5</MarketValue>
+      <Mass>0.028</Mass>
+      <Flammability>1.2</Flammability>
+      <DeteriorationRate>4</DeteriorationRate>
+    </statBases>
+    <burnableByRecipe>true</burnableByRecipe>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <minRewardCount>30</minRewardCount>
+    <stuffProps>
+      <statFactors>
+        <Flammability>1.2</Flammability>
+        <Beauty>0.8</Beauty>
+      </statFactors>
+      <categories>
+        <li>Fabric</li>
+      </categories>
+      <color>(202,195,170)</color>
+      <commonality>1.4</commonality>
+      <allowColorGenerators>true</allowColorGenerators>
+      <canSuggestUseDefaultStuff>true</canSuggestUseDefaultStuff>
+    </stuffProps>
+    <thingCategories>
+      <li>Textiles</li>
+    </thingCategories>
+    <comps>
+      <li>
+        <compClass>CompColorable</compClass>
+      </li>
+    </comps>
+    <colorGeneratorInTraderStock Class="ColorGenerator_Options">
+      <options>
+        <li>
+          <weight>5</weight>
+          <only>(0.33,0.33,0.33,1)</only>
+        </li>
+        <li>
+          <weight>10</weight>
+          <min>(0.3,0.3,0.3,1)</min>
+          <max>(0.9,0.9,0.9,1)</max>
+        </li>
+        <li>
+          <weight>5</weight>
+          <only>(0.9,0.9,0.9,1)</only>
+        </li>
+      </options>
+    </colorGeneratorInTraderStock>
+    <allowedArchonexusCount>80</allowedArchonexusCount>
+  </ThingDef>
+</Defs>

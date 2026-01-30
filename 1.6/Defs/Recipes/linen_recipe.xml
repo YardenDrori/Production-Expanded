@@ -1,26 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <RecipeDef>
-    <defName>PE_ProcessDevilstrand</defName>
-    <label>process devilstrand fungus into cloth</label>
-    <description>Process raw devilstrand into extremely durable and versatile cloth suitable for use in fabrics.</description>
-    <jobString>Processing cloth.</jobString>
+    <defName>PE_ProcessFlaxToLinen</defName>
+    <label>process raw flax into linen</label>
+    <description>Process raw flax into linen suitable for use in fabrics.</description>
+    <jobString>Processing linen.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>940</workAmount>
+    <workAmount>140</workAmount>
     <ingredients>
       <li>
         <filter>
           <thingDefs>
-            <li>RawDevilstrand</li>
+            <li>PE_RawFlax</li>
           </thingDefs>
         </filter>
         <count>1</count>
       </li>
     </ingredients>
     <products>
-      <DevilstrandCloth>1</DevilstrandCloth>
+      <PE_Linen>1</PE_Linen>
+    </products>
+    <skillRequirements>
+      <Crafting>0</Crafting>
+    </skillRequirements>
+    <recipeUsers>
+      <li>HandTailoringBench</li>
+      <li>CraftingSpot</li>
+      <li>ElectricTailoringBench</li>
+      <!-- <li>TableMachining</li> -->
+    </recipeUsers>
+    <displayPriority>4</displayPriority>
+  </RecipeDef>
+  <!-- Bulk version -->
+  <RecipeDef>
+    <defName>PE_ProcessFlaxToLinenBulk</defName>
+    <label>process raw flax into linen x10</label>
+    <description>Process raw flax into linen suitable for use in fabrics.</description>
+    <jobString>Processing linen.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <workAmount>1400</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>PE_RawFlax</li>
+          </thingDefs>
+        </filter>
+        <count>10</count>
+      </li>
+    </ingredients>
+    <products>
+      <PE_Linen>10</PE_Linen>
     </products>
     <skillRequirements>
       <Crafting>2</Crafting>
@@ -30,103 +64,67 @@
       <li>ElectricTailoringBench</li>
       <!-- <li>TableMachining</li> -->
     </recipeUsers>
-    <displayPriority>8</displayPriority>
+    <displayPriority>5</displayPriority>
   </RecipeDef>
-  <!-- Bulk version -->
   <RecipeDef>
-    <defName>PE_ProcessDevilstrandBulk</defName>
-    <label>process devilstrand fungus into cloth x4</label>
-    <description>Process raw devilstrand into extremely durable and versatile cloth suitable for use in fabrics.</description>
-    <jobString>Processing cloth.</jobString>
+    <defName>PE_ProcessFlaxToLinenWithSpinner</defName>
+    <label>process raw flax into linen</label>
+    <description>Process raw flax into linen suitable for use in fabrics.</description>
+    <jobString>Processing linen.</jobString>
     <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>3760</workAmount>
+    <workAmount>70</workAmount>
     <ingredients>
       <li>
         <filter>
           <thingDefs>
-            <li>RawDevilstrand</li>
-          </thingDefs>
-        </filter>
-        <count>4</count>
-      </li>
-    </ingredients>
-    <products>
-      <DevilstrandCloth>4</DevilstrandCloth>
-    </products>
-    <skillRequirements>
-      <Crafting>4</Crafting>
-    </skillRequirements>
-    <recipeUsers>
-      <li>HandTailoringBench</li>
-      <li>ElectricTailoringBench</li>
-      <!-- <li>TableMachining</li> -->
-    </recipeUsers>
-    <displayPriority>9</displayPriority>
-  </RecipeDef>
-  <RecipeDef>
-    <defName>PE_ProcessDevilstrandWithSpinner</defName>
-    <label>process devilstrand fungus into cloth</label>
-    <description>Process raw devilstrand into extremely durable and versatile cloth suitable for use in fabrics.</description>
-    <jobString>Processing cloth.</jobString>
-    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
-    <effectWorking>Tailor</effectWorking>
-    <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>210</workAmount>
-    <ingredients>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>RawDevilstrand</li>
+            <li>PE_RawFlax</li>
           </thingDefs>
         </filter>
         <count>1</count>
       </li>
     </ingredients>
     <products>
-      <DevilstrandCloth>1</DevilstrandCloth>
+      <PE_Linen>1</PE_Linen>
+    </products>
+    <skillRequirements>
+      <Crafting>2</Crafting>
+    </skillRequirements>
+    <recipeUsers>
+      <li>PE_ClothSpinner</li>
+    </recipeUsers>
+    <displayPriority>42</displayPriority>
+  </RecipeDef>
+  <RecipeDef>
+    <defName>PE_ProcessRawFlaxToLinenWithSpinnerBulk</defName>
+    <label>process raw flax into linen x10</label>
+    <description>Process raw flax into linen suitable for use in fabrics.</description>
+    <jobString>Processing linen.</jobString>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <effectWorking>Tailor</effectWorking>
+    <soundWorking>Recipe_Tailor</soundWorking>
+    <workAmount>700</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>PE_RawFlax</li>
+          </thingDefs>
+        </filter>
+        <count>10</count>
+      </li>
+    </ingredients>
+    <products>
+      <PE_Linen>10</PE_Linen>
     </products>
     <skillRequirements>
       <Crafting>4</Crafting>
     </skillRequirements>
     <recipeUsers>
-      <!-- <li>HandTailoringBench</li> -->
-      <!-- <li>TableMachining</li> -->
       <li>PE_ClothSpinner</li>
     </recipeUsers>
-    <displayPriority>952</displayPriority>
+    <displayPriority>43</displayPriority>
   </RecipeDef>
-  <RecipeDef>
-    <defName>PE_ProcessDevilstrandWithSpinnerBulk</defName>
-    <label>process devilstrand fungus into cloth x4</label>
-    <description>Process raw devilstrand into extremely durable and versatile cloth suitable for use in fabrics.</description>
-    <jobString>Processing cloth.</jobString>
-    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
-    <effectWorking>Tailor</effectWorking>
-    <soundWorking>Recipe_Tailor</soundWorking>
-    <workAmount>840</workAmount>
-    <ingredients>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>RawDevilstrand</li>
-          </thingDefs>
-        </filter>
-        <count>4</count>
-      </li>
-    </ingredients>
-    <products>
-      <DevilstrandCloth>4</DevilstrandCloth>
-    </products>
-    <skillRequirements>
-      <Crafting>6</Crafting>
-    </skillRequirements>
-    <recipeUsers>
-      <!-- <li>HandTailoringBench</li> -->
-      <!-- <li>TableMachining</li> -->
-      <li>PE_ClothSpinner</li>
-    </recipeUsers>
-    <displayPriority>953</displayPriority>
-  </RecipeDef>
+  <!-- Process raw wood logs into lumber -->
 </Defs>
