@@ -14,6 +14,7 @@
       <MarketValue>4.5</MarketValue>
       <Mass>0.5</Mass>
     </statBases>
+    <tradeability>None</tradeability>
     <useHitPoints>false</useHitPoints>
     <stackLimit>75</stackLimit>
     <healthAffectsPrice>false</healthAffectsPrice>

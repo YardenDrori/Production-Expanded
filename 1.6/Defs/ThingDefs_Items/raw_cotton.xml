@@ -16,6 +16,7 @@
       <Mass>0.03</Mass>
       <Flammability>1.5</Flammability>
     </statBases>
+    <tradeability>None</tradeability>
     <descriptionHyperlinks>
       <ThingDef>Cloth</ThingDef>
     </descriptionHyperlinks>

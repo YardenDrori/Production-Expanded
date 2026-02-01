@@ -15,6 +15,7 @@
       <Flammability>0.7</Flammability>
       <DeteriorationRate>1</DeteriorationRate>
     </statBases>
+    <tradeability>None</tradeability>
     <healthAffectsPrice>false</healthAffectsPrice>
     <descriptionHyperlinks>
       <ThingDef>DevilstrandCloth</ThingDef>

@@ -20,5 +20,6 @@
       <Flammability>0.2</Flammability>
       <MaxHitPoints>60</MaxHitPoints>
     </statBases>
+    <tradeability>None</tradeability>
   </ThingDef>
 </Defs>

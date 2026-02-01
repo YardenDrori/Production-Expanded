@@ -18,6 +18,7 @@
       <Flammability>1.0</Flammability>
       <DeteriorationRate>1.5</DeteriorationRate>
     </statBases>
+    <tradeability>None</tradeability>
     <burnableByRecipe>true</burnableByRecipe>
     <healthAffectsPrice>false</healthAffectsPrice>
     <thingCategories>

@@ -16,6 +16,7 @@
       <Mass>0.010</Mass>
       <Flammability>1.8</Flammability>
     </statBases>
+    <tradeability>None</tradeability>
     <descriptionHyperlinks>
       <ThingDef>PE_Linen</ThingDef>
     </descriptionHyperlinks>
