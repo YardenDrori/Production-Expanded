@@ -3,30 +3,51 @@ using Verse;
 
 namespace ProductionExpanded;
 
+public class RawMappingDef : Def
+{
+  public List<ThingDef> raw;
+  public List<ThingDef> finished;
+  public bool isCartesian = false;
+}
+
 [StaticConstructorOnStartup]
 public static class RegisterAllMappingsFromDefs
 {
-  /// <summary>
-  /// Def for writing down the raw -> finished stuff
-  /// </summary>
-  public class RawMappingDef : Def
-  {
-    public List<ThingDef> raw;
-    public ThingDef finished;
-  }
-
-  static RegisterAllMappingsFromDefs()
-  {
-    RegisterMyShit();
-  }
+  static RegisterAllMappingsFromDefs() => RegisterMyShit();
 
   private static void RegisterMyShit()
   {
     foreach (var mapping in DefDatabase<RawMappingDef>.AllDefs)
     {
-      foreach (ThingDef input in mapping.raw)
+      if (mapping.raw.NullOrEmpty() || mapping.finished.NullOrEmpty())
       {
-        RawToFinishedRegistry.Register(input, mapping.finished);
+        Log.Error($"[Production Expanded] {mapping.defName} has null or empty lists.");
+        continue;
+      }
+
+      if (mapping.isCartesian)
+      {
+        foreach (ThingDef input in mapping.raw)
+        {
+          foreach (ThingDef output in mapping.finished)
+            RawToFinishedRegistry.Register(input, output);
+        }
+      }
+      else
+      {
+        if (mapping.raw.Count == mapping.finished.Count)
+        {
+          for (int i = 0; i < mapping.raw.Count; i++)
+          {
+            RawToFinishedRegistry.Register(mapping.raw[i], mapping.finished[i]);
+          }
+        }
+        else
+        {
+          Log.Error(
+            $"[Production Expanded] {mapping.defName} count mismatch (Raw: {mapping.raw.Count}, Finished: {mapping.finished.Count}). did you mean to enable isCartesian?"
+          );
+        }
       }
     }
   }
