@@ -4,15 +4,6 @@ using Verse;
 namespace ProductionExpanded
 {
   /// <summary>
-  /// Def for writing down the raw -> finished stuff
-  /// </summary>
-  public class RawMappingDef : Def
-  {
-    public ThingDef raw;
-    public ThingDef finished;
-  }
-
-  /// <summary>
   /// Central registry for all raw→finished material mappings.
   /// All generators (leather, wool, etc.) register their mappings here.
   /// This allows ProcessDef to look up any dynamic output without
