@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Verse;
 
 namespace ProductionExpanded;
@@ -10,7 +11,7 @@ public static class RegisterAllMappingsFromDefs
   /// </summary>
   public class RawMappingDef : Def
   {
-    public ThingDef raw;
+    public List<ThingDef> raw;
     public ThingDef finished;
   }
 
@@ -23,7 +24,10 @@ public static class RegisterAllMappingsFromDefs
   {
     foreach (var mapping in DefDatabase<RawMappingDef>.AllDefs)
     {
-      RawToFinishedRegistry.Register(mapping.raw, mapping.finished);
+      foreach (ThingDef input in mapping.raw)
+      {
+        RawToFinishedRegistry.Register(input, mapping.finished);
+      }
     }
   }
 }
