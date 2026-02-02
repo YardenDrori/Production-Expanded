@@ -396,7 +396,7 @@ namespace ProductionExpanded
       UpdateTrackerState(needsFill: getCapacityRemaining() > 0 && getIsReady());
 
       bool isDynamic = settings?.useDynamicOutput ?? false;
-      int ticksPerItem = settings?.ticksPerItem ?? 2500;
+      int ticksPerItemIn = settings?.ticksPerItemIn ?? 2500;
       int extensionCycles = settings?.cycles ?? 1;
 
       if (isProcessing)
@@ -415,7 +415,7 @@ namespace ProductionExpanded
         int additionalOutput = Mathf.Max(1, (int)(count * ratio));
         this.outputCount += additionalOutput;
 
-        totalTicksPerCycle = ticksPerItem * this.inputCount;
+        totalTicksPerCycle = ticksPerItemIn * this.inputCount;
 
         // Recalculate progress
         currentCycle = 0;
@@ -487,10 +487,10 @@ namespace ProductionExpanded
       this.cycles = extensionCycles;
       this.inputCount = count;
       if (count >= Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
-        this.totalTicksPerCycle = ticksPerItem * count;
+        this.totalTicksPerCycle = ticksPerItemIn * count;
       else
         this.totalTicksPerCycle =
-          ticksPerItem * (int)(Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime);
+          ticksPerItemIn * (int)(Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime);
 
       isInspectStringDirty = true;
 

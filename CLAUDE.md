@@ -112,17 +112,16 @@ Examples: PE_FueledAlloyFurnace, EM_ElectricAlloyFurnace, PE_SawTable, CraftingS
 Custom recipe type (defined in ProcessorRecipeDef.cs) for automated processor buildings:
 - Uses `ProductionExpanded.ProcessorRecipeDef` as XML element name
 - Properties:
-  - `ticksPerItem` - Base processing time per input item
+  - `ticksPerItemIn` - Base processing time per input item
   - `cycles` - Number of processing cycles required (multi-stage processing)
   - `ratio` - Input:output conversion ratio (e.g., 1.0 for 1:1)
   - `inputType` - ThingDef for input material
   - `outputType` - ThingDef for output material
-- Requires buildings with `thingClass="ProductionExpanded.Building_Processor"`
-- Used with CompResourceProcessor component
-
-Example: PE_AutoSawTable (automated lumber processing)
-
-## Automated Processor System Architecture
+  - Requires buildings with `thingClass="ProductionExpanded.Building_Processor"`
+  - Used with CompResourceProcessor component
+  
+  Example: PE_AutoSawTable (automated lumber processing)
+  ## Automated Processor System Architecture
 
 The automated processor system (used by PE_AutoSawTable and similar buildings) is implemented in C# with several interconnected components:
 
@@ -217,7 +216,7 @@ The .csproj references RimWorld DLLs from the Linux Steam installation path. For
 1. Create ThingDef in `1.6/Defs/ThingDefs_Buildings/` with:
    - `thingClass="ProductionExpanded.Building_Processor"`
    - CompProperties_ResourceProcessor in comps section (maxCapacity, cycles, usesOnTexture, hasIdlePowerCost)
-2. Create ProcessorRecipeDef in `1.6/Defs/Recipes/` with inputType/outputType/ticksPerItem/cycles/ratio
+2. Create ProcessorRecipeDef in `1.6/Defs/Recipes/` with inputType/outputType/ticksPerItemIn/cycles/ratio
 3. Create WorkGiverDef in `1.6/Defs/WorkGiverDefs/` that targets your specific processor defName
    - Use existing work givers as templates (work_at_manual_saw_table.xml, etc.)
    - Ensure the workGiver class matches the processor type (e.g., WorkGiver_FillProcessor)

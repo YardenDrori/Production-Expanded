@@ -29,7 +29,7 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItem>900</ticksPerItem>
+        <ticksPerItemIn>900</ticksPerItemIn>
         <cycles>2</cycles>
         <capacityFactor>1</capacityFactor>
       </li>

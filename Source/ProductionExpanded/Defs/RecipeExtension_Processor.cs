@@ -6,7 +6,7 @@ namespace ProductionExpanded
   public class RecipeExtension_Processor : DefModExtension
   {
     public bool useDynamicOutput = false;
-    public int ticksPerItem = 100;
+    public int ticksPerItemIn = 100;
     public int cycles = 1;
     public float ratio = 1.0f;
     public float capacityFactor = 1f;
