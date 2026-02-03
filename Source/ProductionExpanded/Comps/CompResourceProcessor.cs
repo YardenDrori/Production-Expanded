@@ -165,7 +165,7 @@ namespace ProductionExpanded
 
     public void forgivePunishment()
     {
-      prevPunishRareTicks /= 1;
+      prevPunishRareTicks = 1;
       punishRareTicks = 0;
     }
 
@@ -422,9 +422,9 @@ namespace ProductionExpanded
 
     public void BuildIngredientCountDictionary()
     {
+      allIngredientsAndCounts.Clear();
       if (!dynamicIngredientsContainer.NullOrEmpty())
       {
-        dynamicIngredientsContainer.Clear();
         foreach (Thing thing in dynamicIngredientsContainer)
         {
           ProcessorIngredient ingredient = FindMatchingSlot(thing.def);
@@ -440,7 +440,6 @@ namespace ProductionExpanded
       }
       if (!staticIngredientsContainer.NullOrEmpty())
       {
-        staticIngredientsContainer.Clear();
         foreach (Thing thing in staticIngredientsContainer)
         {
           ProcessorIngredient ingredient = FindMatchingSlot(thing.def);
@@ -704,9 +703,13 @@ namespace ProductionExpanded
         }
       }
 
+      if (ingredientCount != 0)
+      {
+        return ingredientCount;
+      }
+
       while (capacity > 0)
       {
-        int capacityTemp = capacity;
         int tempIngredientCount = ingredientCount;
         bool broke = false;
         foreach (ProcessorIngredient recipeIngredient in recipeSettings.ingredients)
@@ -730,7 +733,6 @@ namespace ProductionExpanded
         }
         if (!broke)
         {
-          capacity = capacityTemp;
           ingredientCount = tempIngredientCount;
         }
         else

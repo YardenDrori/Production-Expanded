@@ -139,9 +139,9 @@ namespace ProductionExpanded
               return job;
             }
           }
-          comp.PunishProcessor();
-          return null;
         }
+        comp.PunishProcessor();
+        return null;
       }
 
       foreach (Bill_Production bill in processor.BillStack)
@@ -194,29 +194,46 @@ namespace ProductionExpanded
       float searchRadius
     )
     {
-      Thing item = GenClosest.ClosestThingReachable(
-        pawn.Position,
-        pawn.Map,
-        ThingRequest.ForDef(ingredient.thingDef),
-        PathEndMode.ClosestTouch,
-        TraverseParms.For(pawn),
-        searchRadius,
-        (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
-      );
-      if (item == null)
+      if (ingredient.IsSpecific)
       {
         return GenClosest.ClosestThingReachable(
           pawn.Position,
           pawn.Map,
-          ThingRequest.ForGroup(ThingRequestGroup.HaulableEver),
+          ThingRequest.ForDef(ingredient.thingDef),
           PathEndMode.ClosestTouch,
           TraverseParms.For(pawn),
           searchRadius,
-          (Thing x) =>
-            !x.IsForbidden(pawn) && pawn.CanReserve(x) && x.HasThingCategory(ingredient.category)
+          (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
         );
       }
-      return item;
+      if (ingredient.IsCategory)
+      {
+        Thing closest = null;
+        float closestDist = float.MaxValue;
+        foreach (ThingDef def in ingredient.category.childThingDefs)
+        {
+          Thing found = GenClosest.ClosestThingReachable(
+            pawn.Position,
+            pawn.Map,
+            ThingRequest.ForDef(def),
+            PathEndMode.ClosestTouch,
+            TraverseParms.For(pawn),
+            searchRadius,
+            (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
+          );
+          if (found != null)
+          {
+            float dist = (found.Position - pawn.Position).LengthHorizontalSquared;
+            if (dist < closestDist)
+            {
+              closest = found;
+              closestDist = dist;
+            }
+          }
+        }
+        return closest;
+      }
+      return null;
     }
   }
 }
