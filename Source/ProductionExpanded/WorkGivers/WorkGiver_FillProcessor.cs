@@ -40,9 +40,23 @@ namespace ProductionExpanded
         // Only accept matching input
         foreach (var ingredient in comp.GetAllIngredientsAndTheirCounts())
         {
+          if (ingredient.Key.IsNull)
+          {
+            return false;
+          }
+          //not allowed to refuel static ingredients
+          if (ingredient.Key.count != -1)
+          {
+            continue;
+          }
           if (
             ingredient.Value < comp.MaxCountOfIngredientInRecipe(ingredient.Key)
-            && FindIngredient(pawn, processor, ingredient.Key) != null
+            && FindIngredient(
+              pawn,
+              processor,
+              ingredient.Key,
+              comp.GetActiveBill().ingredientSearchRadius
+            ) != null
           )
           {
             return true;
@@ -69,7 +83,7 @@ namespace ProductionExpanded
           }
           foreach (ProcessorIngredient ingredient in settings.ingredients)
           {
-            if (FindIngredient(pawn, processor, ingredient) != null)
+            if (FindIngredient(pawn, processor, ingredient, bill.ingredientSearchRadius) != null)
             {
               comp.forgivePunishment();
               return true;
@@ -95,29 +109,39 @@ namespace ProductionExpanded
 
       if (comp.getIsProcessing())
       {
-        ThingDef requiredDef = comp.getInputItem();
-        if (requiredDef == null)
-          return null;
-
-        Thing ingredient = FindIngredient(pawn, processor, requiredDef);
-        if (ingredient != null)
+        foreach (var recipeIngredient in comp.GetAllIngredientsAndTheirCounts())
         {
-          // Get capacityFactor from active bill
-          Bill_Production activeBill = comp.GetActiveBill();
-          float capacityFactor = 1f;
-          if (activeBill != null)
+          if (recipeIngredient.Key.IsNull)
+            return null;
+          //not allowed to refuel static ingredients
+          if (recipeIngredient.Key.count != -1)
+            continue;
+
+          int ingredientNeeded =
+            comp.MaxCountOfIngredientInRecipe(recipeIngredient.Key) - recipeIngredient.Value;
+          if (ingredientNeeded > 0)
           {
-            var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
-            capacityFactor = settings?.capacityFactor ?? 1f;
+            Thing ingredient = FindIngredient(
+              pawn,
+              processor,
+              recipeIngredient.Key,
+              comp.GetActiveBill().ingredientSearchRadius
+            );
+            if (ingredient != null)
+            {
+              Job job = JobMaker.MakeJob(
+                JobDefOf_ProductionExpanded.PE_FillProcessor,
+                t,
+                ingredient
+              );
+              job.count = Mathf.Min(ingredient.stackCount, ingredientNeeded);
+              comp.forgivePunishment();
+              return job;
+            }
           }
-
-          int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
-
-          Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, ingredient);
-          job.count = Mathf.Min(ingredient.stackCount, maxItemsThatFit);
-          return job;
+          comp.PunishProcessor();
+          return null;
         }
-        return null;
       }
 
       foreach (Bill_Production bill in processor.BillStack)
@@ -125,63 +149,74 @@ namespace ProductionExpanded
         if (!bill.ShouldDoNow())
           continue;
 
-        if (bill.recipe.fixedIngredientFilter != null)
+        RecipeExtension_Processor settings =
+          bill.recipe.GetModExtension<RecipeExtension_Processor>();
+        if (settings != null)
         {
-          Thing ingredient = FindIngredientForBill(pawn, processor, bill);
-          if (ingredient != null)
+          foreach (ProcessorIngredient recipeIngredient in settings.ingredients)
           {
-            // Get capacityFactor from bill recipe
-            var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-            float capacityFactor = settings?.capacityFactor ?? 1f;
-            int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
+            if (recipeIngredient.IsNull)
+            {
+              return null;
+            }
+            Thing ingredient = FindIngredient(
+              pawn,
+              processor,
+              recipeIngredient,
+              bill.ingredientSearchRadius
+            );
+            if (ingredient != null)
+            {
+              int ingredientsNeeded = comp.MaxCountOfIngredientInRecipe(recipeIngredient);
 
-            Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, ingredient);
-            job.count = Mathf.Min(ingredient.stackCount, maxItemsThatFit);
-            job.bill = bill; // Vanilla field
-            return job;
+              Job job = JobMaker.MakeJob(
+                JobDefOf_ProductionExpanded.PE_FillProcessor,
+                t,
+                ingredient
+              );
+              job.count = Mathf.Min(ingredient.stackCount, ingredientsNeeded);
+              job.bill = bill;
+              comp.forgivePunishment();
+              return job;
+            }
           }
         }
+        //should prob log here
       }
-
+      comp.PunishProcessor();
       return null;
     }
 
     private Thing FindIngredient(
       Pawn pawn,
       Building_Processor processor,
-      ProcessorIngredient ingredient
+      ProcessorIngredient ingredient,
+      float searchRadius
     )
     {
-      return GenClosest.ClosestThingReachable(
+      Thing item = GenClosest.ClosestThingReachable(
         pawn.Position,
         pawn.Map,
-        ThingRequest.ForDef(def),
+        ThingRequest.ForDef(ingredient.thingDef),
         PathEndMode.ClosestTouch,
         TraverseParms.For(pawn),
-        9999f,
+        searchRadius,
         (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
       );
-    }
-
-    private Thing FindIngredientForBill(
-      Pawn pawn,
-      Building_Processor processor,
-      Bill_Production bill
-    )
-    {
-      return GenClosest.ClosestThingReachable(
-        pawn.Position,
-        pawn.Map,
-        ThingRequest.ForGroup(ThingRequestGroup.HaulableEver),
-        PathEndMode.ClosestTouch,
-        TraverseParms.For(pawn),
-        bill.ingredientSearchRadius,
-        (Thing x) =>
-          !x.IsForbidden(pawn)
-          && pawn.CanReserve(x)
-          && bill.recipe.fixedIngredientFilter.Allows(x)
-          && bill.ingredientFilter.Allows(x)
-      );
+      if (item == null)
+      {
+        return GenClosest.ClosestThingReachable(
+          pawn.Position,
+          pawn.Map,
+          ThingRequest.ForGroup(ThingRequestGroup.HaulableEver),
+          PathEndMode.ClosestTouch,
+          TraverseParms.For(pawn),
+          searchRadius,
+          (Thing x) =>
+            !x.IsForbidden(pawn) && pawn.CanReserve(x) && x.HasThingCategory(ingredient.category)
+        );
+      }
+      return item;
     }
   }
 }
