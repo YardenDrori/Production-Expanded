@@ -57,6 +57,7 @@ namespace ProductionExpanded
     public bool IsFixed => count > 0;
     public bool IsCategory => category != null;
     public bool IsSpecific => thingDef != null;
+    public bool IsNull => !IsCategory && !IsSpecific;
   }
 
   /// <summary>
