@@ -52,6 +52,8 @@ namespace ProductionExpanded
     private bool isInspectStringDirty = true;
     private RuinReason isRuinReason = RuinReason.None;
     private int ruinTicks = 0;
+    private int punishRareTicks = 0;
+    private int prevPunishRareTicks = 0;
 
     // State tracking for HashSet operations (avoid redundant add/remove)
     private bool cachedNeedsFill = false;
@@ -75,6 +77,7 @@ namespace ProductionExpanded
     // private ThingOwner<Thing> ingredientContainer;
     private ThingOwner<Thing> staticIngredientsContainer;
     private ThingOwner<Thing> dynamicIngredientsContainer;
+    private Dictionary<ProcessorIngredient, int> allIngredientsAndCounts = new();
 
     // Track the active vanilla bill
     private Bill_Production activeBill = null;
@@ -111,9 +114,16 @@ namespace ProductionExpanded
 
     public CompProperties_ResourceProcessor getProps() => Props;
 
+    public List<ProcessorIngredient> GetAllIngredients() => allIngredientsAndCounts.Keys.ToList();
+
+    public Dictionary<ProcessorIngredient, int> GetAllIngredientsAndTheirCounts() =>
+      allIngredientsAndCounts;
+
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
       base.PostSpawnSetup(respawningAfterLoad);
+
+      BuildIngredientCountDictionary();
 
       // Cache props to avoid repeated casting
       cachedProps = (CompProperties_ResourceProcessor)props;
@@ -139,6 +149,25 @@ namespace ProductionExpanded
       UpdateGlower();
     }
 
+    public void PunishProcessor()
+    {
+      if (prevPunishRareTicks > 60)
+      {
+        prevPunishRareTicks = 60;
+      }
+      else
+      {
+        prevPunishRareTicks *= 2;
+      }
+      punishRareTicks = prevPunishRareTicks;
+    }
+
+    public void forgivePunishment()
+    {
+      prevPunishRareTicks = 1;
+      punishRareTicks = 0;
+    }
+
     private void UpdateTrackerState(
       bool? needsFill = null,
       bool? needsEmpty = null,
@@ -154,9 +183,14 @@ namespace ProductionExpanded
       {
         cachedNeedsFill = needsFill.Value;
         if (cachedNeedsFill)
-          processorTracker.processorsNeedingFill.Add(processor);
-        else
-          processorTracker.processorsNeedingFill.Remove(processor);
+        {
+          if (punishRareTicks == 0)
+          {
+            processorTracker.processorsNeedingFill.Add(processor);
+            return;
+          }
+        }
+        processorTracker.processorsNeedingFill.Remove(processor);
       }
 
       if (needsEmpty.HasValue && needsEmpty.Value != cachedNeedsEmpty)
@@ -212,6 +246,10 @@ namespace ProductionExpanded
     public override void CompTickRare()
     {
       base.CompTickRare();
+      if (punishRareTicks > 0)
+      {
+        punishRareTicks--;
+      }
       if (isProcessing)
       {
         isInspectStringDirty = true;
@@ -317,9 +355,11 @@ namespace ProductionExpanded
       return RuinReason.None;
     }
 
-    private ProcessorIngredient FindMatchingSlot(RecipeExtension_Processor settings, ThingDef def)
+    private ProcessorIngredient FindMatchingSlot(ThingDef def)
     {
-      if (settings?.ingredients == null)
+      RecipeExtension_Processor settings = GetActiveBill()
+        .recipe.GetModExtension<RecipeExtension_Processor>();
+      if (settings == null)
         return null;
       for (int i = 0; i < settings.ingredients.Count; i++)
       {
@@ -332,12 +372,12 @@ namespace ProductionExpanded
       return null;
     }
 
-    private int CalculateCapacityNeeded(List<Thing> things, RecipeExtension_Processor settings)
+    private int CalculateCapacityNeeded(List<Thing> things)
     {
       float total = 0f;
       foreach (Thing thing in things)
       {
-        ProcessorIngredient slot = FindMatchingSlot(settings, thing.def);
+        ProcessorIngredient slot = FindMatchingSlot(thing.def);
         total += thing.stackCount * (slot?.capacityPerItem ?? 1f);
       }
       return (int)total;
@@ -374,6 +414,42 @@ namespace ProductionExpanded
           {
             highestStackOutputCount = output.count;
             highestStackOutputDef = output.thingDef;
+          }
+        }
+      }
+    }
+
+    public void BuildIngredientCountDictionary()
+    {
+      if (!dynamicIngredientsContainer.NullOrEmpty())
+      {
+        dynamicIngredientsContainer.Clear();
+        foreach (Thing thing in dynamicIngredientsContainer)
+        {
+          ProcessorIngredient ingredient = FindMatchingSlot(thing.def);
+          if (allIngredientsAndCounts.ContainsKey(ingredient))
+          {
+            allIngredientsAndCounts[ingredient] += thing.stackCount;
+          }
+          else
+          {
+            allIngredientsAndCounts.Add(ingredient, thing.stackCount);
+          }
+        }
+      }
+      if (!staticIngredientsContainer.NullOrEmpty())
+      {
+        staticIngredientsContainer.Clear();
+        foreach (Thing thing in staticIngredientsContainer)
+        {
+          ProcessorIngredient ingredient = FindMatchingSlot(thing.def);
+          if (allIngredientsAndCounts.ContainsKey(ingredient))
+          {
+            allIngredientsAndCounts[ingredient] += thing.stackCount;
+          }
+          else
+          {
+            allIngredientsAndCounts.Add(ingredient, thing.stackCount);
           }
         }
       }
@@ -425,7 +501,7 @@ namespace ProductionExpanded
       }
 
       var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-      int capacityNeededForInput = CalculateCapacityNeeded(allInputs, settings);
+      int capacityNeededForInput = CalculateCapacityNeeded(allInputs);
 
       // Validation: Check capacity
       if (capacityRemaining <= 0 || capacityRemaining < capacityNeededForInput)
@@ -527,6 +603,8 @@ namespace ProductionExpanded
         else
           this.totalTicksPerCycle = ticksPerItemOut * (int)minCapacity;
 
+        BuildIngredientCountDictionary();
+
         // Recalculate progress
         currentCycle = 0;
         while (totalTicksPassed > totalTicksPerCycle)
@@ -578,6 +656,8 @@ namespace ProductionExpanded
       this.cycles = extensionCycles;
       // this.inputCount = count;
 
+      BuildIngredientCountDictionary();
+
       int capacityUsedNew = Props.maxCapacity - capacityRemaining;
       float minCapacityNew = Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime;
       if (capacityUsedNew >= minCapacityNew)
@@ -594,6 +674,70 @@ namespace ProductionExpanded
         return;
       }
       isProcessing = true;
+    }
+
+    ///<summary>
+    /// method to get the max amount of an item a building should ever request for with a given recipe
+    ///</summary>
+    public int MaxCountOfIngredientInRecipe(ProcessorIngredient ingredient)
+    {
+      RecipeExtension_Processor recipeSettings =
+        activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
+      int capacity = Props.maxCapacity;
+      if (recipeSettings == null)
+        return 0;
+
+      int ingredientCount = 0;
+      foreach (ProcessorIngredient recipeIngredient in recipeSettings.ingredients)
+      {
+        if (recipeIngredient.count != -1)
+        {
+          if (
+            recipeIngredient.thingDef == ingredient.thingDef
+            || ingredient.category == recipeIngredient.category
+          )
+          {
+            ingredientCount++;
+          }
+          capacity -= recipeIngredient.count;
+        }
+      }
+
+      while (capacity > 0)
+      {
+        int capacityTemp = capacity;
+        int tempIngredientCount = ingredientCount;
+        bool broke = false;
+        foreach (ProcessorIngredient recipeIngredient in recipeSettings.ingredients)
+        {
+          if (recipeIngredient.count == -1)
+          {
+            capacity -= (int)(recipeIngredient.capacityPerItem * recipeIngredient.ratio);
+            if (capacity < 0)
+            {
+              broke = true;
+              break;
+            }
+            if (
+              recipeIngredient.thingDef == ingredient.thingDef
+              || recipeIngredient.category == ingredient.category
+            )
+            {
+              tempIngredientCount += (int)(recipeIngredient.ratio + 0.3f); //im paranoid about float imprecision this might be much tho
+            }
+          }
+        }
+        if (!broke)
+        {
+          capacity = capacityTemp;
+          ingredientCount = tempIngredientCount;
+        }
+        else
+        {
+          break;
+        }
+      }
+      return ingredientCount;
     }
 
     public void CompleteProcessingCycle()
@@ -671,6 +815,7 @@ namespace ProductionExpanded
         staticIngredientsContainer?.ClearAndDestroyContents();
         outputs.Clear();
         outputsCount.Clear();
+        BuildIngredientCountDictionary();
 
         // Reset
         parent.DirtyMapMesh(parent.Map);
