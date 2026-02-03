@@ -5,7 +5,8 @@ namespace ProductionExpanded
 {
   public class RecipeExtension_Processor : DefModExtension
   {
-    public bool useDynamicOutput = false;
+    public bool UseDynamicOutput =>
+      ingredientsCategoryDynamic.NullOrEmpty() && ingredientsDynamic.NullOrEmpty();
 
     /// <summary>
     /// all manually configured dynamic ingredients
