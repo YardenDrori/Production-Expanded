@@ -479,6 +479,10 @@ namespace ProductionExpanded
         Log.Error("[Production Expanded] Bill has null recipe");
         return;
       }
+      if (GetActiveBill() == null)
+      {
+        activeBill = bill;
+      }
 
       List<Thing> allInputs = new();
       staticIngredients.CopyToList(allInputs);
@@ -643,7 +647,6 @@ namespace ProductionExpanded
 
       if (heatPusher != null)
         heatPusher.enabled = true;
-      activeBill = bill;
 
       parent.DirtyMapMesh(parent.Map);
       UpdateGlower();
