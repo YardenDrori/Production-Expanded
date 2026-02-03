@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -62,25 +63,25 @@ namespace ProductionExpanded
     private int totalTicksPerCycle = 0;
     private int cycles = 1;
     private int currentCycle = 0;
-    private bool isDynamic = false;
 
     // private int inputCount = 0;
     // private int outputCount = 0;
+    private int highestStackOutputCount = 0;
     private int capacityRemaining = 0;
 
     private string cachedLabel = null; // Label of the thing being processed
 
     // private ThingOwner<Thing> ingredientContainer;
-    private List<ThingOwner<Thing>> ingredientContainer;
+    private ThingOwner<Thing> staticIngredientsContainer;
+    private ThingOwner<Thing> dynamicIngredientContainer;
 
     // Track the active vanilla bill
     private Bill_Production activeBill = null;
 
     // private ThingDef inputType = null;
     // private ThingDef outputType = null;
-    private List<ThingDef> dynamicInputs;
-    private List<ThingDef> statincInputs;
-    private List<Thing> outputs;
+    private List<ThingDef> outputs;
+    private List<int> outputsCount;
 
     //comps
     private CompPowerTrader powerTrader = null;
@@ -319,7 +320,38 @@ namespace ProductionExpanded
       return RuinReason.None;
     }
 
-    // UPDATED: Now takes Vanilla Bill and Thing
+    private void CalculateOutputs(RecipeExtension_Processor settings)
+    {
+      outputs.Clear();
+      outputsCount.Clear();
+      highestStackOutputCount = 0;
+      if (settings?.UsesDynamicOutput == true)
+      {
+        foreach (Thing input in dynamicIngredientContainer)
+        {
+          outputs.Add(RawToFinishedRegistry.GetFinished(input.def));
+          float ratio = settings?.ratioDynamic ?? 1.0f;
+          outputsCount.Add((int)(input.stackCount * ratio));
+          if (input.stackCount > highestStackOutputCount)
+          {
+            highestStackOutputCount = input.stackCount;
+          }
+        }
+      }
+      if (!settings.products.NullOrEmpty())
+      {
+        foreach (ProcessorProduct output in settings?.products)
+        {
+          outputs.Add(output.thingDef);
+          outputsCount.Add(output.count);
+          if (output.count > highestStackOutputCount)
+          {
+            highestStackOutputCount = output.count;
+          }
+        }
+      }
+    }
+
     public void AddMaterials(
       Bill_Production bill,
       List<Thing> staticIngredients,
@@ -335,7 +367,7 @@ namespace ProductionExpanded
 
       if (staticIngredients.NullOrEmpty() && dynamicIngredients.NullOrEmpty())
       {
-        Log.Error("[Production Expanded] AddMaterials called with null ingredient");
+        Log.Error("[Production Expanded] AddMaterials called with null ingredients");
         return;
       }
 
@@ -365,8 +397,14 @@ namespace ProductionExpanded
         }
       }
 
+      var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+
+      int capacityNeededForInput = (int)(
+        allInputs.Sum(thing => thing.stackCount) * (settings?.capacityFactor ?? 1f)
+      );
+
       // Validation: Check capacity
-      if (capacityRemaining <= 0)
+      if (capacityRemaining <= 0 || capacityRemaining < capacityNeededForInput)
       {
         Log.Warning(
           $"[Production Expanded] Processor at {parent.Position} is full, cannot add materials"
@@ -374,15 +412,68 @@ namespace ProductionExpanded
         return;
       }
 
-      // Validation: If already processing, ingredient must match current input type
-      if (isProcessing && !staticIngredients.Any(thing => statincInputs.Contains(thing.def)))
+      // make ThingOwners if dont exist
+      // and Validation: If already processing, ingredient must match current input type
+      bool foundMatch = false;
+      if (settings?.UsesDynamicOutput == true)
       {
-        Log.Warning(
-          $"[Production Expanded] Cannot no ingredients match processors current ingredients"
-        );
-        return;
+        if (dynamicIngredientContainer.NullOrEmpty())
+        {
+          dynamicIngredientContainer = new();
+        }
+        if (isProcessing)
+        {
+          foreach (Thing thing in dynamicIngredientContainer)
+          {
+            foreach (Thing newInput in dynamicIngredients)
+            {
+              if (thing.def == newInput.def)
+              {
+                foundMatch = true;
+                if (!dynamicIngredientContainer.TryAdd(newInput, true))
+                {
+                  Log.Error(
+                    $"[Production Expande] failed to add {newInput.def.defName} to ThingOwner"
+                  );
+                  GenSpawn.Spawn(newInput, parent.Position, parent.Map);
+                  return;
+                }
+              }
+            }
+          }
+        }
       }
-      if (isProcessing && !dynamicIngredients.Any(thing => dynamicInputs.Contains(thing.def)))
+      if (settings?.UsesStaticInput == true)
+      {
+        if (staticIngredientsContainer.NullOrEmpty())
+        {
+          staticIngredientsContainer = new();
+        }
+
+        if (isProcessing)
+        {
+          foreach (Thing thing in staticIngredientsContainer)
+          {
+            foreach (Thing newInput in staticIngredients)
+            {
+              if (thing.def == newInput.def)
+              {
+                foundMatch = true;
+                if (!staticIngredientsContainer.TryAdd(newInput, true))
+                {
+                  Log.Error(
+                    $"[Production Expande] failed to add {newInput.def.defName} to ThingOwner"
+                  );
+                  GenSpawn.Spawn(newInput, parent.Position, parent.Map);
+                  return;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (!foundMatch && isProcessing)
       {
         Log.Warning(
           $"[Production Expanded] Cannot no ingredients match processors current ingredients"
@@ -390,29 +481,8 @@ namespace ProductionExpanded
         return;
       }
 
-      // Read settings from Recipe ModExtension
-      var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
       float capacityFactor = settings?.capacityFactor ?? 1f;
 
-      if (ingredientContainer == null)
-      {
-        ingredientContainer = new();
-      }
-      // Store ingredient in container instead of destroying it
-      foreach (Thing thing in allInputs)
-      {
-        ThingOwner<Thing> thingOwner = new ThingOwner<Thing>(this);
-        if (!thingOwner.TryAdd(thing, false))
-        {
-          Log.Error(
-            $"[Production Expanded] Failed to add {thing.stackCount} {thing.def.defName} to processor container"
-          );
-          // Spawn the thing we couldn't add so it doesn't disappear
-          GenSpawn.Spawn(thing, parent.Position, parent.Map);
-        }
-        ingredientContainer.Add(thingOwner);
-      }
-      // Play input sound when materials are successfully added
       if (Props.soundInput != null)
       {
         Props.soundInput.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
@@ -425,27 +495,26 @@ namespace ProductionExpanded
       // Update Fill Tracker
       UpdateTrackerState(needsFill: getCapacityRemaining() > 0 && getIsReady());
 
-      bool isDynamic = settings?.UseDynamicOutput ?? false;
-      int ticksPerItemIn = settings?.ticksPerItemIn ?? 2500;
+      int ticksPerItemOut = settings?.ticksPerItemOut ?? 2500;
       int extensionCycles = settings?.cycles ?? 1;
 
       if (isProcessing)
       {
         // Add to existing batch
         int totalTicksPassed = totalTicksPerCycle * currentCycle + progressTicks;
-        this.inputCount += count;
 
-        float ratio =
-          settings?.ratio
-          ?? (
-            isDynamic
-              ? 1.0f
-              : (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count
-          );
-        int additionalOutput = Mathf.Max(1, (int)(count * ratio));
-        this.outputCount += additionalOutput;
+        CalculateOutputs(settings);
 
-        totalTicksPerCycle = ticksPerItemIn * this.inputCount;
+        if (capacityNeededForInput >= Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
+          this.totalTicksPerCycle = ticksPerItemOut * highestStackOutputCount;
+        else
+          this.totalTicksPerCycle =
+            ticksPerItemOut
+            * (int)(
+              (Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
+                / settings?.capacityFactor
+              ?? 1
+            );
 
         // Recalculate progress
         currentCycle = 0;
@@ -459,7 +528,26 @@ namespace ProductionExpanded
         return;
       }
 
-      // New Batch
+      //=== New Batch ===
+      foreach (Thing staticIn in staticIngredients)
+      {
+        if (!staticIngredientsContainer.TryAdd(staticIn))
+        {
+          Log.Error($"[Production Expande] failed to add {staticIn.def.defName} to ThingOwner");
+          GenSpawn.Spawn(staticIn, parent.Position, parent.Map);
+          return;
+        }
+      }
+      foreach (Thing dynamicIn in dynamicIngredients)
+      {
+        if (!dynamicIngredientContainer.TryAdd(dynamicIn))
+        {
+          Log.Error($"[Production Expande] failed to add {dynamicIn.def.defName} to ThingOwner");
+          GenSpawn.Spawn(dynamicIn, parent.Position, parent.Map);
+          return;
+        }
+      }
+
       if (heatPusher != null)
         heatPusher.enabled = true;
       isProcessing = true;
@@ -471,66 +559,28 @@ namespace ProductionExpanded
       progressTicks = 0;
       currentCycle = 0;
 
-      this.inputType = ingredient.def;
-      this.cachedLabel = ingredient.Label;
-
-      if (!isDynamic)
-      {
-        if (bill.recipe.products != null && bill.recipe.products.Count > 0)
-        {
-          this.outputType = bill.recipe.products[0].thingDef;
-          // Use modExtension ratio if specified, otherwise calculate from recipe
-          float ratio =
-            settings?.ratio
-            ?? ((float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count);
-
-          this.outputCount = Mathf.Max(1, (int)(count * ratio));
-        }
-        else
-        {
-          Log.Error(
-            $"[Production Expanded] Static recipe {bill.recipe.defName} has no products defined!"
-          );
-          // Fallback or return
-        }
-      }
-      else
-      {
-        // DYNAMIC: Look up in registry
-        ThingDef potentialOutput = RawToFinishedRegistry.GetFinished(ingredient.def);
-        if (potentialOutput != null)
-        {
-          this.outputType = potentialOutput;
-        }
-        else
-        {
-          this.outputType = ingredient.def;
-          Log.Warning(
-            $"[Production Expanded] No output mapping found for {ingredient.def.defName}"
-          );
-        }
-
-        float ratio = settings?.ratio ?? 1.0f;
-        this.outputCount = Mathf.Max(1, (int)(count * ratio));
-      }
+      CalculateOutputs(settings);
 
       this.cycles = extensionCycles;
-      this.inputCount = count;
-      if (count >= Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
-        this.totalTicksPerCycle = ticksPerItemIn * count;
+      // this.inputCount = count;
+
+      if (capacityNeededForInput >= Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
+        this.totalTicksPerCycle = ticksPerItemOut * highestStackOutputCount;
       else
         this.totalTicksPerCycle =
-          ticksPerItemIn * (int)(Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime);
+          ticksPerItemOut
+          * (int)(
+            (Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime) / settings?.capacityFactor
+            ?? 1
+          );
 
       isInspectStringDirty = true;
 
       // Validate final state
-      if (this.outputCount <= 0)
+      if (this.outputs.NullOrEmpty())
       {
-        Log.Error(
-          $"[Production Expanded] Invalid outputCount ({this.outputCount}) calculated for {ingredient.def.defName}"
-        );
-        this.outputCount = 1; // Emergency fallback
+        Log.Error($"[Production Expanded] Invalid outputs calculated for {bill.recipe.defName}");
+        return;
       }
     }
 

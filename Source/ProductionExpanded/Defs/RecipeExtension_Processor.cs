@@ -3,105 +3,174 @@ using Verse;
 
 namespace ProductionExpanded
 {
+  /// <summary>
+  /// A single ingredient slot for a processor recipe.
+  /// Use either thingDef (specific item) or category (any item from category), not both.
+  /// </summary>
+  public class ProcessorIngredient
+  {
+    /// <summary>
+    /// Specific item required. Mutually exclusive with category.
+    /// </summary>
+    public ThingDef thingDef;
+
+    /// <summary>
+    /// Any item from this category is accepted. Mutually exclusive with thingDef.
+    /// When dynamic, whichever specific item the pawn delivers gets looked up in the registry.
+    /// </summary>
+    public ThingCategoryDef category;
+
+    /// <summary>
+    /// How many items are needed for this ingredient slot.
+    /// -1 (default) = scaling mode: accepts any amount from 1 up to processor capacity.
+    ///   This is the current furnace/tannery behavior where you dump in however many you have.
+    /// >0 = fixed mode: exactly this many are required before processing can start.
+    ///   Used for batch recipes like 15 vinegar + 50 grapes.
+    /// </summary>
+    public int count = -1;
+
+    /// <summary>
+    /// If true, the specific item inserted will be looked up in RawToFinishedRegistry
+    /// and its finished counterpart will be added to the output.
+    /// Output quantity for this slot = input quantity * ratioDynamic.
+    /// </summary>
+    public bool dynamic = false;
+
+    /// <summary>
+    /// Determines ratio between dynamic ingredients
+    /// if one ingredient's ratio is set to 10 and the other's is set to 5
+    /// for every 10 of ingredient 1 you need 5 of ingredient 2
+    /// </summary>
+    public float ratio = 1;
+
+    public bool IsScaling => count <= 0;
+    public bool IsFixed => count > 0;
+    public bool IsCategory => category != null;
+    public bool IsSpecific => thingDef != null;
+  }
+
+  /// <summary>
+  /// A fixed output product always produced when the recipe completes.
+  /// Dynamic outputs (from registry lookups) are added on top of these.
+  /// </summary>
+  public class ProcessorProduct
+  {
+    public ThingDef thingDef;
+    public int count = 1;
+  }
+
   public class RecipeExtension_Processor : DefModExtension
   {
-    public bool UseDynamicOutput =>
-      !ingredientsCategoryDynamic.NullOrEmpty() && !ingredientsDynamic.NullOrEmpty();
-    public bool HasStaticInput =>
-      !ingredientsStatic.NullOrEmpty() && !ingredientsCategoryStatic.NullOrEmpty();
-
     /// <summary>
-    /// all manually configured dynamic ingredients
-    /// dynamic ingredients get mapped to a product that will be added to the products list
-    ///</summary>
-    public List<ThingDef> ingredientsDynamic;
-
-    /// <summary>
-    /// all manually configured categories needed for product any item of specified category is a valid input
-    /// dynamic ingredients get mapped to a product that will be added to the products list
-    ///</summary>
-    public List<ThingCategoryDef> ingredientsCategoryDynamic;
-
-    /// <summary>
-    /// all manually configured categories needed for product any item of specified category is a valid input
-    /// static ingredients DON'T get mapped to a product. They are just another requirement for the recipe
-    ///</summary>
-    public List<ThingCategoryDef> ingredientsCategoryStatic;
-
-    /// <summary>
-    /// all manually configured static ingredients
-    /// static ingredients DON'T get mapped to a product. They are just another requirement for the recipe
-    ///</summary>
-    public List<ThingDef> ingredientsStatic;
-
-    /// <summary>
-    /// any additional products that will ALLWAYS be produced regardless of the input e.g making mozzarella can alsp produce whey as a byproduct
-    /// NOTE: if this is set to null and we do not have any dynamic ingredients we should throw an error
-    ///</summary>
-    public List<ThingDef> staticProducts;
-
-    /// <summary>
-    /// amount of dynamic ingredients needed from the list e.g if set to 1 only 1 item of the list is needed if set to 2 only 2 are needed if set to 0 ALL items are needed
-    ///</summary>
-    public int ingredientsDynamicRequiredCount = 0;
-
-    /// <summary>
-    /// amount of dynamic categories needed from the list e.g if set to 1 only 1 item of the list is needed if set to 2 only 2 are needed if set to 0 ALL items are needed
-    /// if you want to make a player pick one item from each category e.g [anyOil, anyButter] you set this to 0
-    /// if you want to make a player need 2 items from one category you set this to 0 and write the category twice in the dynamicIngredientsCategory [anyOil, anyOil]
-    /// the code will automatically ensure the same ingredient WON'T be picked twice from the two oil categories
+    /// All ingredient slots for this recipe. Each entry defines one input requirement
+    /// with its own item/category, count, and dynamic flag.
+    /// If null/empty, falls back to the vanilla recipe's ingredients and products tags.
     ///
-    /// NOTE:this does not allow mixing of the two uses cleanly e.g if i want the player to use 2 anyOil OR 2 anyButter there i CANNOT do that as if i set the count to two this will allow the player to use either 2 oils, 2 butters or 1 oil and 1 butter
-    /// this is a design limitation with not much to be done to solve this issue unfortunately
-    /// NOTE: another design limitation is the inablity to mix Categories and manually specified ingredients e.g if i want either 1 item of AnyOil OR 1 tallow there is currently no way to do so.
-    ///</summary>
-    public int ingredientCategoryDynamicRequiredCount = 0;
-
-    /// <summary>
-    /// amount of static ingredients needed from the list e.g if set to 1 only 1 item of the list is needed if set to 2 only 2 are needed if set to 0 ALL items are needed
-    ///</summary>
-    public int ingredientsStaticRequiredCount = 0;
-
-    /// <summary>
-    /// amount of static categories needed from the list e.g if set to 1 only 1 item of the list is needed if set to 2 only 2 are needed if set to 0 ALL items are needed
-    /// if you want to make a player pick one item from each category e.g [anyOil, anyButter] you set this to 0
-    /// if you want to make a player need 2 items from one category you set this to 0 and write the category twice in the dynamicIngredientsCategory [anyOil, anyOil]
-    /// the code will automatically ensure the same ingredient WON'T be picked twice from the two oil categories
+    /// Examples:
+    ///   Scaling hide tanning (current behavior):
+    ///     ingredient with category=RawHides, dynamic=true (no count = accepts any amount)
     ///
-    /// NOTE:this does not allow mixing of the two uses cleanly e.g if i want the player to use 2 anyOil OR 2 anyButter there i CANNOT do that as if i set the count to two this will allow the player to use either 2 oils, 2 butters or 1 oil and 1 butter
-    /// this is a design limitation with not much to be done to solve this issue unfortunately
-    /// NOTE: another design limitation is the inablity to mix Categories and manually specified ingredients e.g if i want either 1 item of AnyOil OR 1 tallow there is currently no way to do so.
-    ///</summary>
-    public int ingredientCategoryStaticRequiredCount = 0;
+    ///   Fixed batch balsamic vinegar:
+    ///     ingredient with thingDef=Vinegar, count=15
+    ///     ingredient with thingDef=Grapes, count=50
+    ///
+    ///   Mixed (fixed catalyst + scaling input):
+    ///     ingredient with category=RawOres, dynamic=true (scaling)
+    ///     ingredient with thingDef=Coal, count=5 (fixed per batch)
+    /// </summary>
+    public List<ProcessorIngredient> ingredients;
 
     /// <summary>
-    /// amount of ticks per cycle it takes to process each item inserted
-    /// NOTE: if the process has two cycles for instance the total time per item will be 2*ticksPerItemIn
-    ///</summary>
-    public int ticksPerItemIn = 100;
+    /// Fixed output products always produced when processing completes.
+    /// e.g. 12 balsamic vinegar from a vinegar + grapes recipe.
+    /// Dynamic ingredients add additional outputs on top of these via registry lookup.
+    /// If null and no dynamic ingredients exist, this is an error.
+    /// </summary>
+    public List<ProcessorProduct> products;
 
     /// <summary>
-    /// amount of cycles the process takes when a cycle ends a pawn has to go the the building and interact with it for a few seconds and then the next process stars 1 cycle means a pawn NEVER has to interact with it 2 cycles means at the 50% mark a pawn needs to interact 3 means at 33% and 66% etc
-    ///</summary>
+    /// Multiplier applied to dynamic ingredient output quantities.
+    /// e.g. if 10 raw elephant hide is inserted and ratioDynamic = 0.8,
+    /// output will be 8 elephant leather.
+    /// Only affects outputs resolved via RawToFinishedRegistry, not fixed products.
+    /// </summary>
+    public float ratioDynamic = 1.0f;
+
+    /// <summary>
+    /// Ticks per input item per cycle.
+    /// Total processing time = ticksPerItemIn * totalInputCount * cycles.
+    /// For fixed recipes the total input count is constant (e.g. 15 + 50 = 65).
+    /// For scaling recipes more items = proportionally more time.
+    /// </summary>
+    public int ticksPerItemOut = 100;
+
+    /// <summary>
+    /// Number of processing cycles. When a cycle ends a pawn must interact with the building
+    /// before the next cycle starts.
+    /// 1 = no pawn interaction needed, 2 = interaction at 50%, 3 = at 33% and 66%, etc.
+    /// </summary>
     public int cycles = 1;
 
     /// <summary>
-    /// ratio of the products added to output from dynamic ingredients e.g if rawElephantHide gets converted to elephantLeather if we set this value to 0.
-    /// NOTE: this affects ONLY dynamic products determined at runtime with the registry
-    ///</summary>
-    public float ratioDynamicIngredients = 1.0f;
-
-    /// <summary>
-    /// ratio of the products added to output from static ingredients e.g if rice gets converted to vinegar and we set this value to 0.5 we will get a 2 rice tp 1 vinegar ratio
-    /// if there are multiple static inputs we take the with the highest input count in the processor as the reference
-    /// NOTE: this affects ONLY static products written down manually in the static products list
-    ///</summary>
-    public float ratioStaticIngredients = 1.0f;
-
-    /// <summary>
-    /// items in this recipe take this amount of capacity in the processor so if a furnace has 50 capacity and we set this recipe's value to 2 every item in (dynamic AND static) will take 2 space totalling up to 25 items
-    /// NOTE: this has a limitation if we wanna affect dynamic items and static ones differently we cannot, this is niche so i think its fine.
-    ///</summary>
+    /// Each item inserted takes this much processor capacity.
+    /// e.g. if maxCapacity = 50 and capacityFactor = 2, the processor holds 25 items max.
+    /// Applies uniformly to all ingredient types.
+    /// </summary>
     public float capacityFactor = 1f;
+
+    /// <summary>
+    /// True if any ingredient slot uses dynamic output (registry lookup).
+    /// </summary>
+    public bool UsesDynamicOutput
+    {
+      get
+      {
+        if (ingredients.NullOrEmpty())
+          return false;
+        for (int i = 0; i < ingredients.Count; i++)
+        {
+          if (ingredients[i].dynamic)
+            return true;
+        }
+        return false;
+      }
+    }
+
+    ///<summary>
+    ///True if any ingredient slot is static (no reigstry lookup)
+    ///</summary>
+    public bool UsesStaticInput
+    {
+      get
+      {
+        if (ingredients.NullOrEmpty())
+          return false;
+        for (int i = 0; i < ingredients.Count; i++)
+        {
+          if (!ingredients[i].dynamic)
+            return true;
+        }
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// True if all ingredient slots have fixed counts (no scaling ingredients).
+    /// When true, the processor won't start until every fixed requirement is met.
+    /// </summary>
+    public bool IsFixedBatch
+    {
+      get
+      {
+        if (ingredients.NullOrEmpty())
+          return false;
+        for (int i = 0; i < ingredients.Count; i++)
+        {
+          if (ingredients[i].IsScaling)
+            return false;
+        }
+        return true;
+      }
+    }
   }
 }
