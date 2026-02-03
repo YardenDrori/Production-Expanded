@@ -21,7 +21,9 @@ namespace ProductionExpanded
     public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
     {
       if (!(t is Building_Processor processor))
+      {
         return false;
+      }
 
       CompResourceProcessor comp = processor.GetComp<CompResourceProcessor>();
       if (comp == null || !comp.getIsReady() || comp.getCapacityRemaining() <= 0)
@@ -32,21 +34,50 @@ namespace ProductionExpanded
       if (!pawn.CanReserve(t, 1, -1, null, forced))
         return false;
 
+      //refuel running processor
       if (comp.getIsProcessing())
       {
         // Only accept matching input
-        return FindIngredient(pawn, processor, comp.getInputItem()) != null;
+        foreach (var ingredient in comp.GetAllIngredientsAndTheirCounts())
+        {
+          if (
+            ingredient.Value < comp.MaxCountOfIngredientInRecipe(ingredient.Key)
+            && FindIngredient(pawn, processor, ingredient.Key) != null
+          )
+          {
+            return true;
+          }
+        }
+        comp.PunishProcessor();
+        return false;
+        // return FindIngredient(pawn, processor, comp.getInputItem()) != null;
       }
 
-      // Check bills
+      //start new bill
       foreach (Bill bill in processor.BillStack)
       {
         if (bill.ShouldDoNow() && bill.recipe.fixedIngredientFilter != null)
         {
-          if (FindIngredientForBill(pawn, processor, (Bill_Production)bill) != null)
-            return true;
+          RecipeExtension_Processor settings =
+            bill.recipe.GetModExtension<RecipeExtension_Processor>();
+          if (settings == null)
+          {
+            Log.Error(
+              $"[Production Expanded] {bill.recipe.defName} does not have RecipeExtension_Processor"
+            );
+            return false;
+          }
+          foreach (ProcessorIngredient ingredient in settings.ingredients)
+          {
+            if (FindIngredient(pawn, processor, ingredient) != null)
+            {
+              comp.forgivePunishment();
+              return true;
+            }
+          }
         }
       }
+      comp.PunishProcessor();
       return false;
     }
 
@@ -82,11 +113,7 @@ namespace ProductionExpanded
 
           int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
 
-          Job job = JobMaker.MakeJob(
-            JobDefOf_ProductionExpanded.PE_FillProcessor,
-            t,
-            ingredient
-          );
+          Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, ingredient);
           job.count = Mathf.Min(ingredient.stackCount, maxItemsThatFit);
           return job;
         }
@@ -108,11 +135,7 @@ namespace ProductionExpanded
             float capacityFactor = settings?.capacityFactor ?? 1f;
             int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
 
-            Job job = JobMaker.MakeJob(
-              JobDefOf_ProductionExpanded.PE_FillProcessor,
-              t,
-              ingredient
-            );
+            Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, ingredient);
             job.count = Mathf.Min(ingredient.stackCount, maxItemsThatFit);
             job.bill = bill; // Vanilla field
             return job;
@@ -123,7 +146,11 @@ namespace ProductionExpanded
       return null;
     }
 
-    private Thing FindIngredient(Pawn pawn, Building_Processor processor, ThingDef def)
+    private Thing FindIngredient(
+      Pawn pawn,
+      Building_Processor processor,
+      ProcessorIngredient ingredient
+    )
     {
       return GenClosest.ClosestThingReachable(
         pawn.Position,
