@@ -149,6 +149,7 @@ namespace ProductionExpanded
       UpdateGlower();
     }
 
+    //tbh thinking about this the punishment system is kinda dumb as 99% of the time the prevPunishmentRareTicks will be at 60
     public void PunishProcessor()
     {
       if (prevPunishRareTicks > 60)
@@ -157,14 +158,14 @@ namespace ProductionExpanded
       }
       else
       {
-        prevPunishRareTicks *= 2;
+        prevPunishRareTicks = (int)(prevPunishRareTicks * 1.2);
       }
       punishRareTicks = prevPunishRareTicks;
     }
 
     public void forgivePunishment()
     {
-      prevPunishRareTicks = 1;
+      prevPunishRareTicks /= 1;
       punishRareTicks = 0;
     }
 
