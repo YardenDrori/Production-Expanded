@@ -62,20 +62,27 @@ namespace ProductionExpanded
     private int totalTicksPerCycle = 0;
     private int cycles = 1;
     private int currentCycle = 0;
-    private int inputCount = 0;
-    private int outputCount = 0;
+    private bool isDynamic = false;
+
+    // private int inputCount = 0;
+    // private int outputCount = 0;
     private int capacityRemaining = 0;
 
     private string cachedLabel = null; // Label of the thing being processed
 
-    private ThingOwner<Thing> ingredientContainer;
+    // private ThingOwner<Thing> ingredientContainer;
+    private List<ThingOwner<Thing>> ingredientContainer;
 
     // Track the active vanilla bill
     private Bill_Production activeBill = null;
 
-    private ThingDef inputType = null;
-    private ThingDef outputType = null;
+    // private ThingDef inputType = null;
+    // private ThingDef outputType = null;
+    private List<ThingDef> dynamicInputs;
+    private List<ThingDef> statincInputs;
+    private List<Thing> outputs;
 
+    //comps
     private CompPowerTrader powerTrader = null;
     private CompRefuelable refuelable = null;
     private CompHeatPusher heatPusher = null;
@@ -313,7 +320,11 @@ namespace ProductionExpanded
     }
 
     // UPDATED: Now takes Vanilla Bill and Thing
-    public void AddMaterials(Bill_Production bill, Thing ingredient, int count)
+    public void AddMaterials(
+      Bill_Production bill,
+      List<Thing> staticIngredients,
+      List<Thing> dynamicIngredients
+    )
     {
       // Validation: Check for null inputs
       if (bill == null)
@@ -322,7 +333,7 @@ namespace ProductionExpanded
         return;
       }
 
-      if (ingredient == null)
+      if (staticIngredients.NullOrEmpty() && dynamicIngredients.NullOrEmpty())
       {
         Log.Error("[Production Expanded] AddMaterials called with null ingredient");
         return;
@@ -334,11 +345,24 @@ namespace ProductionExpanded
         return;
       }
 
-      // Validation: Count must be positive
-      if (count <= 0)
+      List<Thing> allInputs = new();
+      staticIngredients.CopyToList(allInputs);
+      allInputs.AddRange(dynamicIngredients);
+      int inputCount = 0;
+
+      foreach (Thing thing in allInputs)
       {
-        Log.Warning($"[Production Expanded] AddMaterials called with invalid count: {count}");
-        return;
+        if (thing.stackCount <= 0)
+        {
+          Log.Warning(
+            $"[Production Expanded] AddMaterials called with invalid count: {thing.stackCount}"
+          );
+          return;
+        }
+        else
+        {
+          inputCount += thing.stackCount;
+        }
       }
 
       // Validation: Check capacity
@@ -351,10 +375,17 @@ namespace ProductionExpanded
       }
 
       // Validation: If already processing, ingredient must match current input type
-      if (isProcessing && ingredient.def != inputType)
+      if (isProcessing && !staticIngredients.Any(thing => statincInputs.Contains(thing.def)))
       {
         Log.Warning(
-          $"[Production Expanded] Cannot add {ingredient.def.defName} to processor currently processing {inputType?.defName}"
+          $"[Production Expanded] Cannot no ingredients match processors current ingredients"
+        );
+        return;
+      }
+      if (isProcessing && !dynamicIngredients.Any(thing => dynamicInputs.Contains(thing.def)))
+      {
+        Log.Warning(
+          $"[Production Expanded] Cannot no ingredients match processors current ingredients"
         );
         return;
       }
@@ -363,39 +394,38 @@ namespace ProductionExpanded
       var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
       float capacityFactor = settings?.capacityFactor ?? 1f;
 
-      // Store ingredient in container instead of destroying it
       if (ingredientContainer == null)
       {
-        ingredientContainer = new ThingOwner<Thing>(this);
+        ingredientContainer = new();
       }
-
-      // Split off the exact count we need and add to container
-      Thing thingToAdd = ingredient.SplitOff(count);
-      if (!ingredientContainer.TryAdd(thingToAdd, false))
+      // Store ingredient in container instead of destroying it
+      foreach (Thing thing in allInputs)
       {
-        Log.Error(
-          $"[Production Expanded] Failed to add {count} {ingredient.def.defName} to processor container"
-        );
-        // Spawn the thing we couldn't add so it doesn't disappear
-        GenSpawn.Spawn(thingToAdd, parent.Position, parent.Map);
-      }
-      else
-      {
-        // Play input sound when materials are successfully added
-        if (Props.soundInput != null)
+        ThingOwner<Thing> thingOwner = new ThingOwner<Thing>(this);
+        if (!thingOwner.TryAdd(thing, false))
         {
-          Props.soundInput.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
+          Log.Error(
+            $"[Production Expanded] Failed to add {thing.stackCount} {thing.def.defName} to processor container"
+          );
+          // Spawn the thing we couldn't add so it doesn't disappear
+          GenSpawn.Spawn(thing, parent.Position, parent.Map);
         }
+        ingredientContainer.Add(thingOwner);
+      }
+      // Play input sound when materials are successfully added
+      if (Props.soundInput != null)
+      {
+        Props.soundInput.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
       }
 
-      capacityRemaining -= (int)(count * capacityFactor);
+      capacityRemaining -= (int)(inputCount * capacityFactor);
       if (capacityRemaining < 0)
         capacityRemaining = 0;
 
       // Update Fill Tracker
       UpdateTrackerState(needsFill: getCapacityRemaining() > 0 && getIsReady());
 
-      bool isDynamic = settings?.useDynamicOutput ?? false;
+      bool isDynamic = settings?.UseDynamicOutput ?? false;
       int ticksPerItemIn = settings?.ticksPerItemIn ?? 2500;
       int extensionCycles = settings?.cycles ?? 1;
 
