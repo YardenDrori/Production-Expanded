@@ -67,6 +67,7 @@ namespace ProductionExpanded
     // private int inputCount = 0;
     // private int outputCount = 0;
     private int highestStackOutputCount = 0;
+    private ThingDef highestStackOutputDef = null;
     private int capacityRemaining = 0;
 
     private string cachedLabel = null; // Label of the thing being processed
@@ -78,10 +79,8 @@ namespace ProductionExpanded
     // Track the active vanilla bill
     private Bill_Production activeBill = null;
 
-    // private ThingDef inputType = null;
-    // private ThingDef outputType = null;
-    private List<ThingDef> outputs;
-    private List<int> outputsCount;
+    private List<ThingDef> outputs = new List<ThingDef>();
+    private List<int> outputsCount = new List<int>();
 
     //comps
     private CompPowerTrader powerTrader = null;
@@ -108,7 +107,7 @@ namespace ProductionExpanded
 
     public Bill_Production GetActiveBill() => activeBill;
 
-    public ThingDef getInputItem() => inputType;
+    // public ThingDef getInputItem() => inputType;
 
     public CompProperties_ResourceProcessor getProps() => Props;
 
@@ -118,12 +117,6 @@ namespace ProductionExpanded
 
       // Cache props to avoid repeated casting
       cachedProps = (CompProperties_ResourceProcessor)props;
-
-      // Initialize ingredient container
-      if (ingredientContainer == null)
-      {
-        ingredientContainer = new ThingOwner<Thing>(this);
-      }
 
       powerTrader = parent.GetComp<CompPowerTrader>();
       refuelable = parent.GetComp<CompRefuelable>();
@@ -192,9 +185,13 @@ namespace ProductionExpanded
         ?.allProcessors.Remove((Building_Processor)parent);
 
       // Drop ingredients if building destroyed
-      if (ingredientContainer != null && ingredientContainer.Count > 0)
+      if (!staticIngredientsContainer.NullOrEmpty())
       {
-        ingredientContainer.TryDropAll(parent.Position, previousMap, ThingPlaceMode.Near);
+        staticIngredientsContainer.TryDropAll(parent.Position, previousMap, ThingPlaceMode.Near);
+      }
+      if (!dynamicIngredientsContainer.NullOrEmpty())
+      {
+        dynamicIngredientsContainer.TryDropAll(parent.Position, previousMap, ThingPlaceMode.Near);
       }
 
       base.PostDestroy(mode, previousMap);
@@ -325,6 +322,7 @@ namespace ProductionExpanded
       outputs.Clear();
       outputsCount.Clear();
       highestStackOutputCount = 0;
+      highestStackOutputDef = null;
       if (settings?.UsesDynamicOutput == true)
       {
         foreach (Thing input in dynamicIngredientsContainer)
@@ -335,7 +333,8 @@ namespace ProductionExpanded
           outputsCount.Add(outputCount);
           if (outputCount > highestStackOutputCount)
           {
-            highestStackOutputCount = input.stackCount;
+            highestStackOutputCount = outputCount;
+            highestStackOutputDef = RawToFinishedRegistry.GetFinished(input.def);
           }
         }
       }
@@ -348,6 +347,7 @@ namespace ProductionExpanded
           if (output.count > highestStackOutputCount)
           {
             highestStackOutputCount = output.count;
+            highestStackOutputDef = output.thingDef;
           }
         }
       }
@@ -596,18 +596,16 @@ namespace ProductionExpanded
 
     private void RuinBatch()
     {
-      if (ingredientContainer != null)
-      {
-        ingredientContainer.ClearAndDestroyContents();
-      }
+      dynamicIngredientsContainer?.ClearAndDestroyContents();
+      staticIngredientsContainer?.ClearAndDestroyContents();
       // Reset
       isFinished = true;
       if (heatPusher != null)
         heatPusher.enabled = false;
       isProcessing = true;
       isWaitingForCycleInteraction = false;
-      outputType = null;
-      outputCount = 0;
+      outputs.Clear();
+      outputsCount.Clear();
       isInspectStringDirty = true;
       cycles = 1;
 
@@ -619,18 +617,19 @@ namespace ProductionExpanded
     {
       if (isFinished)
       {
-        if (outputType != null)
+        if (!outputs.NullOrEmpty())
         {
-          Thing item = ThingMaker.MakeThing(outputType);
-          item.stackCount = outputCount;
-          GenSpawn.Spawn(item, parent.InteractionCell, parent.Map);
-
+          for (int i = 0; i < outputs.Count; i++)
+          {
+            Thing item = ThingMaker.MakeThing(outputs[i]);
+            item.stackCount = outputsCount[i];
+            GenSpawn.Spawn(item, parent.InteractionCell, parent.Map);
+          }
           // Play extract sound when items are extracted
           if (Props.soundExtract != null)
           {
             Props.soundExtract.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
           }
-
           // Notify Bill (Decrement count)
           if (activeBill != null)
           {
@@ -643,10 +642,10 @@ namespace ProductionExpanded
         }
 
         // Clear stored ingredients (they've been consumed during processing)
-        if (ingredientContainer != null)
-        {
-          ingredientContainer.ClearAndDestroyContents();
-        }
+        dynamicIngredientsContainer?.ClearAndDestroyContents();
+        staticIngredientsContainer?.ClearAndDestroyContents();
+        outputs.Clear();
+        outputsCount.Clear();
 
         // Reset
         parent.DirtyMapMesh(parent.Map);
@@ -656,8 +655,6 @@ namespace ProductionExpanded
         isProcessing = false;
         activeBill = null;
         isWaitingForCycleInteraction = false;
-        outputType = null;
-        outputCount = 0;
         isInspectStringDirty = true;
         capacityRemaining = Props.maxCapacity;
         ruinTicks = 0;
@@ -683,7 +680,7 @@ namespace ProductionExpanded
       else if (isFinished && Props.ticksToRuin > ruinTicks)
       {
         inspectMessageCahce =
-          $"Finished. Waiting for colonist to extract {outputType.label} x{outputCount}";
+          $"Finished. Waiting for colonist to extract {highestStackOutputDef.label} x{highestStackOutputCount}";
       }
       else if (isWaitingForCycleInteraction)
       {
@@ -693,7 +690,7 @@ namespace ProductionExpanded
       else if (isProcessing)
       {
         inspectMessageCahce =
-          $"Processing {inputType.label ?? "Material"} x{inputCount}: {(float)progressTicks / totalTicksPerCycle:P0}";
+          $"Processing {highestStackOutputDef.label ?? "Material"} x{highestStackOutputCount}: {(float)progressTicks / totalTicksPerCycle:P0}";
         if (cycles != 1)
         {
           inspectMessageCahce += $"\ncycles remaining: {cycles - currentCycle}";
@@ -749,28 +746,31 @@ namespace ProductionExpanded
       Scribe_Values.Look(ref totalTicksPerCycle, "totalTicksPerCycle", 0);
       Scribe_Values.Look(ref cycles, "cycles", 1);
       Scribe_Values.Look(ref currentCycle, "currentCycle", 0);
-      Scribe_Values.Look(ref inputCount, "inputCount", 0);
-      Scribe_Values.Look(ref outputCount, "outputCount", 0);
       Scribe_Values.Look(ref capacityRemaining, "capacityRemaining", Props.maxCapacity);
       Scribe_Values.Look(ref cachedLabel, "cachedLabel", null);
       Scribe_Values.Look(ref isRuinReason, "isRuinReason", RuinReason.None);
       Scribe_Values.Look(ref ruinTicks, "ruinTicks", 0);
-      Scribe_Defs.Look(ref inputType, "inputType");
-      Scribe_Defs.Look(ref outputType, "outputType");
+      Scribe_Values.Look(ref highestStackOutputCount, "highestStackOutputCount", 0);
+      Scribe_Defs.Look(ref highestStackOutputDef, "highestStackOutputDef");
 
-      // Save reference to the bill
       Scribe_References.Look(ref activeBill, "activeBill");
 
-      // Save ingredient container
-      Scribe_Deep.Look(ref ingredientContainer, "ingredientContainer", this);
+      Scribe_Deep.Look(ref dynamicIngredientsContainer, "dynamicIngredientsContainer", this);
+      Scribe_Deep.Look(ref staticIngredientsContainer, "staticIngredientsContainer", this);
 
-      // After loading, validate and initialize
+      Scribe_Collections.Look(ref outputs, "outputs", LookMode.Def);
+      Scribe_Collections.Look(ref outputsCount, "outputsCount", LookMode.Value);
+
       if (Scribe.mode == LoadSaveMode.PostLoadInit)
       {
-        if (ingredientContainer == null)
-        {
-          ingredientContainer = new ThingOwner<Thing>(this);
-        }
+        if (dynamicIngredientsContainer == null)
+          dynamicIngredientsContainer = new ThingOwner<Thing>(this);
+        if (staticIngredientsContainer == null)
+          staticIngredientsContainer = new ThingOwner<Thing>(this);
+        if (outputs == null)
+          outputs = new List<ThingDef>();
+        if (outputsCount == null)
+          outputsCount = new List<int>();
 
         if (isProcessing && activeBill == null)
         {
@@ -782,15 +782,14 @@ namespace ProductionExpanded
     }
 
     // IThingHolder implementation
+    // RimWorld requires a single ThingOwner here. We return the dynamic container
+    // as the primary one; both containers are saved/loaded in PostExposeData.
     public ThingOwner GetDirectlyHeldThings()
     {
-      return ingredientContainer;
+      return dynamicIngredientsContainer;
     }
 
-    public void GetChildHolders(List<IThingHolder> outChildren)
-    {
-      ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
-    }
+    public void GetChildHolders(List<IThingHolder> outChildren) { }
 
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
