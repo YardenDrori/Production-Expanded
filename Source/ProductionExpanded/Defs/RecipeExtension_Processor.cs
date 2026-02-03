@@ -37,11 +37,21 @@ namespace ProductionExpanded
     public bool dynamic = false;
 
     /// <summary>
-    /// Determines ratio between dynamic ingredients
-    /// if one ingredient's ratio is set to 10 and the other's is set to 5
-    /// for every 10 of ingredient 1 you need 5 of ingredient 2
+    /// Determines ratio between scaling ingredients.
+    /// If one ingredient's ratio is set to 2 and another's is set to 1,
+    /// for every 2 of ingredient A you need 1 of ingredient B.
+    /// Ignored for fixed count ingredients.
     /// </summary>
     public float ratio = 1;
+
+    /// <summary>
+    /// How much processor capacity each unit of this ingredient takes.
+    /// e.g. pig iron at 1.0 and coal at 1.34 in a capacity 50 processor:
+    ///   one recipe unit (ratio 2:1) = 2*1.0 + 1*1.34 = 3.34 capacity
+    ///   max units = floor(50/3.34) = 14 → 28 pig iron + 14 coal
+    /// Default 1.0 means each item takes 1 capacity.
+    /// </summary>
+    public float capacityPerItem = 1f;
 
     public bool IsScaling => count <= 0;
     public bool IsFixed => count > 0;
@@ -110,13 +120,6 @@ namespace ProductionExpanded
     /// 1 = no pawn interaction needed, 2 = interaction at 50%, 3 = at 33% and 66%, etc.
     /// </summary>
     public int cycles = 1;
-
-    /// <summary>
-    /// Each item inserted takes this much processor capacity.
-    /// e.g. if maxCapacity = 50 and capacityFactor = 2, the processor holds 25 items max.
-    /// Applies uniformly to all ingredient types.
-    /// </summary>
-    public float capacityFactor = 1f;
 
     /// <summary>
     /// True if any ingredient slot uses dynamic output (registry lookup).

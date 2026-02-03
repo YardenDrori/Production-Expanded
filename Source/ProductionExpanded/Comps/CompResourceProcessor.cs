@@ -317,6 +317,31 @@ namespace ProductionExpanded
       return RuinReason.None;
     }
 
+    private ProcessorIngredient FindMatchingSlot(RecipeExtension_Processor settings, ThingDef def)
+    {
+      if (settings?.ingredients == null) return null;
+      for (int i = 0; i < settings.ingredients.Count; i++)
+      {
+        var ingredient = settings.ingredients[i];
+        if (ingredient.IsSpecific && ingredient.thingDef == def)
+          return ingredient;
+        if (ingredient.IsCategory && def.IsWithinCategory(ingredient.category))
+          return ingredient;
+      }
+      return null;
+    }
+
+    private int CalculateCapacityNeeded(List<Thing> things, RecipeExtension_Processor settings)
+    {
+      float total = 0f;
+      foreach (Thing thing in things)
+      {
+        ProcessorIngredient slot = FindMatchingSlot(settings, thing.def);
+        total += thing.stackCount * (slot?.capacityPerItem ?? 1f);
+      }
+      return (int)total;
+    }
+
     private void CalculateOutputs(RecipeExtension_Processor settings)
     {
       outputs.Clear();
@@ -399,8 +424,7 @@ namespace ProductionExpanded
       }
 
       var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-      float capacityFactor = settings?.capacityFactor ?? 1f;
-      int capacityNeededForInput = (int)(allInputs.Sum(thing => thing.stackCount) * capacityFactor);
+      int capacityNeededForInput = CalculateCapacityNeeded(allInputs, settings);
 
       // Validation: Check capacity
       if (capacityRemaining <= 0 || capacityRemaining < capacityNeededForInput)
@@ -487,7 +511,7 @@ namespace ProductionExpanded
 
       if (isProcessing)
       {
-        capacityRemaining -= (int)(inputCount * capacityFactor);
+        capacityRemaining -= capacityNeededForInput;
         if (capacityRemaining < 0)
           capacityRemaining = 0;
         // Add to existing batch
@@ -495,12 +519,12 @@ namespace ProductionExpanded
 
         CalculateOutputs(settings);
 
-        if (capacityNeededForInput >= Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
+        int capacityUsed = Props.maxCapacity - capacityRemaining;
+        float minCapacity = Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime;
+        if (capacityUsed >= minCapacity)
           this.totalTicksPerCycle = ticksPerItemOut * highestStackOutputCount;
         else
-          this.totalTicksPerCycle =
-            ticksPerItemOut
-            * (int)((Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime) / capacityFactor);
+          this.totalTicksPerCycle = ticksPerItemOut * (int)minCapacity;
 
         // Recalculate progress
         currentCycle = 0;
@@ -534,7 +558,7 @@ namespace ProductionExpanded
         }
       }
 
-      capacityRemaining -= (int)(inputCount * capacityFactor);
+      capacityRemaining -= capacityNeededForInput;
       if (capacityRemaining < 0)
         capacityRemaining = 0;
 
@@ -553,12 +577,12 @@ namespace ProductionExpanded
       this.cycles = extensionCycles;
       // this.inputCount = count;
 
-      if (capacityNeededForInput >= Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
+      int capacityUsedNew = Props.maxCapacity - capacityRemaining;
+      float minCapacityNew = Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime;
+      if (capacityUsedNew >= minCapacityNew)
         this.totalTicksPerCycle = ticksPerItemOut * highestStackOutputCount;
       else
-        this.totalTicksPerCycle =
-          ticksPerItemOut
-          * (int)((Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime) / capacityFactor);
+        this.totalTicksPerCycle = ticksPerItemOut * (int)minCapacityNew;
 
       isInspectStringDirty = true;
 
