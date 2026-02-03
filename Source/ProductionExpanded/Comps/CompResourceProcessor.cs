@@ -123,10 +123,10 @@ namespace ProductionExpanded
     {
       base.PostSpawnSetup(respawningAfterLoad);
 
-      BuildIngredientCountDictionary();
-
       // Cache props to avoid repeated casting
       cachedProps = (CompProperties_ResourceProcessor)props;
+
+      BuildIngredientCountDictionary();
 
       powerTrader = parent.GetComp<CompPowerTrader>();
       refuelable = parent.GetComp<CompRefuelable>();
@@ -681,66 +681,33 @@ namespace ProductionExpanded
     ///</summary>
     public int MaxCountOfIngredientInRecipe(ProcessorIngredient ingredient)
     {
-      RecipeExtension_Processor recipeSettings =
-        activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
-      int capacity = Props.maxCapacity;
-      if (recipeSettings == null)
+      var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
+      if (settings == null)
         return 0;
 
-      int ingredientCount = 0;
-      foreach (ProcessorIngredient recipeIngredient in recipeSettings.ingredients)
+      if (ingredient.IsFixed)
+        return ingredient.count;
+
+      // Subtract fixed ingredient capacity from available space
+      float availableCapacity = Props.maxCapacity;
+      foreach (var ing in settings.ingredients)
       {
-        if (recipeIngredient.count != -1)
-        {
-          if (
-            recipeIngredient.thingDef == ingredient.thingDef
-            || ingredient.category == recipeIngredient.category
-          )
-          {
-            ingredientCount++;
-          }
-          capacity -= recipeIngredient.count;
-        }
+        if (ing.IsFixed)
+          availableCapacity -= ing.count * ing.capacityPerItem;
       }
 
-      if (ingredientCount != 0)
+      // Calculate capacity cost per recipe unit across all scaling ingredients
+      float capacityPerUnit = 0f;
+      foreach (var ing in settings.ingredients)
       {
-        return ingredientCount;
+        if (ing.IsScaling)
+          capacityPerUnit += ing.ratio * ing.capacityPerItem;
       }
+      if (capacityPerUnit <= 0f)
+        return 0;
 
-      while (capacity > 0)
-      {
-        int tempIngredientCount = ingredientCount;
-        bool broke = false;
-        foreach (ProcessorIngredient recipeIngredient in recipeSettings.ingredients)
-        {
-          if (recipeIngredient.count == -1)
-          {
-            capacity -= (int)(recipeIngredient.capacityPerItem * recipeIngredient.ratio);
-            if (capacity < 0)
-            {
-              broke = true;
-              break;
-            }
-            if (
-              recipeIngredient.thingDef == ingredient.thingDef
-              || recipeIngredient.category == ingredient.category
-            )
-            {
-              tempIngredientCount += (int)(recipeIngredient.ratio + 0.3f); //im paranoid about float imprecision this might be much tho
-            }
-          }
-        }
-        if (!broke)
-        {
-          ingredientCount = tempIngredientCount;
-        }
-        else
-        {
-          break;
-        }
-      }
-      return ingredientCount;
+      int maxUnits = (int)(availableCapacity / capacityPerUnit);
+      return (int)(maxUnits * ingredient.ratio);
     }
 
     public void CompleteProcessingCycle()

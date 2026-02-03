@@ -70,7 +70,7 @@ namespace ProductionExpanded
       //start new bill
       foreach (Bill bill in processor.BillStack)
       {
-        if (bill.ShouldDoNow() && bill.recipe.fixedIngredientFilter != null)
+        if (bill.ShouldDoNow())
         {
           RecipeExtension_Processor settings =
             bill.recipe.GetModExtension<RecipeExtension_Processor>();
@@ -135,6 +135,7 @@ namespace ProductionExpanded
                 ingredient
               );
               job.count = Mathf.Min(ingredient.stackCount, ingredientNeeded);
+              job.bill = comp.GetActiveBill();
               comp.forgivePunishment();
               return job;
             }
@@ -210,7 +211,7 @@ namespace ProductionExpanded
       {
         Thing closest = null;
         float closestDist = float.MaxValue;
-        foreach (ThingDef def in ingredient.category.childThingDefs)
+        foreach (ThingDef def in ingredient.category.DescendantThingDefs)
         {
           Thing found = GenClosest.ClosestThingReachable(
             pawn.Position,
