@@ -73,7 +73,7 @@ namespace ProductionExpanded
 
     // private ThingOwner<Thing> ingredientContainer;
     private ThingOwner<Thing> staticIngredientsContainer;
-    private ThingOwner<Thing> dynamicIngredientContainer;
+    private ThingOwner<Thing> dynamicIngredientsContainer;
 
     // Track the active vanilla bill
     private Bill_Production activeBill = null;
@@ -327,18 +327,19 @@ namespace ProductionExpanded
       highestStackOutputCount = 0;
       if (settings?.UsesDynamicOutput == true)
       {
-        foreach (Thing input in dynamicIngredientContainer)
+        foreach (Thing input in dynamicIngredientsContainer)
         {
           outputs.Add(RawToFinishedRegistry.GetFinished(input.def));
           float ratio = settings?.ratioDynamic ?? 1.0f;
-          outputsCount.Add((int)(input.stackCount * ratio));
-          if (input.stackCount > highestStackOutputCount)
+          int outputCount = (int)(input.stackCount * ratio);
+          outputsCount.Add(outputCount);
+          if (outputCount > highestStackOutputCount)
           {
             highestStackOutputCount = input.stackCount;
           }
         }
       }
-      if (!settings.products.NullOrEmpty())
+      if (settings?.products.NullOrEmpty() == false)
       {
         foreach (ProcessorProduct output in settings?.products)
         {
@@ -398,10 +399,8 @@ namespace ProductionExpanded
       }
 
       var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-
-      int capacityNeededForInput = (int)(
-        allInputs.Sum(thing => thing.stackCount) * (settings?.capacityFactor ?? 1f)
-      );
+      float capacityFactor = settings?.capacityFactor ?? 1f;
+      int capacityNeededForInput = (int)(allInputs.Sum(thing => thing.stackCount) * capacityFactor);
 
       // Validation: Check capacity
       if (capacityRemaining <= 0 || capacityRemaining < capacityNeededForInput)
@@ -417,27 +416,24 @@ namespace ProductionExpanded
       bool foundMatch = false;
       if (settings?.UsesDynamicOutput == true)
       {
-        if (dynamicIngredientContainer.NullOrEmpty())
+        if (dynamicIngredientsContainer.NullOrEmpty())
         {
-          dynamicIngredientContainer = new();
+          dynamicIngredientsContainer = new ThingOwner<Thing>(this);
         }
         if (isProcessing)
         {
-          foreach (Thing thing in dynamicIngredientContainer)
+          foreach (Thing newInput in dynamicIngredients)
           {
-            foreach (Thing newInput in dynamicIngredients)
+            if (dynamicIngredientsContainer.Any(t => t.def == newInput.def))
             {
-              if (thing.def == newInput.def)
+              foundMatch = true;
+              if (!dynamicIngredientsContainer.TryAdd(newInput, true))
               {
-                foundMatch = true;
-                if (!dynamicIngredientContainer.TryAdd(newInput, true))
-                {
-                  Log.Error(
-                    $"[Production Expande] failed to add {newInput.def.defName} to ThingOwner"
-                  );
-                  GenSpawn.Spawn(newInput, parent.Position, parent.Map);
-                  return;
-                }
+                Log.Error(
+                  $"[Production Expande] failed to add {newInput.def.defName} to ThingOwner"
+                );
+                GenSpawn.Spawn(newInput, parent.Position, parent.Map);
+                return;
               }
             }
           }
@@ -447,26 +443,23 @@ namespace ProductionExpanded
       {
         if (staticIngredientsContainer.NullOrEmpty())
         {
-          staticIngredientsContainer = new();
+          staticIngredientsContainer = new ThingOwner<Thing>(this);
         }
 
         if (isProcessing)
         {
-          foreach (Thing thing in staticIngredientsContainer)
+          foreach (Thing newInput in staticIngredients)
           {
-            foreach (Thing newInput in staticIngredients)
+            if (staticIngredientsContainer.Any(t => t.def == newInput.def))
             {
-              if (thing.def == newInput.def)
+              foundMatch = true;
+              if (!staticIngredientsContainer.TryAdd(newInput, true))
               {
-                foundMatch = true;
-                if (!staticIngredientsContainer.TryAdd(newInput, true))
-                {
-                  Log.Error(
-                    $"[Production Expande] failed to add {newInput.def.defName} to ThingOwner"
-                  );
-                  GenSpawn.Spawn(newInput, parent.Position, parent.Map);
-                  return;
-                }
+                Log.Error(
+                  $"[Production Expande] failed to add {newInput.def.defName} to ThingOwner"
+                );
+                GenSpawn.Spawn(newInput, parent.Position, parent.Map);
+                return;
               }
             }
           }
@@ -481,16 +474,10 @@ namespace ProductionExpanded
         return;
       }
 
-      float capacityFactor = settings?.capacityFactor ?? 1f;
-
       if (Props.soundInput != null)
       {
         Props.soundInput.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
       }
-
-      capacityRemaining -= (int)(inputCount * capacityFactor);
-      if (capacityRemaining < 0)
-        capacityRemaining = 0;
 
       // Update Fill Tracker
       UpdateTrackerState(needsFill: getCapacityRemaining() > 0 && getIsReady());
@@ -500,6 +487,9 @@ namespace ProductionExpanded
 
       if (isProcessing)
       {
+        capacityRemaining -= (int)(inputCount * capacityFactor);
+        if (capacityRemaining < 0)
+          capacityRemaining = 0;
         // Add to existing batch
         int totalTicksPassed = totalTicksPerCycle * currentCycle + progressTicks;
 
@@ -510,11 +500,7 @@ namespace ProductionExpanded
         else
           this.totalTicksPerCycle =
             ticksPerItemOut
-            * (int)(
-              (Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
-                / settings?.capacityFactor
-              ?? 1
-            );
+            * (int)((Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime) / capacityFactor);
 
         // Recalculate progress
         currentCycle = 0;
@@ -540,7 +526,7 @@ namespace ProductionExpanded
       }
       foreach (Thing dynamicIn in dynamicIngredients)
       {
-        if (!dynamicIngredientContainer.TryAdd(dynamicIn))
+        if (!dynamicIngredientsContainer.TryAdd(dynamicIn))
         {
           Log.Error($"[Production Expande] failed to add {dynamicIn.def.defName} to ThingOwner");
           GenSpawn.Spawn(dynamicIn, parent.Position, parent.Map);
@@ -548,9 +534,12 @@ namespace ProductionExpanded
         }
       }
 
+      capacityRemaining -= (int)(inputCount * capacityFactor);
+      if (capacityRemaining < 0)
+        capacityRemaining = 0;
+
       if (heatPusher != null)
         heatPusher.enabled = true;
-      isProcessing = true;
       activeBill = bill;
 
       parent.DirtyMapMesh(parent.Map);
@@ -569,10 +558,7 @@ namespace ProductionExpanded
       else
         this.totalTicksPerCycle =
           ticksPerItemOut
-          * (int)(
-            (Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime) / settings?.capacityFactor
-            ?? 1
-          );
+          * (int)((Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime) / capacityFactor);
 
       isInspectStringDirty = true;
 
@@ -582,6 +568,7 @@ namespace ProductionExpanded
         Log.Error($"[Production Expanded] Invalid outputs calculated for {bill.recipe.defName}");
         return;
       }
+      isProcessing = true;
     }
 
     public void CompleteProcessingCycle()
