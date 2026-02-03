@@ -319,7 +319,8 @@ namespace ProductionExpanded
 
     private ProcessorIngredient FindMatchingSlot(RecipeExtension_Processor settings, ThingDef def)
     {
-      if (settings?.ingredients == null) return null;
+      if (settings?.ingredients == null)
+        return null;
       for (int i = 0; i < settings.ingredients.Count; i++)
       {
         var ingredient = settings.ingredients[i];
