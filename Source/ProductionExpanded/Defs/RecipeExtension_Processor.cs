@@ -6,8 +6,9 @@ namespace ProductionExpanded
   public class RecipeExtension_Processor : DefModExtension
   {
     public bool useDynamicOutput = false;
-    public List<ThingDef> staticItemsCost;
-    public bool hasStaticItemCost = false;
+    public List<ThingDef> ingredientsDynamic;
+    public List<ThingDef> ingredientsStatic;
+    public List<ThingDef> additionalProducts;
     public int ticksPerItemIn = 100;
     public int cycles = 1;
     public float ratio = 1.0f;
