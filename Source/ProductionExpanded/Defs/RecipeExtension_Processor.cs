@@ -6,7 +6,9 @@ namespace ProductionExpanded
   public class RecipeExtension_Processor : DefModExtension
   {
     public bool UseDynamicOutput =>
-      ingredientsCategoryDynamic.NullOrEmpty() && ingredientsDynamic.NullOrEmpty();
+      !ingredientsCategoryDynamic.NullOrEmpty() && !ingredientsDynamic.NullOrEmpty();
+    public bool HasStaticInput =>
+      !ingredientsStatic.NullOrEmpty() && !ingredientsCategoryStatic.NullOrEmpty();
 
     /// <summary>
     /// all manually configured dynamic ingredients
@@ -91,6 +93,7 @@ namespace ProductionExpanded
 
     /// <summary>
     /// ratio of the products added to output from static ingredients e.g if rice gets converted to vinegar and we set this value to 0.5 we will get a 2 rice tp 1 vinegar ratio
+    /// if there are multiple static inputs we take the with the highest input count in the processor as the reference
     /// NOTE: this affects ONLY static products written down manually in the static products list
     ///</summary>
     public float ratioStaticIngredients = 1.0f;
