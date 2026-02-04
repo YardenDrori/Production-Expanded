@@ -158,7 +158,7 @@ namespace ProductionExpanded
       }
       else
       {
-        prevPunishRareTicks = (int)(prevPunishRareTicks * 1.2);
+        prevPunishRareTicks = (int)(prevPunishRareTicks * 1.2 + 0.9f);
       }
       punishRareTicks = prevPunishRareTicks;
     }
