@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -49,7 +50,10 @@ namespace ProductionExpanded
           if (needed <= 0)
             continue;
 
-          if (FindIngredient(pawn, processor, ing, comp.GetActiveBill().ingredientSearchRadius) != null)
+          if (
+            FindIngredient(pawn, processor, ing, comp.GetActiveBill().ingredientSearchRadius)
+            != null
+          )
           {
             comp.forgivePunishment();
             return true;
@@ -59,7 +63,7 @@ namespace ProductionExpanded
         return false;
       }
 
-      // Start new bill — find any bill with available ingredients
+      // Start new bill — only if ALL ingredients are available on the map
       foreach (Bill bill in processor.BillStack)
       {
         if (!bill.ShouldDoNow())
@@ -68,17 +72,28 @@ namespace ProductionExpanded
         var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
         if (settings?.ingredients == null)
         {
-          Log.Error($"[Production Expanded] {bill.recipe.defName} has no RecipeExtension_Processor");
+          Log.Error(
+            $"[Production Expanded] {bill.recipe.defName} has no RecipeExtension_Processor"
+          );
           continue;
         }
 
+        bool allIngredientsAvailable = true;
         for (int i = 0; i < settings.ingredients.Count; i++)
         {
-          if (FindIngredient(pawn, processor, settings.ingredients[i], bill.ingredientSearchRadius) != null)
+          if (
+            FindIngredient(pawn, processor, settings.ingredients[i], bill.ingredientSearchRadius)
+            == null
+          )
           {
-            comp.forgivePunishment();
-            return true;
+            allIngredientsAvailable = false;
+            break;
           }
+        }
+        if (allIngredientsAvailable)
+        {
+          comp.forgivePunishment();
+          return true;
         }
       }
       comp.PunishProcessor();
@@ -114,14 +129,15 @@ namespace ProductionExpanded
           if (needed <= 0)
             continue;
 
-          Thing ingredient = FindIngredient(pawn, processor, ing, comp.GetActiveBill().ingredientSearchRadius);
+          Thing ingredient = FindIngredient(
+            pawn,
+            processor,
+            ing,
+            comp.GetActiveBill().ingredientSearchRadius
+          );
           if (ingredient != null)
           {
-            Job job = JobMaker.MakeJob(
-              JobDefOf_ProductionExpanded.PE_FillProcessor,
-              t,
-              ingredient
-            );
+            Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, ingredient);
             job.count = Mathf.Min(ingredient.stackCount, needed);
             job.bill = comp.GetActiveBill();
             comp.forgivePunishment();
@@ -132,7 +148,7 @@ namespace ProductionExpanded
         return null;
       }
 
-      // Start new bill
+      // Start new bill — only if ALL ingredients are available on the map
       foreach (Bill_Production bill in processor.BillStack)
       {
         if (!bill.ShouldDoNow())
@@ -142,21 +158,51 @@ namespace ProductionExpanded
         if (settings?.ingredients == null)
           continue;
 
+        // First pass: verify every ingredient type exists on the map
+        bool allAvailable = true;
+        List<List<Thing>> allPossibleItemsPerIngredient = new();
+        List<int> availableTotalCountOfThingsPerIngredient = new();
+        for (int i = 0; i < settings.ingredients.Count; i++)
+        {
+          var possibleItemsForIngredient = FindIngredient(
+            pawn,
+            processor,
+            settings.ingredients[i],
+            bill.ingredientSearchRadius,
+            true
+          );
+          if (possibleItemsForIngredient.NullOrEmpty())
+          {
+            allAvailable = false;
+            break;
+          }
+          else
+          {
+            availableTotalCountOfThingsPerIngredient.Add(
+              possibleItemsForIngredient.Sum(item => item.stackCount)
+            );
+          }
+        }
+        if (!allAvailable)
+          continue;
+
+        //second pass figure out how many of each item we need
+        int craftCountBottleneck = -1;
+        for (int i = 0; i < settings.ingredients.Count; i++)
+        {
+          int amountNeeded = comp.GetAmountNeeded(settings.ingredients[i]);
+        }
+
+        // Second pass: create job for the first ingredient we can haul
         for (int i = 0; i < settings.ingredients.Count; i++)
         {
           var ing = settings.ingredients[i];
           Thing ingredient = FindIngredient(pawn, processor, ing, bill.ingredientSearchRadius);
           if (ingredient != null)
           {
-            int needed = ing.IsFixed
-              ? ing.count
-              : comp.MaxCountOfIngredientInRecipe(ing);
+            int needed = ing.IsFixed ? ing.count : comp.MaxCountOfIngredientInRecipe(ing);
 
-            Job job = JobMaker.MakeJob(
-              JobDefOf_ProductionExpanded.PE_FillProcessor,
-              t,
-              ingredient
-            );
+            Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, ingredient);
             job.count = Mathf.Min(ingredient.stackCount, needed);
             job.bill = bill;
             comp.forgivePunishment();
@@ -168,13 +214,15 @@ namespace ProductionExpanded
       return null;
     }
 
-    private Thing FindIngredient(
+    private List<Thing> FindIngredient(
       Pawn pawn,
       Building_Processor processor,
       ProcessorIngredient ingredient,
-      float searchRadius
+      float searchRadius,
+      bool findAll = false
     )
     {
+      List<Thing> allFoundThings = new();
       if (ingredient.IsSpecific)
       {
         for (int i = 0; i < ingredient.thingDefs.Count; i++)
@@ -190,9 +238,14 @@ namespace ProductionExpanded
           );
           if (foundThing != null)
           {
-            return foundThing;
+            allFoundThings.Add(foundThing);
+            if (!findAll)
+            {
+              return allFoundThings;
+            }
           }
         }
+        return allFoundThings;
       }
       if (ingredient.IsCategory)
       {
@@ -224,7 +277,11 @@ namespace ProductionExpanded
         }
         if (closest != null)
         {
-          return closest;
+          allFoundThings.Add(closest);
+          if (!allFoundThings.NullOrEmpty())
+          {
+            return allFoundThings;
+          }
         }
       }
       return null;

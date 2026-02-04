@@ -33,6 +33,9 @@ namespace ProductionExpanded
 
   public class CompResourceProcessor : ThingComp, IThingHolder
   {
+    // Configs
+    private const int rareTicksEmptyUntillGiveUp = 120;
+
     private enum RuinReason
     {
       TooHot,
@@ -40,6 +43,9 @@ namespace ProductionExpanded
       Paused,
       None,
     };
+
+    //static variables
+    private static bool warned = false;
 
     private CompProperties_ResourceProcessor cachedProps;
     private CompProperties_ResourceProcessor Props => cachedProps;
@@ -54,6 +60,7 @@ namespace ProductionExpanded
     private int ruinTicks = 0;
     private int punishRareTicks = 0;
     private int prevPunishRareTicks = 0;
+    private int rareTicksNotEmptyAndNotProcessing = 0;
 
     // Tracker cache (avoid redundant HashSet add/remove)
     private bool cachedNeedsFill = false;
@@ -95,15 +102,24 @@ namespace ProductionExpanded
     // === Public accessors ===
 
     public bool getIsProcessing() => isProcessing;
+
     public bool getIsBadTemp() =>
       previousRuinReason == RuinReason.TooCold || previousRuinReason == RuinReason.TooHot;
+
     public bool getIsFinished() => isFinished;
+
     public int getCapacityRemaining() => capacityRemaining;
+
     public bool getIsReady() => CanContinueProcessing() == RuinReason.None;
+
     public bool getIsWaitingForNextCycle() => isWaitingForCycleInteraction;
+
     public Bill_Production GetActiveBill() => activeBill;
+
     public CompProperties_ResourceProcessor getProps() => Props;
+
     public ThingDef GetHighestOutputDef() => highestStackOutputDef;
+
     public int GetHighestOutputCount() => highestStackOutputCount;
 
     // === Lifecycle ===
@@ -231,11 +247,13 @@ namespace ProductionExpanded
     {
       base.CompTickRare();
       if (punishRareTicks > 0)
-      {
         punishRareTicks--;
-      }
+      if (rareTicksNotEmptyAndNotProcessing > rareTicksEmptyUntillGiveUp)
+        CancelBatch();
+
       if (isProcessing)
       {
+        rareTicksNotEmptyAndNotProcessing = 0;
         isInspectStringDirty = true;
         RuinReason currentRuinReason = CanContinueProcessing();
         if (currentRuinReason != previousRuinReason)
@@ -294,6 +312,10 @@ namespace ProductionExpanded
       }
       else
       {
+        if (capacityRemaining < Props.maxCapacity)
+        {
+          rareTicksNotEmptyAndNotProcessing++;
+        }
         UpdateTrackerState(needsFill: getIsReady());
 
         if (heatPusher != null)
@@ -351,7 +373,10 @@ namespace ProductionExpanded
     /// <summary>
     /// Find which ingredient slot a ThingDef belongs to in the active recipe.
     /// </summary>
-    public ProcessorIngredient FindMatchingSlot(ThingDef def, RecipeExtension_Processor settings = null)
+    public ProcessorIngredient FindMatchingSlot(
+      ThingDef def,
+      RecipeExtension_Processor settings = null
+    )
     {
       if (settings == null)
         settings = activeBill?.recipe?.GetModExtension<RecipeExtension_Processor>();
@@ -393,6 +418,231 @@ namespace ProductionExpanded
         return Mathf.Max(0, ingredient.count - current);
       int max = MaxCountOfIngredientInRecipe(ingredient);
       return Mathf.Max(0, max - current);
+    }
+
+    //tell me if this implementation is good or if we should rewrite this from scratch as its shit
+    //well i mean it ISNT good that i know but if the idea is good i mean this func takes DRY and says
+    //DRY? what's that? more like Do Rape Yourshittyassbullshitfunctionsyesthistechnicallycountsasonewordsuckmydick
+    //believe you me this is some vile demonic ass spaghetti with fucking ketchup tier code 😭
+    //im genuinely too dumb to make it any better tho so pls carry me
+    public List<int> GetAmountNeededForList(
+      List<ProcessorIngredient> ingredients,
+      List<int> availableThingCountPerIngredient
+    )
+    {
+      //input validation
+      if (ingredients.NullOrEmpty() || availableThingCountPerIngredient.NullOrEmpty())
+      {
+        Log.Error(
+          $"[Production Expanded] why you sending me an empty list u dumbass (error in GetAmountNeededForList fyi)"
+        );
+        return null;
+      }
+
+      //how many values from availablePerIngredientThing we checked as order matters here a lot
+      int iterator = 0;
+
+      //return value
+      List<int> amountsNeeded = new();
+
+      //amount of "crafts" possible to to ingredient bottlenecks
+      int bottleNeck = 0;
+
+      //do first iteration of loop manually to get initial bottleneck value
+      // count how many ingredients in list and add the specific requirements per item to return list
+      int ingCountNeeded = GetAmountNeeded(ingredients[0]);
+      int availableThingCountForThisIngredient = 0;
+      int totalAdded = 0;
+      if (ingredients[0].IsCategory)
+      {
+        foreach (var cat in ingredients[0].categories)
+        {
+          availableThingCountForThisIngredient += availableThingCountPerIngredient[iterator++];
+          amountsNeeded.Add(availableThingCountForThisIngredient);
+          totalAdded += availableThingCountForThisIngredient;
+          if (availableThingCountForThisIngredient >= ingCountNeeded)
+          {
+            amountsNeeded[iterator - 1] = ingCountNeeded - totalAdded;
+            while (iterator < ingredients[0].categories.Count - iterator - 1)
+            {
+              iterator++;
+              amountsNeeded.Add(0);
+            }
+            break;
+          }
+        }
+        amountsNeeded[iterator - 1] = availableThingCountForThisIngredient;
+      }
+      else
+      {
+        foreach (var cat in ingredients[0].thingDefs)
+        {
+          availableThingCountForThisIngredient += availableThingCountPerIngredient[iterator++];
+          amountsNeeded.Add(availableThingCountForThisIngredient);
+          totalAdded += availableThingCountForThisIngredient;
+          if (availableThingCountForThisIngredient >= ingCountNeeded)
+          {
+            amountsNeeded[iterator - 1] = ingCountNeeded - totalAdded;
+            while (iterator < ingredients[0].categories.Count - iterator - 1)
+            {
+              iterator++;
+              amountsNeeded.Add(0);
+            }
+            break;
+          }
+        }
+        amountsNeeded[iterator - 1] = availableThingCountForThisIngredient;
+      }
+      bottleNeck = totalAdded;
+      for (int i = 1; i < ingredients.Count; i++)
+      {
+        ingCountNeeded = GetAmountNeeded(ingredients[i]);
+        availableThingCountForThisIngredient = 0;
+        totalAdded = 0;
+        if (ingredients[i].IsCategory)
+        {
+          foreach (var cat in ingredients[i].categories)
+          {
+            availableThingCountForThisIngredient += availableThingCountPerIngredient[iterator++];
+            amountsNeeded.Add(availableThingCountForThisIngredient);
+            totalAdded += availableThingCountForThisIngredient;
+            if (availableThingCountForThisIngredient >= ingCountNeeded)
+            {
+              amountsNeeded[iterator - 1] = ingCountNeeded - totalAdded;
+              while (iterator < ingredients[i].categories.Count - iterator - 1)
+              {
+                iterator++;
+                amountsNeeded.Add(0);
+              }
+              break;
+            }
+            else if (availableThingCountForThisIngredient > bottleNeck)
+            {
+              amountsNeeded[iterator - 1] = bottleNeck - totalAdded;
+              while (iterator < ingredients[i].categories.Count - iterator - 1)
+              {
+                iterator++;
+                amountsNeeded.Add(0);
+              }
+              break;
+            }
+          }
+          amountsNeeded[iterator - 1] = availableThingCountForThisIngredient;
+        }
+        else
+        {
+          foreach (var cat in ingredients[i].thingDefs)
+          {
+            availableThingCountForThisIngredient += availableThingCountPerIngredient[iterator++];
+            amountsNeeded.Add(availableThingCountForThisIngredient);
+            totalAdded += availableThingCountForThisIngredient;
+            if (availableThingCountForThisIngredient >= ingCountNeeded)
+            {
+              amountsNeeded[iterator - 1] = ingCountNeeded - totalAdded;
+              while (iterator < ingredients[i].categories.Count - iterator - 1)
+              {
+                iterator++;
+                amountsNeeded.Add(0);
+              }
+              break;
+            }
+            else if (availableThingCountForThisIngredient > bottleNeck)
+            {
+              amountsNeeded[iterator - 1] = bottleNeck - totalAdded;
+              while (iterator < ingredients[i].categories.Count - iterator - 1)
+              {
+                iterator++;
+                amountsNeeded.Add(0);
+              }
+              break;
+            }
+          }
+          amountsNeeded[iterator - 1] = availableThingCountForThisIngredient;
+        }
+        if (totalAdded < bottleNeck)
+        {
+          bottleNeck = totalAdded;
+          int ohmyfuckinggodwhyismycodesofuckingdisgustingiwrotelikethesamefunctionfourtimesbynow =
+            iterator;
+          iterator = 0;
+
+          for (int j = 1; j < i; j++)
+          {
+            ingCountNeeded = GetAmountNeeded(ingredients[j]);
+            availableThingCountForThisIngredient = 0;
+            totalAdded = 0;
+            if (ingredients[j].IsCategory)
+            {
+              foreach (var cat in ingredients[j].categories)
+              {
+                availableThingCountForThisIngredient += availableThingCountPerIngredient[
+                  iterator++
+                ];
+                amountsNeeded.Add(availableThingCountForThisIngredient);
+                totalAdded += availableThingCountForThisIngredient;
+                if (availableThingCountForThisIngredient >= ingCountNeeded)
+                {
+                  amountsNeeded[iterator - 1] = ingCountNeeded - totalAdded;
+                  while (iterator < ingredients[j].categories.Count - iterator - 1)
+                  {
+                    iterator++;
+                    amountsNeeded.Add(0);
+                  }
+                  break;
+                }
+                else if (availableThingCountForThisIngredient > bottleNeck)
+                {
+                  amountsNeeded[iterator - 1] = bottleNeck - totalAdded;
+                  while (iterator < ingredients[j].categories.Count - iterator - 1)
+                  {
+                    iterator++;
+                    amountsNeeded.Add(0);
+                  }
+                  break;
+                }
+              }
+              amountsNeeded[iterator - 1] = availableThingCountForThisIngredient;
+            }
+            else
+            {
+              foreach (var cat in ingredients[j].thingDefs)
+              {
+                availableThingCountForThisIngredient += availableThingCountPerIngredient[
+                  iterator++
+                ];
+                amountsNeeded.Add(availableThingCountForThisIngredient);
+                totalAdded += availableThingCountForThisIngredient;
+                if (availableThingCountForThisIngredient >= ingCountNeeded)
+                {
+                  amountsNeeded[iterator - 1] = ingCountNeeded - totalAdded;
+                  while (iterator < ingredients[j].categories.Count - iterator - 1)
+                  {
+                    iterator++;
+                    amountsNeeded.Add(0);
+                  }
+                  break;
+                }
+                else if (availableThingCountForThisIngredient > bottleNeck)
+                {
+                  amountsNeeded[iterator - 1] = bottleNeck - totalAdded;
+                  while (iterator < ingredients[j].categories.Count - iterator - 1)
+                  {
+                    iterator++;
+                    amountsNeeded.Add(0);
+                  }
+                  break;
+                }
+              }
+              amountsNeeded[iterator - 1] = availableThingCountForThisIngredient;
+            }
+
+            iterator =
+              ohmyfuckinggodwhyismycodesofuckingdisgustingiwrotelikethesamefunctionfourtimesbynow;
+          }
+        }
+      }
+      return amountsNeeded;
+      //willing to bet all my life savings this can be done better and that this doesnt even work
     }
 
     /// <summary>
@@ -555,7 +805,9 @@ namespace ProductionExpanded
       var settings = bill.recipe?.GetModExtension<RecipeExtension_Processor>();
       if (settings == null)
       {
-        Log.Error($"[Production Expanded] Recipe {bill.recipe?.defName} has no RecipeExtension_Processor");
+        Log.Error(
+          $"[Production Expanded] Recipe {bill.recipe?.defName} has no RecipeExtension_Processor"
+        );
         return;
       }
 
@@ -573,9 +825,19 @@ namespace ProductionExpanded
       ProcessorIngredient slot = FindMatchingSlot(ingredient.def, settings);
       if (slot == null)
       {
-        Log.Error($"[Production Expanded] No matching ingredient slot for {ingredient.def.defName} in recipe {bill.recipe.defName}");
+        Log.Error(
+          $"[Production Expanded] No matching ingredient slot for {ingredient.def.defName} in recipe {bill.recipe.defName}"
+        );
         GenSpawn.Spawn(ingredient, parent.Position, parent.Map);
         return;
+      }
+
+      if (!warned && staticIngredientsContainer.Count > 0 && dynamicIngredientsContainer.Count > 0)
+      {
+        Log.Warning(
+          $"[Production Expanded] it appears the recipe {bill.recipe} uses both static and dynamic ingredients while this is supported and wont error, this isn't intended by the mod and could work strangely. This message will not be shwon again untill next game boot"
+        );
+        warned = true;
       }
 
       var container = slot.dynamic ? dynamicIngredientsContainer : staticIngredientsContainer;
@@ -585,7 +847,9 @@ namespace ProductionExpanded
       {
         if (!slot.IsScaling)
         {
-          Log.Warning($"[Production Expanded] Cannot add fixed ingredient {ingredient.def.defName} to already-processing batch");
+          Log.Warning(
+            $"[Production Expanded] Cannot add fixed ingredient {ingredient.def.defName} to already-processing batch"
+          );
           GenSpawn.Spawn(ingredient, parent.Position, parent.Map);
           return;
         }
@@ -600,7 +864,9 @@ namespace ProductionExpanded
         }
         if (!hasMatchingType)
         {
-          Log.Warning($"[Production Expanded] Ingredient {ingredient.def.defName} doesn't match any existing ingredient in processor");
+          Log.Warning(
+            $"[Production Expanded] Ingredient {ingredient.def.defName} doesn't match any existing ingredient in processor"
+          );
           GenSpawn.Spawn(ingredient, parent.Position, parent.Map);
           return;
         }
@@ -610,7 +876,9 @@ namespace ProductionExpanded
       int capacityNeeded = CalculateCapacityForThing(ingredient, slot);
       if (capacityRemaining < capacityNeeded)
       {
-        Log.Warning($"[Production Expanded] Processor at {parent.Position} doesn't have enough capacity");
+        Log.Warning(
+          $"[Production Expanded] Processor at {parent.Position} doesn't have enough capacity"
+        );
         GenSpawn.Spawn(ingredient, parent.Position, parent.Map);
         return;
       }
@@ -806,8 +1074,7 @@ namespace ProductionExpanded
       {
         string label = highestStackOutputDef?.label ?? "Material";
         float progress = totalTicksPerCycle > 0 ? (float)progressTicks / totalTicksPerCycle : 0f;
-        inspectMessageCahce =
-          $"Processing {label} x{highestStackOutputCount}: {progress:P0}";
+        inspectMessageCahce = $"Processing {label} x{highestStackOutputCount}: {progress:P0}";
         if (cycles != 1)
         {
           inspectMessageCahce += $"\ncycles remaining: {cycles - currentCycle}";
@@ -923,6 +1190,7 @@ namespace ProductionExpanded
       outputsCount.Clear();
 
       parent.DirtyMapMesh(parent.Map);
+      rareTicksNotEmptyAndNotProcessing = 0;
       isFinished = false;
       if (heatPusher != null)
         heatPusher.enabled = false;
@@ -970,7 +1238,7 @@ namespace ProductionExpanded
           defaultLabel = "Cancel batch",
           defaultDesc = "Drop all stored ingredients and reset the processor.",
           icon = ContentFinder<Texture2D>.Get("UI/Designators/Cancel", true),
-          action = CancelBatch
+          action = CancelBatch,
         };
       }
     }
