@@ -188,6 +188,59 @@ namespace ProductionExpanded
       return null;
     }
 
+    //this is prob bad and inefficent i genuinely dont know how to prevent this tho
+    //buildings should not request any items unless the requirements for all ingredients are fulfilled
+    private Dictionary<ProcessorIngredient, int> CalculateMaxOfEachItemBasedOnAvailableResources(
+      List<ProcessorIngredient> ingredients,
+      CompResourceProcessor comp,
+      Pawn pawn,
+      Building_Processor processor,
+      float searchRadius
+    )
+    {
+      int minCrafts = -1;
+      Dictionary<Thing, int> result = new();
+      Dictionary<Thing, int> processorIngredientsInStorage = processorIngredientsInStorage =
+        comp.GetAllIngredientsAndTheirCounts();
+
+      foreach (var ingredient in ingredients)
+      {
+        Thing foundIngredient = FindIngredient(pawn, processor, ingredient, searchRadius);
+        if (foundIngredient == null || foundIngredient.stackCount == 0)
+        {
+          continue;
+        }
+        int alreadyInStorage = comp.GetIngredientCountInStorage(ingredient);
+        //this call is very inefficient as we pretty much turn this from an O(n) opeartion
+        //to an O(n^2) operation as we call this method which goes over all the ingredients once
+        //for every ingredient.
+        //is there a way to make this better? ABSOUTELY! do I know how to do it? HELL NO 😭
+        int maxOfIngredient = comp.MaxCountOfIngredientInRecipe(ingredient);
+        int ingredientCountNeeded = maxOfIngredient - alreadyInStorage;
+        if (ingredientCountNeeded <= 0)
+        {
+          continue;
+        }
+        if (ingredient.IsFixed)
+        {
+          int maxCrafts = ingredientCountNeeded / ingredient.count;
+          int availableCrafts = foundIngredient.stackCount / ingredient.count;
+          int finalCrafts = Mathf.Min(availableCrafts, maxCrafts);
+          if (finalCrafts < minCrafts)
+            //HELP IM STUCK IM SO FUCKING FRUSTRATED
+            result.Add(foundIngredient, Mathf.Min(availableCrafts, maxCrafts));
+        }
+        else
+        {
+          int maxCrafts = (int)(ingredientCountNeeded / ingredient.ratio);
+          int availableCrafts = (int)(foundIngredient.stackCount / ingredient.ratio);
+
+          result.Add(foundIngredient, Mathf.Min(availableCrafts, maxCrafts));
+        }
+      }
+      return result;
+    }
+
     private Thing FindIngredient(
       Pawn pawn,
       Building_Processor processor,
@@ -197,42 +250,56 @@ namespace ProductionExpanded
     {
       if (ingredient.IsSpecific)
       {
-        return GenClosest.ClosestThingReachable(
-          pawn.Position,
-          pawn.Map,
-          ThingRequest.ForDef(ingredient.thingDef),
-          PathEndMode.ClosestTouch,
-          TraverseParms.For(pawn),
-          searchRadius,
-          (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
-        );
-      }
-      if (ingredient.IsCategory)
-      {
-        Thing closest = null;
-        float closestDist = float.MaxValue;
-        foreach (ThingDef def in ingredient.category.DescendantThingDefs)
+        foreach (var ing in ingredient.thingDefs)
         {
-          Thing found = GenClosest.ClosestThingReachable(
+          Thing foundThing = GenClosest.ClosestThingReachable(
             pawn.Position,
             pawn.Map,
-            ThingRequest.ForDef(def),
+            ThingRequest.ForDef(ing),
             PathEndMode.ClosestTouch,
             TraverseParms.For(pawn),
             searchRadius,
             (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
           );
-          if (found != null)
+          if (foundThing != null)
           {
-            float dist = (found.Position - pawn.Position).LengthHorizontalSquared;
-            if (dist < closestDist)
-            {
-              closest = found;
-              closestDist = dist;
-            }
+            return foundThing;
           }
         }
-        return closest;
+      }
+      //idk of a better way to search through all items of a category nor if a better way even exists
+      if (ingredient.IsCategory)
+      {
+        foreach (var cat in ingredient.categories)
+        {
+          Thing closest = null;
+          float closestDist = float.MaxValue;
+          foreach (ThingDef def in cat.DescendantThingDefs)
+          {
+            Thing found = GenClosest.ClosestThingReachable(
+              pawn.Position,
+              pawn.Map,
+              ThingRequest.ForDef(def),
+              PathEndMode.ClosestTouch,
+              TraverseParms.For(pawn),
+              searchRadius,
+              (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
+            );
+            if (found != null)
+            {
+              float dist = (found.Position - pawn.Position).LengthHorizontalSquared;
+              if (dist < closestDist)
+              {
+                closest = found;
+                closestDist = dist;
+              }
+            }
+          }
+          if (closest != null)
+          {
+            return closest;
+          }
+        }
       }
       return null;
     }

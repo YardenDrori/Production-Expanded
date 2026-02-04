@@ -44,6 +44,8 @@ namespace ProductionExpanded
     private CompProperties_ResourceProcessor cachedProps;
     private CompProperties_ResourceProcessor Props => cachedProps;
 
+    //SO MANY PARAMATERS jesus my code is getting messy
+
     // State variables
     private bool isProcessing = false;
     private bool isFinished = false;
@@ -755,6 +757,59 @@ namespace ProductionExpanded
       int maxUnits = (int)(availableCapacity / capacityPerUnit);
       return (int)(maxUnits * ingredient.ratio);
     }
+
+    ///<summary>
+    /// method to get the max amount of all items
+    /// idk if we need two methods this is getting quite messy tbh
+    ///</summary>
+    /// scrapped was getting out of hand and im too dumb for this shit
+    // public Dictionary<ProcessorIngredient, int> MaxCountOfIngredientInRecipe(
+    //   ProcessorIngredient ingredient
+    // )
+    // {
+    //   var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
+    //   if (settings == null)
+    //     return null;
+    //
+    //   Dictionary<ProcessorIngredient, int> result = new();
+    //
+    //   // Subtract fixed ingredient capacity from available space
+    //   float availableCapacity = Props.maxCapacity;
+    //   foreach (var ing in settings.ingredients)
+    //   {
+    //     if (ing.IsFixed)
+    //     {
+    //       availableCapacity -= ing.count * ing.capacityPerItem;
+    //       result.Add(ing, (int)(ing.count * ing.capacityPerItem));
+    //     }
+    //   }
+    //
+    //   // Calculate capacity cost per recipe unit across all scaling ingredients
+    //   float capacityPerUnit = 0f;
+    //   while (availableCapacity > 0)
+    //   {
+    //     foreach (var ing in settings.ingredients)
+    //     {
+    //       if (ing.IsScaling)
+    //       {
+    //         availableCapacity -= ing.ratio;
+    //         if (result.ContainsKey(ing))
+    //         {
+    //           result[ing] += (int)(ing.ratio);
+    //         }
+    //         else
+    //         {
+    //           result.Add(ing, (int)(ing.ratio));
+    //         }
+    //       }
+    //     }
+    //   }
+    //   if (capacityPerUnit <= 0f)
+    //     return 0;
+    //
+    //   int maxUnits = (int)(availableCapacity / capacityPerUnit);
+    //   return (int)(maxUnits * ingredient.ratio);
+    // }
 
     public void CompleteProcessingCycle()
     {

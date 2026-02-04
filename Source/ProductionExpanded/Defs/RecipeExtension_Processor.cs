@@ -11,12 +11,22 @@ namespace ProductionExpanded
   {
     /// <summary>
     /// Specific item required. Mutually exclusive with category.
+    /// note the system allows mixing i.e if i have [Vinegar, Balsamic Vinegar] and i fill the processor with 8 vinegar
+    /// and still need 2 more then balsamic vinegar will be used
+    /// however i dont know if the system KNOWS to search for mixing that is if i have a recipe that needs 10 vinegar
+    /// and i have 5 regular and 5 balsamic in storage while that is possible to mix them the system currently does not do so i think
+    /// IM REALLY not 100% on this one tho
     /// </summary>
     public List<ThingDef> thingDefs;
 
     /// <summary>
     /// Any item from this category is accepted. Mutually exclusive with thingDef.
     /// When dynamic, whichever specific item the pawn delivers gets looked up in the registry.
+    /// note the system allows mixing i.e if i have [anyOil, anyButter] and i fill the processor with 8 anyOil
+    /// and still need 2 more then anyButter will be used
+    /// however i dont know if the system KNOWS to search for mixing that is if i have a recipe that needs 10 fat
+    /// and i have 5 anyOil and 5 anyButter in storage while that is possible to mix them the system currently does not do so i think
+    /// IM REALLY not 100% on this one tho
     /// </summary>
     public List<ThingCategoryDef> categories;
 
