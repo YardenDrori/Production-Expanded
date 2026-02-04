@@ -36,7 +36,7 @@ namespace ProductionExpanded
     )
     {
       var settings = recipeDef.GetModExtension<RecipeExtension_Processor>();
-      if (settings == null || !settings.useDynamicOutput)
+      if (settings == null || !settings.UsesDynamicOutput)
       {
         foreach (var thing in __result)
         {

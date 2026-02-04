@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using RimWorld;
-using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -11,8 +10,8 @@ namespace ProductionExpanded
     private const TargetIndex ProcessorInd = TargetIndex.A;
     private const TargetIndex MaterialsInd = TargetIndex.B;
 
-    protected Building_Processor Processor => (Building_Processor)job.GetTarget(TargetIndex.A).Thing;
-    protected Thing Materials => job.GetTarget(TargetIndex.B).Thing;
+    protected Building_Processor Processor => (Building_Processor)job.GetTarget(ProcessorInd).Thing;
+    protected Thing Materials => job.GetTarget(MaterialsInd).Thing;
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
     {
@@ -26,56 +25,46 @@ namespace ProductionExpanded
     protected override IEnumerable<Toil> MakeNewToils()
     {
       CompResourceProcessor processorComp = Processor.GetComp<CompResourceProcessor>();
-      this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
-      this.FailOnBurningImmobile(TargetIndex.A);
+      this.FailOnDespawnedNullOrForbidden(ProcessorInd);
+      this.FailOnBurningImmobile(ProcessorInd);
 
-      AddEndCondition(() => (processorComp.getCapacityRemaining() > 0) ? JobCondition.Ongoing : JobCondition.Succeeded);
+      AddEndCondition(() =>
+        processorComp.getCapacityRemaining() > 0
+          ? JobCondition.Ongoing
+          : JobCondition.Succeeded
+      );
 
-      yield return Toils_General.DoAtomic(delegate
-      {
-        // Get capacityFactor to calculate actual item count
-        Bill_Production bill = (Bill_Production)job.bill;
-        if (bill == null && processorComp.getIsProcessing())
-        {
-          bill = processorComp.GetActiveBill();
-        }
-
-        float capacityFactor = 1f;
-        if (bill != null)
-        {
-          var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-          capacityFactor = settings?.capacityFactor ?? 1f;
-        }
-
-        job.count = Mathf.Max(1, (int)(processorComp.getCapacityRemaining() / capacityFactor));
-      });
-
-      Toil reserveMaterials = Toils_Reserve.Reserve(TargetIndex.B);
+      Toil reserveMaterials = Toils_Reserve.Reserve(MaterialsInd);
       yield return reserveMaterials;
 
-      yield return Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.ClosestTouch)
-        .FailOnDespawnedNullOrForbidden(TargetIndex.B)
-        .FailOnSomeonePhysicallyInteracting(TargetIndex.B);
+      yield return Toils_Goto.GotoThing(MaterialsInd, PathEndMode.ClosestTouch)
+        .FailOnDespawnedNullOrForbidden(MaterialsInd)
+        .FailOnSomeonePhysicallyInteracting(MaterialsInd);
 
-      yield return Toils_Haul.StartCarryThing(TargetIndex.B, false, true)
-        .FailOnDestroyedNullOrForbidden(TargetIndex.B);
+      yield return Toils_Haul.StartCarryThing(MaterialsInd, false, true)
+        .FailOnDestroyedNullOrForbidden(MaterialsInd);
 
-      yield return Toils_Haul.CheckForGetOpportunityDuplicate(reserveMaterials, TargetIndex.B, TargetIndex.None, true);
+      yield return Toils_Haul.CheckForGetOpportunityDuplicate(
+        reserveMaterials,
+        MaterialsInd,
+        TargetIndex.None,
+        true
+      );
 
-      yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
+      yield return Toils_Goto.GotoThing(ProcessorInd, PathEndMode.Touch);
 
       yield return Toils_General.Wait(200)
-        .FailOnDestroyedNullOrForbidden(TargetIndex.B)
-        .FailOnDestroyedNullOrForbidden(TargetIndex.A)
-        .FailOnCannotTouch(TargetIndex.A, PathEndMode.Touch)
-        .WithProgressBarToilDelay(TargetIndex.A);
+        .FailOnDestroyedNullOrForbidden(MaterialsInd)
+        .FailOnDestroyedNullOrForbidden(ProcessorInd)
+        .FailOnCannotTouch(ProcessorInd, PathEndMode.Touch)
+        .WithProgressBarToilDelay(ProcessorInd);
 
-      Toil toil = ToilMaker.MakeToil("FillProcessor");
-      toil.initAction = delegate
+      Toil depositToil = ToilMaker.MakeToil("FillProcessor");
+      depositToil.initAction = delegate
       {
         Bill_Production bill = (Bill_Production)job.bill;
 
-        // If we are filling an active processor, use the stored active bill
+        // If refueling an active processor, use the stored active bill
         if (bill == null && processorComp.getIsProcessing())
         {
           bill = processorComp.GetActiveBill();
@@ -83,18 +72,18 @@ namespace ProductionExpanded
 
         if (bill != null)
         {
-          // AddMaterials now stores the ingredient in the ThingOwner, so don't destroy it
-          processorComp.AddMaterials(bill, Materials, Materials.stackCount);
-          // Materials will be transferred to the processor's container automatically
+          processorComp.AddMaterials(bill, Materials);
         }
         else
         {
-          Log.Warning("[Production Expanded] Pawn arrived at processor but no valid bill found for ingredient. Dropping.");
+          Log.Warning(
+            "[Production Expanded] Pawn arrived at processor but no valid bill found. Dropping."
+          );
           GenPlace.TryPlaceThing(Materials, pawn.Position, pawn.Map, ThingPlaceMode.Near);
         }
       };
-      toil.defaultCompleteMode = ToilCompleteMode.Instant;
-      yield return toil;
+      depositToil.defaultCompleteMode = ToilCompleteMode.Instant;
+      yield return depositToil;
     }
   }
 }

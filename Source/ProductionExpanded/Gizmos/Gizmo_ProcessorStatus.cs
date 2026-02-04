@@ -54,7 +54,7 @@ namespace ProductionExpanded
       GizmoResult result = base.GizmoOnGUI(topLeft, maxWidth, parms);
 
       // Draw icon of currently processing item if applicable
-      ThingDef inputItem = processor.getInputItem();
+      ThingDef inputItem = processor.GetHighestOutputDef();
       if (inputItem != null && processor.getIsProcessing())
       {
         // Draw small icon in top-right corner of gizmo
