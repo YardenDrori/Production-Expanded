@@ -186,10 +186,11 @@ namespace ProductionExpanded
         if (cachedNeedsFill)
         {
           if (punishRareTicks == 0)
-          {
             processorTracker.processorsNeedingFill.Add(processor);
-            return;
-          }
+        }
+        else
+        {
+          processorTracker.processorsNeedingFill.Remove(processor);
         }
         processorTracker.processorsNeedingFill.Remove(processor);
       }
