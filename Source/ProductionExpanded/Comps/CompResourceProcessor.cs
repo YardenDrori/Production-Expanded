@@ -909,6 +909,45 @@ namespace ProductionExpanded
 
     public void GetChildHolders(List<IThingHolder> outChildren) { }
 
+    // === Cancel ===
+
+    /// <summary>
+    /// Drops all stored ingredients on the ground and resets the processor.
+    /// Used when a batch is partially filled but can't be completed.
+    /// </summary>
+    public void CancelBatch()
+    {
+      dynamicIngredientsContainer?.TryDropAll(parent.Position, parent.Map, ThingPlaceMode.Near);
+      staticIngredientsContainer?.TryDropAll(parent.Position, parent.Map, ThingPlaceMode.Near);
+      outputs.Clear();
+      outputsCount.Clear();
+
+      parent.DirtyMapMesh(parent.Map);
+      isFinished = false;
+      if (heatPusher != null)
+        heatPusher.enabled = false;
+      isProcessing = false;
+      activeBill = null;
+      isWaitingForCycleInteraction = false;
+      isInspectStringDirty = true;
+      capacityRemaining = Props.maxCapacity;
+      ruinTicks = 0;
+      isRuinReason = RuinReason.None;
+      previousRuinReason = RuinReason.None;
+
+      UpdateTrackerState(needsFill: getIsReady(), needsEmpty: false, needsCycleStart: false);
+      UpdateGlower();
+    }
+
+    private bool HasStoredIngredients()
+    {
+      if (dynamicIngredientsContainer != null && dynamicIngredientsContainer.Count > 0)
+        return true;
+      if (staticIngredientsContainer != null && staticIngredientsContainer.Count > 0)
+        return true;
+      return false;
+    }
+
     // === Gizmos ===
 
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
@@ -921,6 +960,18 @@ namespace ProductionExpanded
       if (Find.Selector.SingleSelectedThing == parent)
       {
         yield return new Gizmo_ProcessorStatus(this);
+      }
+
+      // Show cancel button when processor has ingredients but isn't processing
+      if (!isProcessing && HasStoredIngredients())
+      {
+        yield return new Command_Action
+        {
+          defaultLabel = "Cancel batch",
+          defaultDesc = "Drop all stored ingredients and reset the processor.",
+          icon = ContentFinder<Texture2D>.Get("UI/Designators/Cancel", true),
+          action = CancelBatch
+        };
       }
     }
   }
