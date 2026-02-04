@@ -422,8 +422,9 @@ namespace ProductionExpanded
 
     public void BuildIngredientCountDictionary()
     {
+      bool noDynamicIngreidnets = false;
       allIngredientsAndCounts.Clear();
-      if (!dynamicIngredientsContainer.NullOrEmpty())
+      if (!dynamicIngredientsContainer.NullOrEmpty() && isProcessing)
       {
         foreach (Thing thing in dynamicIngredientsContainer)
         {
@@ -438,18 +439,42 @@ namespace ProductionExpanded
           }
         }
       }
-      if (!staticIngredientsContainer.NullOrEmpty())
+      else
       {
-        foreach (Thing thing in staticIngredientsContainer)
+        noDynamicIngreidnets = true;
+      }
+      {
+        if (!staticIngredientsContainer.NullOrEmpty() && isProcessing)
         {
-          ProcessorIngredient ingredient = FindMatchingSlot(thing.def);
-          if (allIngredientsAndCounts.ContainsKey(ingredient))
+          foreach (Thing thing in staticIngredientsContainer)
           {
-            allIngredientsAndCounts[ingredient] += thing.stackCount;
+            ProcessorIngredient ingredient = FindMatchingSlot(thing.def);
+            if (allIngredientsAndCounts.ContainsKey(ingredient))
+            {
+              allIngredientsAndCounts[ingredient] += thing.stackCount;
+            }
+            else
+            {
+              allIngredientsAndCounts.Add(ingredient, thing.stackCount);
+            }
           }
-          else
+        }
+        else
+        {
+          if (!noDynamicIngreidnets)
           {
-            allIngredientsAndCounts.Add(ingredient, thing.stackCount);
+            foreach (
+              ProcessorIngredient ingredient in activeBill
+                ?.recipe?.GetModExtension<RecipeExtension_Processor>()
+                ?.ingredients
+            )
+            {
+              if (ingredient == null)
+              {
+                continue;
+              }
+              allIngredientsAndCounts.Add(ingredient, 0);
+            }
           }
         }
       }
