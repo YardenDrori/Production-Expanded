@@ -119,6 +119,9 @@ namespace ProductionExpanded
     public Dictionary<ProcessorIngredient, int> GetAllIngredientsAndTheirCounts() =>
       allIngredientsAndCounts;
 
+    public int GetIngredientCountInStorage(ProcessorIngredient ing) =>
+      allIngredientsAndCounts.ContainsKey(ing) ? allIngredientsAndCounts[ing] : 0;
+
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
       base.PostSpawnSetup(respawningAfterLoad);
@@ -126,7 +129,10 @@ namespace ProductionExpanded
       // Cache props to avoid repeated casting
       cachedProps = (CompProperties_ResourceProcessor)props;
 
-      BuildIngredientCountDictionary();
+      if (GetActiveBill() != null)
+      {
+        BuildIngredientCountDictionary();
+      }
 
       powerTrader = parent.GetComp<CompPowerTrader>();
       refuelable = parent.GetComp<CompRefuelable>();
@@ -192,7 +198,6 @@ namespace ProductionExpanded
         {
           processorTracker.processorsNeedingFill.Remove(processor);
         }
-        processorTracker.processorsNeedingFill.Remove(processor);
       }
 
       if (needsEmpty.HasValue && needsEmpty.Value != cachedNeedsEmpty)
@@ -366,10 +371,22 @@ namespace ProductionExpanded
       for (int i = 0; i < settings.ingredients.Count; i++)
       {
         var ingredient = settings.ingredients[i];
-        if (ingredient.IsSpecific && ingredient.thingDef == def)
-          return ingredient;
-        if (ingredient.IsCategory && def.IsWithinCategory(ingredient.category))
-          return ingredient;
+        if (ingredient.IsSpecific)
+        {
+          foreach (var thing in ingredient.thingDefs)
+          {
+            if (thing == def)
+              return ingredient;
+          }
+        }
+        if (ingredient.IsCategory)
+        {
+          foreach (var category in ingredient.categories)
+          {
+            if (def.IsWithinCategory(category))
+              return ingredient;
+          }
+        }
       }
       return null;
     }
@@ -470,7 +487,7 @@ namespace ProductionExpanded
                 ?.ingredients
             )
             {
-              if (ingredient == null)
+              if (ingredient == null || allIngredientsAndCounts.ContainsKey(ingredient))
               {
                 continue;
               }

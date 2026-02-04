@@ -12,13 +12,13 @@ namespace ProductionExpanded
     /// <summary>
     /// Specific item required. Mutually exclusive with category.
     /// </summary>
-    public ThingDef thingDef;
+    public List<ThingDef> thingDefs;
 
     /// <summary>
     /// Any item from this category is accepted. Mutually exclusive with thingDef.
     /// When dynamic, whichever specific item the pawn delivers gets looked up in the registry.
     /// </summary>
-    public ThingCategoryDef category;
+    public List<ThingCategoryDef> categories;
 
     /// <summary>
     /// How many items are needed for this ingredient slot.
@@ -55,8 +55,8 @@ namespace ProductionExpanded
 
     public bool IsScaling => count <= 0;
     public bool IsFixed => count > 0;
-    public bool IsCategory => category != null;
-    public bool IsSpecific => thingDef != null;
+    public bool IsCategory => !categories.NullOrEmpty();
+    public bool IsSpecific => !thingDefs.NullOrEmpty();
     public bool IsNull => !IsCategory && !IsSpecific;
   }
 
