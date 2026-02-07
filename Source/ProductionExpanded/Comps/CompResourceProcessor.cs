@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -6,6 +7,15 @@ using Verse.Sound;
 
 namespace ProductionExpanded
 {
+  // .NET 4.8 compatibility extension for GetValueOrDefault
+  internal static class DictionaryExtensions
+  {
+    public static TValue GetValueOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue defaultValue = default(TValue))
+    {
+      return dict != null && dict.TryGetValue(key, out TValue value) ? value : defaultValue;
+    }
+  }
+
   public class CompProperties_ResourceProcessor : CompProperties
   {
     public float minimumItemsPrecentageForWorkTime = 0.25f;
@@ -56,6 +66,17 @@ namespace ProductionExpanded
     public int punishRareTicksLeft = 1;
     public int prevPunishRareTicks = 1;
 
+    // Recipe type and parameters
+    private bool isStaticRecipe = false; // Track which recipe type
+    private float ratio = 1.0f; // For ratio recipes only
+
+    // STATIC recipe ingredient tracking (index-based)
+    private Dictionary<int, int> ingredientsNeeded; // ingredientIndex -> required count
+    private Dictionary<int, int> ingredientsReceived; // ingredientIndex -> total count received
+
+    // Planned outputs (for ALL recipe types)
+    private Dictionary<ThingDef, int> plannedOutputs; // thingDef -> count
+
     // State tracking for HashSet operations (avoid redundant add/remove)
     private bool cachedNeedsFill = false;
     private bool cachedNeedsEmpty = false;
@@ -66,8 +87,6 @@ namespace ProductionExpanded
     private int totalTicksPerCycle = 0;
     private int cycles = 1;
     private int currentCycle = 0;
-    private int inputCount = 0;
-    private int outputCount = 0;
     private int capacityRemaining = 0;
 
     private string cachedLabel = null; // Label of the thing being processed
@@ -76,9 +95,6 @@ namespace ProductionExpanded
 
     // Track the active vanilla bill
     private Bill_Production activeBill = null;
-
-    private ThingDef inputType = null;
-    private ThingDef outputType = null;
 
     private CompPowerTrader powerTrader = null;
     private CompRefuelable refuelable = null;
@@ -104,10 +120,9 @@ namespace ProductionExpanded
 
     public Bill_Production GetActiveBill() => activeBill;
 
-    public ThingDef getInputItem() => inputType;
-
     public CompProperties_ResourceProcessor getProps() => Props;
 
+    //============ Lifecycle ============
     public override void PostSpawnSetup(bool respawningAfterLoad)
     {
       base.PostSpawnSetup(respawningAfterLoad);
@@ -215,6 +230,7 @@ namespace ProductionExpanded
       }
     }
 
+    // ============ Punishment System ============
     public void punishProcessor()
     {
       punishRareTicksLeft = (int)(prevPunishRareTicks * 1.3f + 0.9f);
@@ -231,6 +247,7 @@ namespace ProductionExpanded
       punishRareTicksLeft = 1;
     }
 
+    // ============ Core Logic ============
     public override void CompTickRare()
     {
       base.CompTickRare();
@@ -307,6 +324,77 @@ namespace ProductionExpanded
         if (powerTrader != null && Props.hasIdlePowerCost)
           powerTrader.PowerOutput = -powerTrader.Props.idlePowerDraw;
       }
+
+      // STATIC recipe safety check - eject if bill deleted or ingredients unavailable
+      if (
+        isStaticRecipe
+        && ingredientContainer != null
+        && ingredientContainer.Count > 0
+        && !isProcessing
+      )
+      {
+        // Check if bill was deleted
+        if (activeBill != null && parent is Building_WorkTable workTable)
+        {
+          if (!workTable.BillStack.Bills.Contains(activeBill))
+          {
+            Log.Message("[Production Expanded] Bill deleted, ejecting collected ingredients");
+            EjectIngredients();
+            return;
+          }
+        }
+
+        var settings = activeBill?.recipe.GetModExtension<RecipeExtension_Processor>();
+        if (settings != null && settings.ingredients != null)
+        {
+          // Check if all needed ingredients still exist on map
+          for (int i = 0; i < settings.ingredients.Count; i++)
+          {
+            int needed = ingredientsNeeded.GetValueOrDefault(i, 0);
+            int received = ingredientsReceived.GetValueOrDefault(i, 0);
+            int stillNeeded = needed - received;
+
+            if (stillNeeded <= 0)
+              continue; // This slot satisfied
+
+            var procIng = settings.ingredients[i];
+            bool found = false;
+
+            // Check if ANY option exists on map (not forbidden)
+            if (procIng.thingDefs != null)
+            {
+              foreach (var def in procIng.thingDefs)
+              {
+                if (parent.Map.listerThings.ThingsOfDef(def).Any(t => !t.IsForbidden(Faction.OfPlayer)))
+                {
+                  found = true;
+                  break;
+                }
+              }
+            }
+
+            // Check categories if not found in thingDefs
+            if (!found && procIng.categoryDefs != null)
+            {
+              found = parent
+                .Map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver)
+                .Any(t =>
+                  !t.IsForbidden(Faction.OfPlayer)
+                  && procIng.categoryDefs.Any(cat => cat.ContainedInThisOrDescendant(t.def))
+                );
+            }
+
+            if (!found)
+            {
+              Log.Warning(
+                $"[Production Expanded] Processor at {parent.Position} ejecting ingredients - slot {i} ingredient no longer available"
+              );
+              EjectIngredients();
+              break;
+            }
+          }
+        }
+      }
     }
 
     public void StartNextCycle()
@@ -327,6 +415,9 @@ namespace ProductionExpanded
 
     private RuinReason CanContinueProcessing()
     {
+      // Early initialization check
+      if (Props == null) return RuinReason.None;
+
       if (powerTrader != null && !powerTrader.PowerOn)
         return RuinReason.Paused;
       if (refuelable != null && !refuelable.HasFuel)
@@ -343,9 +434,39 @@ namespace ProductionExpanded
       return RuinReason.None;
     }
 
+    private void StartProcessing()
+    {
+      isProcessing = true;
+      progressTicks = 0;
+      currentCycle = 0;
+
+      var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
+      cycles = settings?.cycles ?? 1;
+
+      // Calculate total output count
+      int totalOutput = 0;
+      if (plannedOutputs != null)
+      {
+        foreach (var kvp in plannedOutputs)
+        {
+          totalOutput += kvp.Value;
+        }
+      }
+
+      // Both STATIC and RATIO scale by output count
+      totalTicksPerCycle = (settings?.ticksPerItemOut ?? 2500) * Mathf.Max(1, totalOutput);
+
+      if (heatPusher != null)
+        heatPusher.enabled = true;
+
+      parent.DirtyMapMesh(parent.Map);
+      UpdateGlower();
+      isInspectStringDirty = true;
+    }
+
     public void AddMaterials(Bill_Production bill, Thing ingredient, int count)
     {
-      // Validation: Check for null inputs
+      // ========== VALIDATION ==========
       if (bill == null)
       {
         Log.Warning("[Production Expanded] AddMaterials called with null bill");
@@ -364,173 +485,229 @@ namespace ProductionExpanded
         return;
       }
 
-      // Validation: Count must be positive
       if (count <= 0)
       {
         Log.Warning($"[Production Expanded] AddMaterials called with invalid count: {count}");
         return;
       }
 
-      // Validation: Check capacity
-      if (capacityRemaining <= 0)
-      {
-        Log.Warning(
-          $"[Production Expanded] Processor at {parent.Position} is full, cannot add materials"
-        );
-        return;
-      }
-
-      // Validation: If already processing, ingredient must match current input type
-      if (isProcessing && ingredient.def != inputType)
-      {
-        Log.Warning(
-          $"[Production Expanded] Cannot add {ingredient.def.defName} to processor currently processing {inputType?.defName}"
-        );
-        return;
-      }
-
-      // Read settings from Recipe ModExtension
       var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-      float capacityFactor = settings?.capacityFactor ?? 1f;
+      if (settings == null)
+      {
+        Log.Error(
+          $"[Production Expanded] Recipe {bill.recipe.defName} missing RecipeExtension_Processor"
+        );
+        return;
+      }
 
-      // Store ingredient in container instead of destroying it
+      // ========== FIRST-TIME SETUP ==========
+      if (!isProcessing && (ingredientContainer == null || ingredientContainer.Count == 0))
+      {
+        activeBill = bill;
+        isStaticRecipe = settings.isStaticRecipe;
+        ratio = settings.ratio;
+
+        if (isStaticRecipe)
+        {
+          // STATIC: Initialize ingredient tracking from extension
+          ingredientsNeeded = new Dictionary<int, int>();
+          ingredientsReceived = new Dictionary<int, int>();
+
+          for (int i = 0; i < settings.ingredients.Count; i++)
+          {
+            ingredientsNeeded[i] = settings.ingredients[i].count;
+          }
+
+          // Initialize outputs from extension
+          plannedOutputs = new Dictionary<ThingDef, int>();
+          foreach (var product in settings.products)
+          {
+            plannedOutputs[product.output] = product.count;
+          }
+        }
+        else
+        {
+          // RATIO: Calculate first output
+          plannedOutputs = new Dictionary<ThingDef, int>();
+
+          ThingDef outputDef;
+          if (settings.useDynamicOutput)
+          {
+            outputDef = RawToFinishedRegistry.GetFinished(ingredient.def);
+            if (outputDef == null)
+            {
+              Log.Error($"[Production Expanded] No registry mapping for {ingredient.def.defName}");
+              outputDef = ingredient.def; // Fallback
+            }
+          }
+          else
+          {
+            if (settings.products == null || settings.products.Count == 0)
+            {
+              Log.Error(
+                $"[Production Expanded] Ratio recipe {bill.recipe.defName} has no products!"
+              );
+              return;
+            }
+            outputDef = settings.products[0].output;
+          }
+
+          int outputCount = Mathf.Max(1, (int)(count * ratio));
+          plannedOutputs[outputDef] = outputCount;
+        }
+      }
+
+      // ========== ADD INGREDIENT TO CONTAINER ==========
       if (ingredientContainer == null)
       {
         ingredientContainer = new ThingOwner<Thing>(this);
       }
 
-      // Split off the exact count we need and add to container
       Thing thingToAdd = ingredient.SplitOff(count);
       if (!ingredientContainer.TryAdd(thingToAdd, false))
       {
         Log.Error(
-          $"[Production Expanded] Failed to add {count} {ingredient.def.defName} to processor container"
+          $"[Production Expanded] Failed to add {count} {ingredient.def.defName} to container"
         );
-        // Spawn the thing we couldn't add so it doesn't disappear
         GenSpawn.Spawn(thingToAdd, parent.Position, parent.Map);
-      }
-      else
-      {
-        // Play input sound when materials are successfully added
-        if (Props.soundInput != null)
-        {
-          Props.soundInput.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
-        }
-      }
-
-      capacityRemaining -= (int)(count * capacityFactor);
-      if (capacityRemaining < 0)
-        capacityRemaining = 0;
-
-      // Update Fill Tracker
-      UpdateTrackerState(needsFill: getCapacityRemaining() > 0 && getIsReady());
-
-      bool isDynamic = settings?.useDynamicOutput ?? false;
-      int ticksPerItemIn = settings?.ticksPerItemIn ?? 2500;
-      int extensionCycles = settings?.cycles ?? 1;
-
-      if (isProcessing)
-      {
-        // Add to existing batch
-        int totalTicksPassed = totalTicksPerCycle * currentCycle + progressTicks;
-        this.inputCount += count;
-
-        float ratio =
-          settings?.ratio
-          ?? (
-            isDynamic
-              ? 1.0f
-              : (float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count
-          );
-        int additionalOutput = Mathf.Max(1, (int)(count * ratio));
-        this.outputCount += additionalOutput;
-
-        totalTicksPerCycle = ticksPerItemIn * this.inputCount;
-
-        // Recalculate progress
-        currentCycle = 0;
-        while (totalTicksPassed > totalTicksPerCycle)
-        {
-          totalTicksPassed -= totalTicksPerCycle;
-          currentCycle++;
-        }
-        progressTicks = totalTicksPassed;
-        isInspectStringDirty = true;
         return;
       }
 
-      // New Batch
-      if (heatPusher != null)
-        heatPusher.enabled = true;
-      isProcessing = true;
-      activeBill = bill;
+      // Play input sound
+      Props.soundInput?.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
 
-      parent.DirtyMapMesh(parent.Map);
-      UpdateGlower();
-      isWaitingForCycleInteraction = false;
-      progressTicks = 0;
-      currentCycle = 0;
-
-      this.inputType = ingredient.def;
-      this.cachedLabel = ingredient.Label;
-
-      if (!isDynamic)
+      // ========== UPDATE TRACKING BY RECIPE TYPE ==========
+      if (isStaticRecipe)
       {
-        if (bill.recipe.products != null && bill.recipe.products.Count > 0)
-        {
-          this.outputType = bill.recipe.products[0].thingDef;
-          // Use modExtension ratio if specified, otherwise calculate from recipe
-          float ratio =
-            settings?.ratio
-            ?? ((float)bill.recipe.ingredients[0].GetBaseCount() / bill.recipe.products[0].count);
+        // STATIC: Find matching ingredient slot
+        int ingredientIndex = -1;
 
-          this.outputCount = Mathf.Max(1, (int)(count * ratio));
+        for (int i = 0; i < settings.ingredients.Count; i++)
+        {
+          var procIng = settings.ingredients[i];
+
+          // Check if this ingredient matches this slot
+          bool matches = procIng.thingDefs?.Contains(ingredient.def) ?? false;
+
+          if (!matches && procIng.categoryDefs != null)
+          {
+            matches = procIng.categoryDefs.Any(cat =>
+              cat.ContainedInThisOrDescendant(ingredient.def)
+            );
+          }
+
+          if (matches)
+          {
+            // Prefer unsatisfied slots
+            int received = ingredientsReceived.GetValueOrDefault(i, 0);
+            int needed = ingredientsNeeded.GetValueOrDefault(i, 0);
+
+            if (received < needed)
+            {
+              ingredientIndex = i;
+              break; // Use first unsatisfied matching slot
+            }
+            else if (ingredientIndex == -1)
+            {
+              ingredientIndex = i; // Remember first match even if satisfied
+            }
+          }
         }
-        else
+
+        if (ingredientIndex == -1)
         {
           Log.Error(
-            $"[Production Expanded] Static recipe {bill.recipe.defName} has no products defined!"
+            $"[Production Expanded] Ingredient {ingredient.def.defName} doesn't match any recipe slots"
           );
-          // Fallback or return
+          return;
         }
+
+        // Update received count for this slot
+        ingredientsReceived[ingredientIndex] =
+          ingredientsReceived.GetValueOrDefault(ingredientIndex, 0) + count;
+
+        // Check if all slots satisfied
+        bool hasAll = ingredientsNeeded.All(kvp =>
+          ingredientsReceived.GetValueOrDefault(kvp.Key, 0) >= kvp.Value
+        );
+
+        if (hasAll && !isProcessing)
+        {
+          StartProcessing();
+        }
+
+        // Update tracker
+        UpdateTrackerState(needsFill: !hasAll && getIsReady());
+        isInspectStringDirty = true;
       }
       else
       {
-        // DYNAMIC: Look up in registry
-        ThingDef potentialOutput = RawToFinishedRegistry.GetFinished(ingredient.def);
-        if (potentialOutput != null)
+        // RATIO RECIPE
+        if (!isProcessing)
         {
-          this.outputType = potentialOutput;
+          // Start processing immediately
+          StartProcessing();
         }
         else
         {
-          this.outputType = ingredient.def;
-          Log.Warning(
-            $"[Production Expanded] No output mapping found for {ingredient.def.defName}"
-          );
+          // Add to existing batch - determine output for this ingredient
+          ThingDef outputDef;
+
+          if (settings.useDynamicOutput)
+          {
+            outputDef = RawToFinishedRegistry.GetFinished(ingredient.def);
+            if (outputDef == null)
+            {
+              Log.Warning(
+                $"[Production Expanded] No registry mapping for {ingredient.def.defName}"
+              );
+              outputDef = ingredient.def;
+            }
+          }
+          else
+          {
+            // Regular ratio - use first (only) planned output type
+            outputDef = plannedOutputs.Keys.First();
+          }
+
+          int additionalOutput = Mathf.Max(1, (int)(count * ratio));
+
+          // Add or update output
+          plannedOutputs[outputDef] =
+            plannedOutputs.GetValueOrDefault(outputDef, 0) + additionalOutput;
+
+          // Recalculate timing based on new total output
+          int totalOutput = 0;
+          foreach (var kvp in plannedOutputs)
+          {
+            totalOutput += kvp.Value;
+          }
+
+          int newTotalTicksPerCycle = (settings.ticksPerItemOut) * totalOutput;
+
+          // Preserve progress ratio
+          int totalTicksPassed = totalTicksPerCycle * currentCycle + progressTicks;
+          totalTicksPerCycle = newTotalTicksPerCycle;
+
+          // Recalculate cycles/progress
+          currentCycle = 0;
+          while (totalTicksPassed > totalTicksPerCycle && currentCycle < cycles - 1)
+          {
+            totalTicksPassed -= totalTicksPerCycle;
+            currentCycle++;
+          }
+          progressTicks = totalTicksPassed;
         }
 
-        float ratio = settings?.ratio ?? 1.0f;
-        this.outputCount = Mathf.Max(1, (int)(count * ratio));
-      }
+        // Update capacity
+        float capacityFactor = settings.capacityFactor;
+        capacityRemaining -= (int)(count * capacityFactor);
+        if (capacityRemaining < 0)
+          capacityRemaining = 0;
 
-      this.cycles = extensionCycles;
-      this.inputCount = count;
-      if (count >= Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime)
-        this.totalTicksPerCycle = ticksPerItemIn * count;
-      else
-        this.totalTicksPerCycle =
-          ticksPerItemIn * (int)(Props.maxCapacity * Props.minimumItemsPrecentageForWorkTime);
-
-      isInspectStringDirty = true;
-
-      // Validate final state
-      if (this.outputCount <= 0)
-      {
-        Log.Error(
-          $"[Production Expanded] Invalid outputCount ({this.outputCount}) calculated for {ingredient.def.defName}"
-        );
-        this.outputCount = 1; // Emergency fallback
+        // Update tracker
+        UpdateTrackerState(needsFill: capacityRemaining > 0 && getIsReady());
+        isInspectStringDirty = true;
       }
     }
 
@@ -569,8 +746,7 @@ namespace ProductionExpanded
         heatPusher.enabled = false;
       isProcessing = true;
       isWaitingForCycleInteraction = false;
-      outputType = null;
-      outputCount = 0;
+      plannedOutputs?.Clear();
       isInspectStringDirty = true;
       cycles = 1;
 
@@ -580,56 +756,80 @@ namespace ProductionExpanded
 
     public void EmptyBuilding()
     {
-      if (isFinished)
+      if (!isFinished)
+        return;
+
+      // Spawn all outputs
+      if (plannedOutputs != null && plannedOutputs.Count > 0)
       {
-        if (outputType != null)
+        foreach (var kvp in plannedOutputs)
         {
-          Thing item = ThingMaker.MakeThing(outputType);
-          item.stackCount = outputCount;
-          GenSpawn.Spawn(item, parent.InteractionCell, parent.Map);
-
-          // Play extract sound when items are extracted
-          if (Props.soundExtract != null)
+          if (kvp.Key != null && kvp.Value > 0)
           {
-            Props.soundExtract.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
-          }
-
-          // Notify Bill (Decrement count)
-          if (activeBill != null)
-          {
-            activeBill.Notify_IterationCompleted(null, new List<Thing>());
-          }
-          else if (isProcessing)
-          {
-            Log.Error($"[Production Expanded] Completed processing but bill was removed.");
+            Thing item = ThingMaker.MakeThing(kvp.Key);
+            item.stackCount = kvp.Value;
+            GenSpawn.Spawn(item, parent.InteractionCell, parent.Map);
           }
         }
 
-        // Clear stored ingredients (they've been consumed during processing)
-        if (ingredientContainer != null)
+        // Play extract sound
+        Props.soundExtract?.PlayOneShot(new TargetInfo(parent.Position, parent.Map));
+
+        // Notify bill completion
+        if (activeBill != null)
         {
-          ingredientContainer.ClearAndDestroyContents();
+          activeBill.Notify_IterationCompleted(null, new List<Thing>());
         }
-
-        // Reset
-        parent.DirtyMapMesh(parent.Map);
-        isFinished = false;
-        if (heatPusher != null)
-          heatPusher.enabled = false;
-        isProcessing = false;
-        activeBill = null;
-        isWaitingForCycleInteraction = false;
-        outputType = null;
-        outputCount = 0;
-        isInspectStringDirty = true;
-        capacityRemaining = Props.maxCapacity;
-        ruinTicks = 0;
-        isRuinReason = RuinReason.None;
-        previousRuinReason = RuinReason.None;
-
-        UpdateTrackerState(needsFill: getIsReady(), needsEmpty: false);
-        UpdateGlower();
+        else if (isProcessing)
+        {
+          Log.Warning("[Production Expanded] Completed processing but bill was removed");
+        }
       }
+
+      // Clear ingredient container (ingredients consumed during processing)
+      ingredientContainer?.ClearAndDestroyContents();
+
+      // Reset all state
+      parent.DirtyMapMesh(parent.Map);
+      isFinished = false;
+      isProcessing = false;
+      activeBill = null;
+      isWaitingForCycleInteraction = false;
+      isInspectStringDirty = true;
+      capacityRemaining = Props.maxCapacity;
+      ruinTicks = 0;
+      isRuinReason = RuinReason.None;
+      previousRuinReason = RuinReason.None;
+
+      // Clear recipe data
+      plannedOutputs?.Clear();
+      ingredientsNeeded?.Clear();
+      ingredientsReceived?.Clear();
+
+      if (heatPusher != null)
+        heatPusher.enabled = false;
+
+      UpdateTrackerState(needsFill: getIsReady(), needsEmpty: false);
+      UpdateGlower();
+    }
+
+    public void EjectIngredients()
+    {
+      if (ingredientContainer == null || ingredientContainer.Count == 0)
+        return;
+
+      // Drop all held ingredients at interaction cell
+      ingredientContainer.TryDropAll(parent.InteractionCell, parent.Map, ThingPlaceMode.Near);
+
+      // Reset state
+      ingredientsNeeded?.Clear();
+      ingredientsReceived?.Clear();
+      plannedOutputs?.Clear();
+      activeBill = null;
+      capacityRemaining = Props.maxCapacity;
+      isInspectStringDirty = true;
+
+      UpdateTrackerState(needsFill: false, needsEmpty: false, needsCycleStart: false);
     }
 
     private void cleanInspectString()
@@ -639,14 +839,30 @@ namespace ProductionExpanded
         inspectMessageCahce =
           $"Well this is awkward... \nso how is your day going? personally im decent but tbh could be better. \nI assume yours isnt that fun if you are seeing this string in game... \nWell im truly sorry about that! but think about the bright side, \natleast its more interesting than me writing \"ERROR COMP HAS NO PARENT\" right? \nwell anyway ive gotta get back to coding so cya XD";
       }
-      else if (!isProcessing)
+      else if (!isProcessing && (ingredientContainer == null || ingredientContainer.Count == 0))
       {
         inspectMessageCahce = "";
       }
+      else if (!isProcessing && ingredientContainer != null && ingredientContainer.Count > 0)
+      {
+        // STATIC recipe collecting ingredients
+        inspectMessageCahce = "Collecting ingredients...";
+      }
       else if (isFinished && Props.ticksToRuin > ruinTicks)
       {
-        inspectMessageCahce =
-          $"Finished. Waiting for colonist to extract {outputType.label} x{outputCount}";
+        // Show all planned outputs
+        if (plannedOutputs != null && plannedOutputs.Count > 0)
+        {
+          inspectMessageCahce = "Finished. Waiting for colonist to extract:\n";
+          foreach (var kvp in plannedOutputs)
+          {
+            inspectMessageCahce += $"  {kvp.Key.label} x{kvp.Value}\n";
+          }
+        }
+        else
+        {
+          inspectMessageCahce = "Finished. Waiting for colonist.";
+        }
       }
       else if (isWaitingForCycleInteraction)
       {
@@ -655,8 +871,7 @@ namespace ProductionExpanded
       }
       else if (isProcessing)
       {
-        inspectMessageCahce =
-          $"Processing {inputType.label ?? "Material"} x{inputCount}: {(float)progressTicks / totalTicksPerCycle:P0}";
+        inspectMessageCahce = $"Processing: {(float)progressTicks / totalTicksPerCycle:P0}";
         if (cycles != 1)
         {
           inspectMessageCahce += $"\ncycles remaining: {cycles - currentCycle}";
@@ -702,6 +917,7 @@ namespace ProductionExpanded
       return inspectMessageCahce;
     }
 
+    // ============ Save Building Data ============
     public override void PostExposeData()
     {
       base.PostExposeData();
@@ -712,14 +928,21 @@ namespace ProductionExpanded
       Scribe_Values.Look(ref totalTicksPerCycle, "totalTicksPerCycle", 0);
       Scribe_Values.Look(ref cycles, "cycles", 1);
       Scribe_Values.Look(ref currentCycle, "currentCycle", 0);
-      Scribe_Values.Look(ref inputCount, "inputCount", 0);
-      Scribe_Values.Look(ref outputCount, "outputCount", 0);
       Scribe_Values.Look(ref capacityRemaining, "capacityRemaining", Props.maxCapacity);
       Scribe_Values.Look(ref cachedLabel, "cachedLabel", null);
       Scribe_Values.Look(ref isRuinReason, "isRuinReason", RuinReason.None);
       Scribe_Values.Look(ref ruinTicks, "ruinTicks", 0);
-      Scribe_Defs.Look(ref inputType, "inputType");
-      Scribe_Defs.Look(ref outputType, "outputType");
+
+      // Recipe type and parameters
+      Scribe_Values.Look(ref isStaticRecipe, "isStaticRecipe", false);
+      Scribe_Values.Look(ref ratio, "ratio", 1.0f);
+
+      // STATIC recipe ingredient tracking
+      Scribe_Collections.Look(ref ingredientsNeeded, "ingredientsNeeded", LookMode.Value, LookMode.Value);
+      Scribe_Collections.Look(ref ingredientsReceived, "ingredientsReceived", LookMode.Value, LookMode.Value);
+
+      // Planned outputs
+      Scribe_Collections.Look(ref plannedOutputs, "plannedOutputs", LookMode.Def, LookMode.Value);
 
       // Save reference to the bill
       Scribe_References.Look(ref activeBill, "activeBill");
@@ -744,7 +967,7 @@ namespace ProductionExpanded
       }
     }
 
-    // IThingHolder implementation
+    // ============ IThingHolder ============
     public ThingOwner GetDirectlyHeldThings()
     {
       return ingredientContainer;
@@ -755,6 +978,51 @@ namespace ProductionExpanded
       ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
     }
 
+    // ============ Accessors for WorkGiver ============
+    public ThingDef getInputItem()
+    {
+      // For RATIO recipes only - return the input type from container
+      if (isStaticRecipe)
+        return null;
+
+      if (ingredientContainer != null && ingredientContainer.Count > 0)
+      {
+        return ingredientContainer[0].def;
+      }
+      return null;
+    }
+
+    public int GetIngredientNeeded(int index)
+    {
+      return ingredientsNeeded?.GetValueOrDefault(index, 0) ?? 0;
+    }
+
+    public int GetIngredientReceived(int index)
+    {
+      return ingredientsReceived?.GetValueOrDefault(index, 0) ?? 0;
+    }
+
+    public int GetIngredientsNeededCount()
+    {
+      return ingredientsNeeded?.Count ?? 0;
+    }
+
+    public int GetIngredientsCollectedCount()
+    {
+      // Count how many ingredient slots are fully satisfied
+      int count = 0;
+      if (ingredientsNeeded != null && ingredientsReceived != null)
+      {
+        foreach (var kvp in ingredientsNeeded)
+        {
+          if (ingredientsReceived.GetValueOrDefault(kvp.Key, 0) >= kvp.Value)
+            count++;
+        }
+      }
+      return count;
+    }
+
+    // ============ Gizmo ============
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
       foreach (Gizmo gizmo in base.CompGetGizmosExtra())
@@ -766,6 +1034,79 @@ namespace ProductionExpanded
       if (Find.Selector.SingleSelectedThing == parent)
       {
         yield return new Gizmo_ProcessorStatus(this);
+
+        // Manual eject button for STATIC recipes with collected ingredients
+        if (ingredientContainer != null && ingredientContainer.Count > 0 && !isProcessing)
+        {
+          yield return new Command_Action
+          {
+            defaultLabel = "Eject ingredients",
+            defaultDesc = "Eject all collected ingredients from this processor",
+            icon = ContentFinder<Texture2D>.Get("UI/Commands/LaunchReport", true),
+            action = delegate
+            {
+              EjectIngredients();
+            },
+          };
+        }
+
+        // Debug buttons (god mode only)
+        if (Prefs.DevMode)
+        {
+          yield return new Command_Action
+          {
+            defaultLabel = "DEV: Complete processing",
+            defaultDesc = "Instantly complete current processing cycle",
+            action = delegate
+            {
+              if (isProcessing)
+              {
+                progressTicks = totalTicksPerCycle;
+                CompleteProcessingCycle();
+              }
+            }
+          };
+
+          yield return new Command_Action
+          {
+            defaultLabel = "DEV: Add test ingredients",
+            defaultDesc = "Add test ingredients to processor",
+            action = delegate
+            {
+              if (activeBill == null && parent is Building_WorkTable workTable && workTable.BillStack.Count > 0)
+              {
+                var bill = workTable.BillStack.Bills[0] as Bill_Production;
+                if (bill != null)
+                {
+                  var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+                  if (settings != null && settings.ingredients != null && settings.ingredients.Count > 0)
+                  {
+                    var firstIng = settings.ingredients[0];
+                    if (firstIng.thingDefs != null && firstIng.thingDefs.Count > 0)
+                    {
+                      Thing testThing = ThingMaker.MakeThing(firstIng.thingDefs[0]);
+                      testThing.stackCount = firstIng.count;
+                      AddMaterials(bill, testThing, testThing.stackCount);
+                    }
+                  }
+                }
+              }
+            }
+          };
+
+          yield return new Command_Action
+          {
+            defaultLabel = "DEV: Force eject",
+            defaultDesc = "Force eject all contents",
+            action = delegate
+            {
+              if (ingredientContainer != null)
+              {
+                EjectIngredients();
+              }
+            }
+          };
+        }
       }
     }
   }

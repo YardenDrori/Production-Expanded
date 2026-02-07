@@ -29,7 +29,7 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItemIn>950</ticksPerItemIn>
+        <ticksPerItemOut>950</ticksPerItemOut>
         <cycles>1</cycles>
         <capacityFactor>1</capacityFactor>
       </li>
@@ -65,7 +65,7 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItemIn>1550</ticksPerItemIn>
+        <ticksPerItemOut>1550</ticksPerItemOut>
         <cycles>2</cycles>
         <capacityFactor>1</capacityFactor>
       </li>

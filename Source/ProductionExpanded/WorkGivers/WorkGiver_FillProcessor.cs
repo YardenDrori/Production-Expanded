@@ -34,6 +34,18 @@ namespace ProductionExpanded
 
       if (comp.getIsProcessing())
       {
+        Bill_Production activeBill = comp.GetActiveBill();
+        if (activeBill == null) return false;
+
+        var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
+        if (settings == null) return false;
+
+        // STATIC recipes lock once processing starts
+        if (settings.isStaticRecipe) return false;
+
+        // RATIO recipes can add more while processing
+        if (comp.getCapacityRemaining() <= 0) return false;
+
         // Only accept matching input
         return FindIngredient(pawn, processor, comp.getInputItem()) != null;
       }
@@ -41,11 +53,58 @@ namespace ProductionExpanded
       // Check bills
       foreach (Bill bill in processor.BillStack)
       {
-        if (bill.ShouldDoNow() && bill.recipe.fixedIngredientFilter != null)
+        if (!bill.ShouldDoNow())
+          continue;
+
+        if (bill.recipe.fixedIngredientFilter == null)
+          continue;
+
+        var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+        if (settings == null) continue;
+
+        // Pre-check for STATIC recipes: verify ALL ingredients available
+        if (settings.isStaticRecipe && settings.ingredients != null)
         {
-          if (FindIngredientForBill(pawn, processor, (Bill_Production)bill) != null)
-            return true;
+          bool allAvailable = true;
+          foreach (var procIng in settings.ingredients)
+          {
+            bool foundAny = false;
+
+            if (procIng.thingDefs != null)
+            {
+              foreach (var def in procIng.thingDefs)
+              {
+                if (bill.ingredientFilter.Allows(def) &&
+                    pawn.Map.listerThings.ThingsOfDef(def).Any(thing => !thing.IsForbidden(pawn)))
+                {
+                  foundAny = true;
+                  break;
+                }
+              }
+            }
+
+            if (!foundAny && procIng.categoryDefs != null)
+            {
+              foundAny = pawn.Map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver).Any(thing =>
+                !thing.IsForbidden(pawn)
+                && procIng.categoryDefs.Any(cat => cat.ContainedInThisOrDescendant(thing.def))
+                && bill.ingredientFilter.Allows(thing)
+              );
+            }
+
+            if (!foundAny)
+            {
+              allAvailable = false;
+              break;
+            }
+          }
+
+          if (!allAvailable)
+            continue; // Skip this bill, missing ingredients
         }
+
+        if (FindIngredientForBill(pawn, processor, (Bill_Production)bill) != null)
+          return true;
       }
       return false;
     }
@@ -56,67 +115,105 @@ namespace ProductionExpanded
         return null;
 
       CompResourceProcessor comp = processor.GetComp<CompResourceProcessor>();
-      if (comp == null || !comp.getIsReady() || comp.getCapacityRemaining() <= 0)
+      if (comp == null || !comp.getIsReady())
         return null;
 
       if (t.IsForbidden(pawn) || !pawn.CanReserve(t, 1, -1, null, forced))
         return null;
 
+      // If already processing - only RATIO recipes can add more ingredients
       if (comp.getIsProcessing())
       {
-        ThingDef requiredDef = comp.getInputItem();
-        if (requiredDef == null)
-          return null;
+        Bill_Production activeBill = comp.GetActiveBill();
+        if (activeBill == null) return null;
 
-        Thing ingredient = FindIngredient(pawn, processor, requiredDef);
+        var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
+        if (settings == null) return null;
+
+        // STATIC recipes lock once processing starts
+        if (settings.isStaticRecipe) return null;
+
+        // RATIO recipes can add more while processing
+        if (comp.getCapacityRemaining() <= 0) return null;
+
+        Thing ingredient = FindMatchingIngredient(pawn, processor, activeBill, comp);
         if (ingredient != null)
         {
-          // Get capacityFactor from active bill
-          Bill_Production activeBill = comp.GetActiveBill();
-          float capacityFactor = 1f;
-          if (activeBill != null)
-          {
-            var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
-            capacityFactor = settings?.capacityFactor ?? 1f;
-          }
-
+          float capacityFactor = settings.capacityFactor;
           int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
 
-          Job job = JobMaker.MakeJob(
-            JobDefOf_ProductionExpanded.PE_FillProcessor,
-            t,
-            ingredient
-          );
+          Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, ingredient);
           job.count = Mathf.Min(ingredient.stackCount, maxItemsThatFit);
+          job.bill = activeBill;
           return job;
         }
         return null;
       }
 
+      // Not processing yet - check bills
       foreach (Bill_Production bill in processor.BillStack)
       {
         if (!bill.ShouldDoNow())
           continue;
 
-        if (bill.recipe.fixedIngredientFilter != null)
-        {
-          Thing ingredient = FindIngredientForBill(pawn, processor, bill);
-          if (ingredient != null)
-          {
-            // Get capacityFactor from bill recipe
-            var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-            float capacityFactor = settings?.capacityFactor ?? 1f;
-            int maxItemsThatFit = Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
+        var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+        if (settings == null) continue;
 
-            Job job = JobMaker.MakeJob(
-              JobDefOf_ProductionExpanded.PE_FillProcessor,
-              t,
-              ingredient
-            );
-            job.count = Mathf.Min(ingredient.stackCount, maxItemsThatFit);
-            job.bill = bill; // Vanilla field
-            return job;
+        // Pre-check for STATIC recipes: verify ALL ingredients available
+        if (settings.isStaticRecipe && settings.ingredients != null)
+        {
+          bool allAvailable = true;
+          foreach (var procIng in settings.ingredients)
+          {
+            bool foundAny = false;
+
+            if (procIng.thingDefs != null)
+            {
+              foreach (var def in procIng.thingDefs)
+              {
+                if (bill.ingredientFilter.Allows(def) &&
+                    pawn.Map.listerThings.ThingsOfDef(def).Any(thing => !thing.IsForbidden(pawn)))
+                {
+                  foundAny = true;
+                  break;
+                }
+              }
+            }
+
+            if (!foundAny && procIng.categoryDefs != null)
+            {
+              foundAny = pawn.Map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver).Any(thing =>
+                !thing.IsForbidden(pawn)
+                && procIng.categoryDefs.Any(cat => cat.ContainedInThisOrDescendant(thing.def))
+                && bill.ingredientFilter.Allows(thing)
+              );
+            }
+
+            if (!foundAny)
+            {
+              allAvailable = false;
+              break;
+            }
           }
+
+          if (!allAvailable)
+            continue; // Skip this bill, missing ingredients
+        }
+
+        // Find ingredient for this bill
+        Thing ingredient = FindMatchingIngredient(pawn, processor, bill, comp);
+        if (ingredient != null)
+        {
+          float capacityFactor = settings.capacityFactor;
+
+          int maxItemsThatFit = settings.isStaticRecipe
+            ? int.MaxValue  // No capacity limit for static
+            : Mathf.Max(1, (int)(comp.getCapacityRemaining() / capacityFactor));
+
+          Job job = JobMaker.MakeJob(JobDefOf_ProductionExpanded.PE_FillProcessor, t, ingredient);
+          job.count = Mathf.Min(ingredient.stackCount, maxItemsThatFit);
+          job.bill = bill;
+          return job;
         }
       }
 
@@ -155,6 +252,77 @@ namespace ProductionExpanded
           && bill.recipe.fixedIngredientFilter.Allows(x)
           && bill.ingredientFilter.Allows(x)
       );
+    }
+
+    private Thing FindMatchingIngredient(Pawn pawn, Building_Processor processor, Bill_Production bill, CompResourceProcessor comp)
+    {
+      var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+      if (settings == null) return null;
+
+      bool isStatic = settings.isStaticRecipe;
+
+      if (!isStatic)
+      {
+        // RATIO recipe - find the single input type
+        ThingDef requiredDef = comp.getInputItem();
+        if (requiredDef == null) return null;
+
+        return GenClosest.ClosestThingReachable(
+          pawn.Position, pawn.Map,
+          ThingRequest.ForDef(requiredDef),
+          PathEndMode.ClosestTouch,
+          TraverseParms.For(pawn),
+          bill.ingredientSearchRadius,
+          (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x) && bill.ingredientFilter.Allows(x)
+        );
+      }
+
+      // STATIC recipe - find next needed ingredient
+      for (int i = 0; i < settings.ingredients.Count; i++)
+      {
+        int needed = comp.GetIngredientNeeded(i);
+        int received = comp.GetIngredientReceived(i);
+
+        if (received >= needed) continue; // This slot satisfied
+
+        var procIng = settings.ingredients[i];
+
+        // Search for ANY valid option (first match)
+        if (procIng.thingDefs != null)
+        {
+          foreach (var thingDef in procIng.thingDefs)
+          {
+            Thing thing = GenClosest.ClosestThingReachable(
+              pawn.Position, pawn.Map,
+              ThingRequest.ForDef(thingDef),
+              PathEndMode.ClosestTouch,
+              TraverseParms.For(pawn),
+              bill.ingredientSearchRadius,
+              (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x) && bill.ingredientFilter.Allows(x)
+            );
+            if (thing != null) return thing;
+          }
+        }
+
+        // Try categories if thingDefs didn't match
+        if (procIng.categoryDefs != null)
+        {
+          Thing thing = GenClosest.ClosestThingReachable(
+            pawn.Position, pawn.Map,
+            ThingRequest.ForGroup(ThingRequestGroup.HaulableEver),
+            PathEndMode.ClosestTouch,
+            TraverseParms.For(pawn),
+            bill.ingredientSearchRadius,
+            (Thing x) => !x.IsForbidden(pawn)
+              && pawn.CanReserve(x)
+              && bill.ingredientFilter.Allows(x)
+              && procIng.categoryDefs.Any(cat => cat.ContainedInThisOrDescendant(x.def))
+          );
+          if (thing != null) return thing;
+        }
+      }
+
+      return null; // All ingredients satisfied or none available
     }
   }
 }

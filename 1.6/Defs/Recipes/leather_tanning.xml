@@ -37,7 +37,7 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItemIn>2350</ticksPerItemIn>
+        <ticksPerItemOut>2350</ticksPerItemOut>
         <cycles>2</cycles>
         <useDynamicOutput>true</useDynamicOutput>
         <ratio>1.0</ratio>
@@ -82,7 +82,7 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItemIn>1100</ticksPerItemIn>
+        <ticksPerItemOut>1100</ticksPerItemOut>
         <useDynamicOutput>true</useDynamicOutput>
         <ratio>0.75</ratio>
         <cycles>5</cycles>

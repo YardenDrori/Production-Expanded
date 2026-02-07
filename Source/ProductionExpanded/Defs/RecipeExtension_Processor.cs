@@ -18,15 +18,20 @@ namespace ProductionExpanded
 
   public class RecipeExtension_Processor : DefModExtension
   {
+    // Core recipe type flag
+    public bool isStaticRecipe = false;  // true = exact ingredients, false = ratio-based
+
+    // Ingredient and product definitions (used by STATIC recipes)
     public List<ProcessorIngredient> ingredients;
     public List<ProcessorProduct> products;
 
+    // Processing parameters
     public int cycles = 1;
-    public int ticksPerItemOut = 100;
+    public int ticksPerItemOut = 100;  // Processing time per output item produced
 
-    public bool isSingleItemRatioBasedRecipe = false;
-    public bool shouldMapOutputFromInputViaRegistry = false;
+    // Ratio recipe parameters
     public float ratio = 1f;
     public float capacityFactor = 1f;
+    public bool useDynamicOutput = false;  // Dynamic ratio: lookup output via RawToFinishedRegistry
   }
 }
