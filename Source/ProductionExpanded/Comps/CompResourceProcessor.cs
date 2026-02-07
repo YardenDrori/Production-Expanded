@@ -32,6 +32,8 @@ namespace ProductionExpanded
 
   public class CompResourceProcessor : ThingComp, IThingHolder
   {
+    private static int punishRareTicksCap = 60;
+
     private enum RuinReason
     {
       TooHot,
@@ -47,10 +49,12 @@ namespace ProductionExpanded
     private bool isProcessing = false;
     private bool isFinished = false;
     private bool isWaitingForCycleInteraction = false;
-    private RuinReason previousRuinReason = RuinReason.None;
     private bool isInspectStringDirty = true;
-    private RuinReason isRuinReason = RuinReason.None;
     private int ruinTicks = 0;
+    private RuinReason previousRuinReason = RuinReason.None;
+    private RuinReason isRuinReason = RuinReason.None;
+    public int punishRareTicksLeft = 1;
+    public int prevPunishRareTicks = 1;
 
     // State tracking for HashSet operations (avoid redundant add/remove)
     private bool cachedNeedsFill = false;
@@ -138,6 +142,25 @@ namespace ProductionExpanded
       UpdateGlower();
     }
 
+    public override void PostDestroy(DestroyMode mode, Map previousMap)
+    {
+      previousMap
+        ?.GetComponent<MapComponent_ProcessorTracker>()
+        ?.allProcessors.Remove((Building_Processor)parent);
+
+      // Drop ingredients if building destroyed
+      if (ingredientContainer != null && ingredientContainer.Count > 0)
+      {
+        ingredientContainer.TryDropAll(parent.Position, previousMap, ThingPlaceMode.Near);
+      }
+
+      base.PostDestroy(mode, previousMap);
+      if (glower != null && previousMap != null)
+      {
+        glower.UpdateLit(previousMap);
+      }
+    }
+
     private void UpdateTrackerState(
       bool? needsFill = null,
       bool? needsEmpty = null,
@@ -153,9 +176,16 @@ namespace ProductionExpanded
       {
         cachedNeedsFill = needsFill.Value;
         if (cachedNeedsFill)
-          processorTracker.processorsNeedingFill.Add(processor);
+        {
+          if (punishRareTicksLeft == 1)
+          {
+            processorTracker.processorsNeedingFill.Add(processor);
+          }
+        }
         else
+        {
           processorTracker.processorsNeedingFill.Remove(processor);
+        }
       }
 
       if (needsEmpty.HasValue && needsEmpty.Value != cachedNeedsEmpty)
@@ -177,25 +207,6 @@ namespace ProductionExpanded
       }
     }
 
-    public override void PostDestroy(DestroyMode mode, Map previousMap)
-    {
-      previousMap
-        ?.GetComponent<MapComponent_ProcessorTracker>()
-        ?.allProcessors.Remove((Building_Processor)parent);
-
-      // Drop ingredients if building destroyed
-      if (ingredientContainer != null && ingredientContainer.Count > 0)
-      {
-        ingredientContainer.TryDropAll(parent.Position, previousMap, ThingPlaceMode.Near);
-      }
-
-      base.PostDestroy(mode, previousMap);
-      if (glower != null && previousMap != null)
-      {
-        glower.UpdateLit(previousMap);
-      }
-    }
-
     private void UpdateGlower()
     {
       if (glower != null && parent.Spawned)
@@ -204,9 +215,29 @@ namespace ProductionExpanded
       }
     }
 
+    public void punishProcessor()
+    {
+      punishRareTicksLeft = (int)(prevPunishRareTicks * 1.3f + 0.9f);
+
+      if (punishRareTicksLeft >= punishRareTicksCap)
+        punishRareTicksLeft = 60;
+
+      prevPunishRareTicks = punishRareTicksLeft;
+    }
+
+    public void forgiveProcessor()
+    {
+      prevPunishRareTicks = 1;
+      punishRareTicksLeft = 1;
+    }
+
     public override void CompTickRare()
     {
       base.CompTickRare();
+
+      if (punishRareTicksLeft > 1)
+        punishRareTicksLeft--;
+
       if (isProcessing)
       {
         isInspectStringDirty = true;
@@ -312,7 +343,6 @@ namespace ProductionExpanded
       return RuinReason.None;
     }
 
-    // UPDATED: Now takes Vanilla Bill and Thing
     public void AddMaterials(Bill_Production bill, Thing ingredient, int count)
     {
       // Validation: Check for null inputs
