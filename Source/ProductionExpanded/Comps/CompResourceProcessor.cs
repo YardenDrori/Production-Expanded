@@ -865,8 +865,9 @@ namespace ProductionExpanded
           inspectMessageCahce = "Finished. Waiting for colonist to extract:\n";
           foreach (var kvp in plannedOutputs)
           {
-            inspectMessageCahce += $"  {kvp.Key.label} x{kvp.Value}\n";
+            inspectMessageCahce += $"{kvp.Key.label} x{kvp.Value}\n";
           }
+          inspectMessageCahce = inspectMessageCahce.TrimEnd('\n');
         }
         else
         {
