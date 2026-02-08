@@ -3,14 +3,14 @@ using Verse;
 
 namespace ProductionExpanded
 {
-  public class ProcessorIngredient : Def
+  public class ProcessorIngredient
   {
     public List<ThingDef> thingDefs;
     public List<ThingCategoryDef> categoryDefs;
     public int count;
   }
 
-  public class ProcessorProduct : Def
+  public class ProcessorProduct
   {
     public ThingDef output;
     public int count;

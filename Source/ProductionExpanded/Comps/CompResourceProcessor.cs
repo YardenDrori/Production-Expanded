@@ -67,8 +67,8 @@ namespace ProductionExpanded
     private int ruinTicks = 0;
     private RuinReason previousRuinReason = RuinReason.None;
     private RuinReason isRuinReason = RuinReason.None;
-    public int punishRareTicksLeft = 1;
-    public int prevPunishRareTicks = 1;
+    private int punishRareTicksLeft = 1;
+    private int prevPunishRareTicks = 1;
 
     // Recipe type and parameters
     private bool isStaticRecipe = false; // Track which recipe type

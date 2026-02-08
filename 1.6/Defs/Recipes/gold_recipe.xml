@@ -29,6 +29,22 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <thingDefs>
+              <li>PE_RawGold</li>
+            </thingDefs>
+            <count>1</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>Gold</output>
+            <count>1</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
         <ticksPerItemOut>1200</ticksPerItemOut>
         <cycles>1</cycles>
         <capacityFactor>1</capacityFactor>
@@ -65,8 +81,24 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
-        <ticksPerItemOut>1250</ticksPerItemOut>
-        <cycles>2</cycles>
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <thingDefs>
+              <li>PE_RawGold</li>
+            </thingDefs>
+            <count>1</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>Gold</output>
+            <count>1</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
+        <ticksPerItemOut>1200</ticksPerItemOut>
+        <cycles>1</cycles>
         <capacityFactor>1</capacityFactor>
       </li>
     </modExtensions>
