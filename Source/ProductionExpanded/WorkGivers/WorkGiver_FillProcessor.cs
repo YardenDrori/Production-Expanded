@@ -37,30 +37,60 @@ namespace ProductionExpanded
       {
         // Refuel running processor — only scaling ingredients that already match
         var settings = comp.GetActiveBill()?.recipe?.GetModExtension<RecipeExtension_Processor>();
-        if (settings?.ingredients == null)
+
+        // static recipes lock processor
+        if (settings?.isStaticRecipe == true)
+          return false;
+        //invalid state
+        if (settings?.ingredients == null || settings?.ingredients[0] == null)
+          return false;
+        //no room
+        if (comp.getCapacityRemaining() <= 0)
           return false;
 
-        for (int i = 0; i < settings.ingredients.Count; i++)
+        var ing = settings.ingredients[0];
+        bool found = false;
+
+        foreach (var proIng in ing.thingDefs)
         {
-          var ing = settings.ingredients[i];
-          if (!ing.IsScaling)
-            continue;
-
-          int needed = comp.GetAmountNeeded(ing);
-          if (needed <= 0)
-            continue;
-
-          if (
-            FindIngredient(pawn, processor, ing, comp.GetActiveBill().ingredientSearchRadius)
-            != null
-          )
+          Thing foundIng = FindIngredient(
+            pawn,
+            processor,
+            comp.GetActiveBill().ingredientSearchRadius,
+            null,
+            proIng
+          );
+          if (foundIng != null)
           {
-            comp.forgivePunishment();
-            return true;
+            found = true;
+            break;
           }
         }
-        comp.PunishProcessor();
-        return false;
+        if (!found)
+        {
+          foreach (var proIng in ing.categoryDefs)
+          {
+            Thing foundIng = FindIngredient(
+              pawn,
+              processor,
+              comp.GetActiveBill().ingredientSearchRadius,
+              proIng,
+              null
+            );
+            if (foundIng != null)
+            {
+              found = true;
+              break;
+            }
+          }
+        }
+        if (!found)
+        {
+          comp.PunishProcessor();
+          return false;
+        }
+        comp.ForgiveProcessor();
+        return true;
       }
 
       // Start new bill — only if ALL ingredients are available on the map
@@ -214,73 +244,43 @@ namespace ProductionExpanded
       return null;
     }
 
-    private List<Thing> FindIngredient(
+    //finds Thing of either specific thingdef or in a specific category
+    private Thing FindIngredient(
       Pawn pawn,
       Building_Processor processor,
-      ProcessorIngredient ingredient,
       float searchRadius,
-      bool findAll = false
+      ThingCategoryDef ingredientCat = null,
+      ThingDef ingredientDef = null
     )
     {
-      List<Thing> allFoundThings = new();
-      if (ingredient.IsSpecific)
+      if (ingredientDef != null)
       {
-        for (int i = 0; i < ingredient.thingDefs.Count; i++)
+        return GenClosest.ClosestThingReachable(
+          pawn.Position,
+          pawn.Map,
+          ThingRequest.ForDef(ingredientDef),
+          PathEndMode.ClosestTouch,
+          TraverseParms.For(pawn),
+          searchRadius,
+          (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
+        );
+      }
+      if (ingredientCat != null)
+      {
+        foreach (ThingDef def in ingredientCat.DescendantThingDefs)
         {
-          Thing foundThing = GenClosest.ClosestThingReachable(
+          Thing found = GenClosest.ClosestThingReachable(
             pawn.Position,
             pawn.Map,
-            ThingRequest.ForDef(ingredient.thingDefs[i]),
+            ThingRequest.ForDef(def),
             PathEndMode.ClosestTouch,
             TraverseParms.For(pawn),
             searchRadius,
             (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
           );
-          if (foundThing != null)
+          if (found != null)
           {
-            allFoundThings.Add(foundThing);
-            if (!findAll)
-            {
-              return allFoundThings;
-            }
-          }
-        }
-        return allFoundThings;
-      }
-      if (ingredient.IsCategory)
-      {
-        Thing closest = null;
-        float closestDist = float.MaxValue;
-        for (int c = 0; c < ingredient.categories.Count; c++)
-        {
-          foreach (ThingDef def in ingredient.categories[c].DescendantThingDefs)
-          {
-            Thing found = GenClosest.ClosestThingReachable(
-              pawn.Position,
-              pawn.Map,
-              ThingRequest.ForDef(def),
-              PathEndMode.ClosestTouch,
-              TraverseParms.For(pawn),
-              searchRadius,
-              (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
-            );
-            if (found != null)
-            {
-              float dist = (found.Position - pawn.Position).LengthHorizontalSquared;
-              if (dist < closestDist)
-              {
-                closest = found;
-                closestDist = dist;
-              }
-            }
-          }
-        }
-        if (closest != null)
-        {
-          allFoundThings.Add(closest);
-          if (!allFoundThings.NullOrEmpty())
-          {
-            return allFoundThings;
+            return found;
           }
         }
       }
