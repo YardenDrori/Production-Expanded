@@ -24,6 +24,11 @@
         <li>PE_RawSilver</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_RawSilver</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <Silver>1</Silver>
     </products>
@@ -76,6 +81,11 @@
         <li>PE_RawSilver</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_RawSilver</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <Silver>1</Silver>
     </products>

@@ -24,6 +24,11 @@
         <li>PE_RawGold</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_RawGold</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <Gold>1</Gold>
     </products>
@@ -76,6 +81,11 @@
         <li>PE_RawGold</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_RawGold</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <Gold>1</Gold>
     </products>

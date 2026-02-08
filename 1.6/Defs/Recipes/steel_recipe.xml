@@ -24,6 +24,11 @@
         <li>PE_PigIron</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_PigIron</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <Steel>1</Steel>
     </products>
@@ -76,6 +81,11 @@
         <li>PE_PigIron</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_PigIron</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <Steel>1</Steel>
     </products>

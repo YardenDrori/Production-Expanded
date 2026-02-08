@@ -48,12 +48,22 @@ namespace ProductionExpanded
       if (!cachedComp.getIsProcessing())
         return false;
 
-      // Show "off" if paused due to power/fuel/temp issues (but not if just waiting for cycle)
-      if (!cachedComp.getIsReady() && !cachedComp.getIsBadTemp() && !cachedComp.getIsWaitingForNextCycle())
-        return false;
+      // Check finished state first
+      if (cachedComp.getIsFinished())
+      {
+        // If keepOnTextureOnFinish is true, always show "on" when finished
+        // If false, show "off"
+        return props.keepOnTextureOnFinish;
+      }
 
-      if (cachedComp.getIsFinished() && !props.keepOnTextureOnFinish)
-        return false;
+      // Check if paused (power/fuel issues) but not bad temp or waiting for cycle
+      bool isPaused = !cachedComp.getIsReady() && !cachedComp.getIsBadTemp() && !cachedComp.getIsWaitingForNextCycle();
+      if (isPaused)
+      {
+        // If showOnTextureWhenPaused is true, keep showing "on" even when paused
+        // Otherwise show "off"
+        return props.showOnTextureWhenPaused;
+      }
 
       return true;
     }

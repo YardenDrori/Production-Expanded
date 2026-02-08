@@ -24,6 +24,11 @@
         <li>PE_Silkworm</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_Silkworm</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <PE_Silk>1</PE_Silk>
     </products>

@@ -181,6 +181,11 @@
         <li>WoodRaw</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>WoodRaw</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <WoodLog>1</WoodLog>
     </products>

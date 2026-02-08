@@ -24,6 +24,11 @@
         <li>PE_RawIron</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_RawIron</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <PE_Iron>1</PE_Iron>
     </products>
@@ -76,6 +81,11 @@
         <li>PE_RawIron</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_RawIron</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <PE_Iron>1</PE_Iron>
     </products>

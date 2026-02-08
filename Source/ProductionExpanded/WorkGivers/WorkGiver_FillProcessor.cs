@@ -66,12 +66,7 @@ namespace ProductionExpanded
 
         var ing = settings.ingredients[0];
         int minNeeded = (int)(1 / settings.ratio);
-        int found = FindHowManyItemsExistForIngredient(
-          pawn,
-          processor,
-          bill.ingredientSearchRadius,
-          ing
-        );
+        int found = FindHowManyItemsExistForIngredient(pawn, processor, bill, ing);
 
         if (found < minNeeded)
         {
@@ -107,7 +102,7 @@ namespace ProductionExpanded
             int countAvailableStatic = FindHowManyItemsExistForIngredient(
               pawn,
               processor,
-              bill.ingredientSearchRadius,
+              bill,
               ing
             );
             if (countNeeded > countAvailableStatic)
@@ -131,7 +126,7 @@ namespace ProductionExpanded
         int countAvailableDynamic = FindHowManyItemsExistForIngredient(
           pawn,
           processor,
-          bill.ingredientSearchRadius,
+          bill,
           settings.ingredients[0]
         );
         if (minCountNeeded > countAvailableDynamic)
@@ -191,7 +186,7 @@ namespace ProductionExpanded
         List<Thing> availableIngredients = FindIngredient(
           pawn,
           processor,
-          bill.ingredientSearchRadius,
+          bill,
           ing,
           stopAtFirst: true
         );
@@ -241,7 +236,7 @@ namespace ProductionExpanded
             List<Thing> availableIngredients = FindIngredient(
               pawn,
               processor,
-              bill.ingredientSearchRadius,
+              bill,
               settings.ingredients[i],
               stopAtFirst: true
             );
@@ -271,7 +266,7 @@ namespace ProductionExpanded
           List<Thing> availableIngredients = FindIngredient(
             pawn,
             processor,
-            bill.ingredientSearchRadius,
+            bill,
             settings.ingredients[0],
             stopAtFirst: true
           );
@@ -319,79 +314,211 @@ namespace ProductionExpanded
     private int FindHowManyItemsExistForIngredient(
       Pawn pawn,
       Building_Processor processor,
-      float searchRadius,
+      Bill bill,
       ProcessorIngredient ingredient
     )
     {
       List<Thing> ingredientsFound = FindIngredient(
         pawn,
         processor,
-        searchRadius,
+        bill,
         ingredient,
         stopAtFirst: false
       );
       return CountThingStackCountTotalFromList(ingredientsFound);
     }
 
+    private int GetCountOfDefInMap(Pawn pawn, ThingDef def, Bill_Production bill)
+    {
+      int count = 0;
+      foreach (Thing thing in pawn.Map.listerThings.ThingsOfDef(def))
+      {
+        // Check if thing passes all bill filters
+        if (!IsThingCountedForBill(thing, bill))
+          continue;
+
+        count += thing.stackCount;
+      }
+      return count;
+    }
+
+    // Mimics RimWorld's bill filter logic for counting products
+    private bool IsThingCountedForBill(Thing thing, Bill_Production bill)
+    {
+      // Check if in valid zone (if bill has zone restriction)
+      if (bill.GetIncludeSlotGroup() != null)
+      {
+        ISlotGroup slotGroup = thing.GetSlotGroup();
+        if (slotGroup == null || slotGroup != bill.GetIncludeSlotGroup())
+        {
+          return false;
+        }
+      }
+
+      // Check quality range
+      if (thing.TryGetQuality(out QualityCategory quality))
+      {
+        if (!bill.qualityRange.Includes(quality))
+        {
+          return false;
+        }
+      }
+
+      // Check HP range (for items with hit points)
+      if (thing.def.useHitPoints)
+      {
+        float hpPercent = (float)thing.HitPoints / (float)thing.MaxHitPoints;
+        if (!bill.hpRange.Includes(hpPercent))
+        {
+          return false;
+        }
+      }
+
+      // Check tainted
+      if (thing.TryGetComp<CompQuality>() != null)
+      {
+        CompQuality compQuality = thing.TryGetComp<CompQuality>();
+        if (compQuality != null)
+        {
+          Apparel apparel = thing as Apparel;
+          if (apparel != null && apparel.WornByCorpse && !bill.includeTainted)
+          {
+            return false;
+          }
+        }
+      }
+
+      // Check equipped (skip equipped items unless bill allows it)
+      if (!bill.includeEquipped)
+      {
+        if (thing.ParentHolder is Pawn_EquipmentTracker || thing.ParentHolder is Pawn_ApparelTracker)
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
     //finds Thing of either specific thingdef or in a specific category
     private List<Thing> FindIngredient(
       Pawn pawn,
       Building_Processor processor,
-      float searchRadius,
+      Bill bill,
       ProcessorIngredient ingredient,
       bool stopAtFirst
     )
     {
+      if (bill == null)
+        return null;
+
+      var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+      if (settings == null)
+      {
+        return null;
+      }
+
       List<Thing> foundThings = new();
+      float searchRadius = bill.ingredientSearchRadius;
+
       if (!ingredient.thingDefs.NullOrEmpty())
       {
         foreach (var ingredientDef in ingredient.thingDefs)
         {
-          Thing found = GenClosest.ClosestThingReachable(
-            pawn.Position,
-            pawn.Map,
-            ThingRequest.ForDef(ingredientDef),
-            PathEndMode.ClosestTouch,
-            TraverseParms.For(pawn),
-            searchRadius,
-            (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
-          );
-          if (found != null)
+          // Iterate through ALL matching things to find valid ones
+          foreach (Thing thing in pawn.Map.listerThings.ThingsOfDef(ingredientDef))
           {
-            foundThings.Add(found);
-            if (stopAtFirst)
-              return foundThings;
-          }
-        }
-      }
-      if (!ingredient.categoryDefs.NullOrEmpty())
-      {
-        foreach (var cat in ingredient.categoryDefs)
-        {
-          foreach (ThingDef def in cat.DescendantThingDefs)
-          {
-            Thing found = GenClosest.ClosestThingReachable(
-              pawn.Position,
-              pawn.Map,
-              ThingRequest.ForDef(def),
-              PathEndMode.ClosestTouch,
-              TraverseParms.For(pawn),
-              searchRadius,
-              (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
-            );
-            if (found != null)
+            // Basic checks: forbidden, reachable, ingredient filter
+            if (!thing.IsForbidden(pawn) &&
+                pawn.CanReach(thing, PathEndMode.ClosestTouch, Danger.Deadly) &&
+                bill.ingredientFilter.Allows(thing))
             {
-              foundThings.Add(found);
+              // Check if within search radius
+              if (searchRadius > 0f && (thing.Position - processor.Position).LengthHorizontal > searchRadius)
+                continue;
+
+              // For dynamic recipes, check "Do until X" target count
+              if (settings.useDynamicOutput)
+              {
+                ThingDef product = RawToFinishedRegistry.GetFinished(thing.def);
+                if (product != null)
+                {
+                  Bill_Production billProduction = bill as Bill_Production;
+                  // Check if bill is in "Do until you have X" mode (TargetCount)
+                  if (billProduction != null && billProduction.repeatMode?.defName == "TargetCount")
+                  {
+                    int totalInMap = GetCountOfDefInMap(pawn, product, billProduction);
+                    if (totalInMap >= billProduction.targetCount)
+                    {
+                      continue; // Already have enough of this output, skip this ingredient
+                    }
+                  }
+                }
+              }
+
+              // All checks passed - this is a valid ingredient
+              foundThings.Add(thing);
+
+              // If we only need one valid thing, return immediately
               if (stopAtFirst)
                 return foundThings;
             }
           }
         }
       }
-      if (foundThings.NullOrEmpty())
+
+      if (!ingredient.categoryDefs.NullOrEmpty())
       {
-        return null;
+        foreach (var cat in ingredient.categoryDefs)
+        {
+          foreach (ThingDef def in cat.DescendantThingDefs)
+          {
+            // Iterate through ALL matching things to find valid ones
+            foreach (Thing thing in pawn.Map.listerThings.ThingsOfDef(def))
+            {
+              // Basic checks: forbidden, reachable, ingredient filter
+              if (!thing.IsForbidden(pawn) &&
+                  pawn.CanReach(thing, PathEndMode.ClosestTouch, Danger.Deadly) &&
+                  bill.ingredientFilter.Allows(thing))
+              {
+                // Check if within search radius
+                if (searchRadius > 0f && (thing.Position - processor.Position).LengthHorizontal > searchRadius)
+                  continue;
+
+                // For dynamic recipes, check "Do until X" target count
+                if (settings.useDynamicOutput)
+                {
+                  ThingDef product = RawToFinishedRegistry.GetFinished(thing.def);
+                  if (product != null)
+                  {
+                    Bill_Production billProduction = bill as Bill_Production;
+                    // Check if bill is in "Do until you have X" mode (TargetCount)
+                    if (billProduction != null && billProduction.repeatMode?.defName == "TargetCount")
+                    {
+                      int totalInMap = GetCountOfDefInMap(pawn, product, billProduction);
+                      if (totalInMap >= billProduction.targetCount)
+                      {
+                        continue; // Already have enough of this output, skip this ingredient
+                      }
+                    }
+                  }
+                }
+
+                // All checks passed - this is a valid ingredient
+                foundThings.Add(thing);
+
+                // If we only need one valid thing, return immediately
+                if (stopAtFirst)
+                  return foundThings;
+              }
+            }
+          }
+        }
       }
+
+      if (foundThings.NullOrEmpty())
+        return null;
+
       return foundThings;
     }
   }

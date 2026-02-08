@@ -24,6 +24,11 @@
         <li>PE_UnrefinedPlasteel</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_UnrefinedPlasteel</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <Plasteel>1</Plasteel>
     </products>
@@ -76,6 +81,11 @@
         <li>PE_UnrefinedPlasteel</li>
       </thingDefs>
     </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <thingDefs>
+        <li>PE_UnrefinedPlasteel</li>
+      </thingDefs>
+    </defaultIngredientFilter>
     <products>
       <Plasteel>1</Plasteel>
     </products>

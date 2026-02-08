@@ -26,6 +26,7 @@ namespace ProductionExpanded
     public int maxCapacity = 50;
     public bool usesOnTexture = false;
     public bool keepOnTextureOnFinish = false;
+    public bool showOnTextureWhenPaused = false;
     public bool hasIdlePowerCost = false;
     public bool shouldDecayOnStopped = false;
     public bool hasTempRequirements = false;
