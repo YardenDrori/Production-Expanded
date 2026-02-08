@@ -53,6 +53,7 @@ namespace ProductionExpanded
       TooHot,
       TooCold,
       Paused,
+      Finished,
       None,
     };
 
@@ -430,6 +431,8 @@ namespace ProductionExpanded
       if (Props == null)
         return RuinReason.None;
 
+      if (isFinished)
+        return RuinReason.Finished;
       if (powerTrader != null && !powerTrader.PowerOn)
         return RuinReason.Paused;
       if (refuelable != null && !refuelable.HasFuel)
