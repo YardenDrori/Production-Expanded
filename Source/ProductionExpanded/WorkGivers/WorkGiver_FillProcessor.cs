@@ -37,6 +37,13 @@ namespace ProductionExpanded
       {
         // Refuel running processor — only scaling ingredients that already match
         var settings = comp.GetActiveBill()?.recipe?.GetModExtension<RecipeExtension_Processor>();
+        if (settings == null)
+        {
+          Log.Error(
+            $"[Production Expanded] {comp.GetActiveBill().recipe.defName} has no RecipeExtension_Processor"
+          );
+          return false;
+        }
 
         // static recipes lock processor
         if (settings?.isStaticRecipe == true)
@@ -107,27 +114,7 @@ namespace ProductionExpanded
           );
           continue;
         }
-
-        bool allIngredientsAvailable = true;
-        for (int i = 0; i < settings.ingredients.Count; i++)
-        {
-          if (
-            FindIngredient(pawn, processor, settings.ingredients[i], bill.ingredientSearchRadius)
-            == null
-          )
-          {
-            allIngredientsAvailable = false;
-            break;
-          }
-        }
-        if (allIngredientsAvailable)
-        {
-          comp.forgivePunishment();
-          return true;
-        }
       }
-      comp.PunishProcessor();
-      return false;
     }
 
     public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -249,21 +236,23 @@ namespace ProductionExpanded
       Pawn pawn,
       Building_Processor processor,
       float searchRadius,
-      ThingCategoryDef ingredientCat = null,
-      ThingDef ingredientDef = null
+      ProcessorIngredient ingredient
     )
     {
-      if (ingredientDef != null)
+      if (!ingredient.thingDefs.NullOrEmpty())
       {
-        return GenClosest.ClosestThingReachable(
-          pawn.Position,
-          pawn.Map,
-          ThingRequest.ForDef(ingredientDef),
-          PathEndMode.ClosestTouch,
-          TraverseParms.For(pawn),
-          searchRadius,
-          (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
-        );
+        foreach (var ingredientDef in ingredient.thingDefs)
+        {
+          return GenClosest.ClosestThingReachable(
+            pawn.Position,
+            pawn.Map,
+            ThingRequest.ForDef(ingredientDef),
+            PathEndMode.ClosestTouch,
+            TraverseParms.For(pawn),
+            searchRadius,
+            (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x)
+          );
+        }
       }
       if (ingredientCat != null)
       {
