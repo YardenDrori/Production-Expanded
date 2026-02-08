@@ -10,7 +10,11 @@ namespace ProductionExpanded
   // .NET 4.8 compatibility extension for GetValueOrDefault
   internal static class DictionaryExtensions
   {
-    public static TValue GetValueOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue defaultValue = default(TValue))
+    public static TValue GetValueOrDefault<TKey, TValue>(
+      this Dictionary<TKey, TValue> dict,
+      TKey key,
+      TValue defaultValue = default(TValue)
+    )
     {
       return dict != null && dict.TryGetValue(key, out TValue value) ? value : defaultValue;
     }
@@ -231,7 +235,7 @@ namespace ProductionExpanded
     }
 
     // ============ Punishment System ============
-    public void punishProcessor()
+    public void PunishProcessor()
     {
       punishRareTicksLeft = (int)(prevPunishRareTicks * 1.3f + 0.9f);
 
@@ -241,7 +245,7 @@ namespace ProductionExpanded
       prevPunishRareTicks = punishRareTicksLeft;
     }
 
-    public void forgiveProcessor()
+    public void ForgiveProcessor()
     {
       prevPunishRareTicks = 1;
       punishRareTicksLeft = 1;
@@ -365,7 +369,11 @@ namespace ProductionExpanded
             {
               foreach (var def in procIng.thingDefs)
               {
-                if (parent.Map.listerThings.ThingsOfDef(def).Any(t => !t.IsForbidden(Faction.OfPlayer)))
+                if (
+                  parent
+                    .Map.listerThings.ThingsOfDef(def)
+                    .Any(t => !t.IsForbidden(Faction.OfPlayer))
+                )
                 {
                   found = true;
                   break;
@@ -416,7 +424,8 @@ namespace ProductionExpanded
     private RuinReason CanContinueProcessing()
     {
       // Early initialization check
-      if (Props == null) return RuinReason.None;
+      if (Props == null)
+        return RuinReason.None;
 
       if (powerTrader != null && !powerTrader.PowerOn)
         return RuinReason.Paused;
@@ -938,8 +947,18 @@ namespace ProductionExpanded
       Scribe_Values.Look(ref ratio, "ratio", 1.0f);
 
       // STATIC recipe ingredient tracking
-      Scribe_Collections.Look(ref ingredientsNeeded, "ingredientsNeeded", LookMode.Value, LookMode.Value);
-      Scribe_Collections.Look(ref ingredientsReceived, "ingredientsReceived", LookMode.Value, LookMode.Value);
+      Scribe_Collections.Look(
+        ref ingredientsNeeded,
+        "ingredientsNeeded",
+        LookMode.Value,
+        LookMode.Value
+      );
+      Scribe_Collections.Look(
+        ref ingredientsReceived,
+        "ingredientsReceived",
+        LookMode.Value,
+        LookMode.Value
+      );
 
       // Planned outputs
       Scribe_Collections.Look(ref plannedOutputs, "plannedOutputs", LookMode.Def, LookMode.Value);
@@ -1064,7 +1083,7 @@ namespace ProductionExpanded
                 progressTicks = totalTicksPerCycle;
                 CompleteProcessingCycle();
               }
-            }
+            },
           };
 
           yield return new Command_Action
@@ -1073,13 +1092,21 @@ namespace ProductionExpanded
             defaultDesc = "Add test ingredients to processor",
             action = delegate
             {
-              if (activeBill == null && parent is Building_WorkTable workTable && workTable.BillStack.Count > 0)
+              if (
+                activeBill == null
+                && parent is Building_WorkTable workTable
+                && workTable.BillStack.Count > 0
+              )
               {
                 var bill = workTable.BillStack.Bills[0] as Bill_Production;
                 if (bill != null)
                 {
                   var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-                  if (settings != null && settings.ingredients != null && settings.ingredients.Count > 0)
+                  if (
+                    settings != null
+                    && settings.ingredients != null
+                    && settings.ingredients.Count > 0
+                  )
                   {
                     var firstIng = settings.ingredients[0];
                     if (firstIng.thingDefs != null && firstIng.thingDefs.Count > 0)
@@ -1091,7 +1118,7 @@ namespace ProductionExpanded
                   }
                 }
               }
-            }
+            },
           };
 
           yield return new Command_Action
@@ -1104,7 +1131,7 @@ namespace ProductionExpanded
               {
                 EjectIngredients();
               }
-            }
+            },
           };
         }
       }
