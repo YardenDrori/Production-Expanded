@@ -1064,9 +1064,7 @@ namespace ProductionExpanded
       if (Find.Selector.SingleSelectedThing == parent)
       {
         yield return new Gizmo_ProcessorStatus(this);
-
-        // Manual eject button for STATIC recipes with collected ingredients
-        if (ingredientContainer != null && ingredientContainer.Count > 0 && !isProcessing)
+        if (ingredientContainer != null && ingredientContainer.Count > 0)
         {
           yield return new Command_Action
           {
