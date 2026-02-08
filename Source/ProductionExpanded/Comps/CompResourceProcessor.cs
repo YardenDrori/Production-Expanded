@@ -47,7 +47,7 @@ namespace ProductionExpanded
 
   public class CompResourceProcessor : ThingComp, IThingHolder
   {
-    private static int punishRareTicksCap = 3;
+    private static int punishRareTicksCap = 60;
 
     private enum RuinReason
     {
