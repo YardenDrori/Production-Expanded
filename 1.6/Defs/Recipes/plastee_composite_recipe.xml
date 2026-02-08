@@ -29,6 +29,22 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <thingDefs>
+              <li>PE_RawPlasteel</li>
+            </thingDefs>
+            <count>1</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>PE_UnrefinedPlasteel</output>
+            <count>1</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
         <ticksPerItemOut>2000</ticksPerItemOut>
         <cycles>1</cycles>
         <capacityFactor>5</capacityFactor>
@@ -65,6 +81,22 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <thingDefs>
+              <li>PE_RawPlasteel</li>
+            </thingDefs>
+            <count>1</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>PE_UnrefinedPlasteel</output>
+            <count>1</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
         <ticksPerItemOut>4000</ticksPerItemOut>
         <cycles>2</cycles>
         <capacityFactor>5</capacityFactor>

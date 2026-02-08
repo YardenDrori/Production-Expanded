@@ -29,6 +29,22 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <thingDefs>
+              <li>PE_RawSilver</li>
+            </thingDefs>
+            <count>1</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>Silver</output>
+            <count>1</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
         <ticksPerItemOut>800</ticksPerItemOut>
         <cycles>1</cycles>
         <capacityFactor>1</capacityFactor>
@@ -65,6 +81,22 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <thingDefs>
+              <li>PE_RawSilver</li>
+            </thingDefs>
+            <count>1</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>Silver</output>
+            <count>1</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
         <ticksPerItemOut>700</ticksPerItemOut>
         <cycles>3</cycles>
         <capacityFactor>1</capacityFactor>

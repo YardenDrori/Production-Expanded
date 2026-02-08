@@ -46,7 +46,7 @@ namespace ProductionExpanded
 
   public class CompResourceProcessor : ThingComp, IThingHolder
   {
-    private static int punishRareTicksCap = 60;
+    private static int punishRareTicksCap = 3;
 
     private enum RuinReason
     {
@@ -193,16 +193,19 @@ namespace ProductionExpanded
 
       if (needsFill.HasValue && needsFill.Value != cachedNeedsFill)
       {
-        cachedNeedsFill = needsFill.Value;
-        if (cachedNeedsFill)
+        if (needsFill.Value)
         {
+          // Only cache as true if we actually add it (not punished)
           if (punishRareTicksLeft == 1)
           {
+            cachedNeedsFill = true;
             processorTracker.processorsNeedingFill.Add(processor);
           }
+          // If punished, don't update cache so we retry next tick
         }
         else
         {
+          cachedNeedsFill = false;
           processorTracker.processorsNeedingFill.Remove(processor);
         }
       }
@@ -240,7 +243,7 @@ namespace ProductionExpanded
       punishRareTicksLeft = (int)(prevPunishRareTicks * 1.3f + 0.9f);
 
       if (punishRareTicksLeft >= punishRareTicksCap)
-        punishRareTicksLeft = 60;
+        punishRareTicksLeft = punishRareTicksCap;
 
       prevPunishRareTicks = punishRareTicksLeft;
     }
@@ -818,6 +821,9 @@ namespace ProductionExpanded
       if (heatPusher != null)
         heatPusher.enabled = false;
 
+      // Forgive processor so it's immediately available for refilling (instead of waiting for punishment to expire)
+      ForgiveProcessor();
+
       UpdateTrackerState(needsFill: getIsReady(), needsEmpty: false);
       UpdateGlower();
     }
@@ -1133,6 +1139,12 @@ namespace ProductionExpanded
                 EjectIngredients();
               }
             },
+          };
+          yield return new Command_Action
+          {
+            defaultLabel = "DEV: info",
+            defaultDesc = $"{punishRareTicksLeft}",
+            action = delegate { },
           };
         }
       }

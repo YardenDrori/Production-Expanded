@@ -40,6 +40,25 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <categoryDefs>
+              <li>PE_RawWools</li>
+            </categoryDefs>
+            <count>1</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>WoolSheep</output>
+            <count>1</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
+        <ticksPerItemOut>100</ticksPerItemOut>
+        <cycles>1</cycles>
+        <capacityFactor>1</capacityFactor>
         <useDynamicOutput>true</useDynamicOutput>
       </li>
     </modExtensions>
@@ -84,6 +103,25 @@
     </products>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <categoryDefs>
+              <li>PE_RawWools</li>
+            </categoryDefs>
+            <count>10</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>WoolSheep</output>
+            <count>10</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
+        <ticksPerItemOut>100</ticksPerItemOut>
+        <cycles>1</cycles>
+        <capacityFactor>1</capacityFactor>
         <useDynamicOutput>true</useDynamicOutput>
       </li>
     </modExtensions>
@@ -128,6 +166,25 @@
     <displayPriority>920</displayPriority>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <categoryDefs>
+              <li>PE_RawWools</li>
+            </categoryDefs>
+            <count>1</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>WoolSheep</output>
+            <count>1</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
+        <ticksPerItemOut>100</ticksPerItemOut>
+        <cycles>1</cycles>
+        <capacityFactor>1</capacityFactor>
         <useDynamicOutput>true</useDynamicOutput>
       </li>
     </modExtensions>
@@ -171,6 +228,25 @@
     <displayPriority>920</displayPriority>
     <modExtensions>
       <li Class="ProductionExpanded.RecipeExtension_Processor">
+        <isStaticRecipe>false</isStaticRecipe>
+        <ingredients>
+          <li>
+            <categoryDefs>
+              <li>PE_RawWools</li>
+            </categoryDefs>
+            <count>10</count>
+          </li>
+        </ingredients>
+        <products>
+          <li>
+            <output>WoolSheep</output>
+            <count>10</count>
+          </li>
+        </products>
+        <ratio>1.0</ratio>
+        <ticksPerItemOut>100</ticksPerItemOut>
+        <cycles>1</cycles>
+        <capacityFactor>1</capacityFactor>
         <useDynamicOutput>true</useDynamicOutput>
       </li>
     </modExtensions>
