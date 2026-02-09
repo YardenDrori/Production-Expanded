@@ -25,7 +25,7 @@ namespace ProductionExpanded
         return false;
 
       CompResourceProcessor comp = processor.GetComp<CompResourceProcessor>();
-      if (comp == null || !comp.getIsReady() || comp.getCapacityRemaining() <= 0)
+      if (comp == null || !comp.getIsReady())
         return false;
 
       if (t.IsForbidden(pawn))
@@ -92,7 +92,7 @@ namespace ProductionExpanded
           continue;
         }
 
-        // Static recipes require all ingredients before starting
+        // Static recipes require all ingredients before starting (ignore capacity for static recipes)
         if (settings.isStaticRecipe)
         {
           bool allSlotsFulfilled = true;
@@ -122,6 +122,10 @@ namespace ProductionExpanded
 
         // Dynamic recipes: ratio-based scaling (e.g., ratio 0.5 means 10 iron → 5 steel)
         // Minimum needed = 1/ratio (e.g., 1/0.5 = 2 minimum iron for 1 craft)
+        // Check capacity for dynamic recipes
+        if (comp.getCapacityRemaining() <= 0)
+          return false;
+
         int minCountNeeded = (int)(1 / settings.ratio);
         int countAvailableDynamic = FindHowManyItemsExistForIngredient(
           pawn,
@@ -148,7 +152,7 @@ namespace ProductionExpanded
         return null;
 
       CompResourceProcessor comp = processor.GetComp<CompResourceProcessor>();
-      if (comp == null || !comp.getIsReady() || comp.getCapacityRemaining() <= 0)
+      if (comp == null || !comp.getIsReady())
         return null;
 
       if (t.IsForbidden(pawn) || !pawn.CanReserve(t, 1, -1, null, forced))
@@ -260,6 +264,10 @@ namespace ProductionExpanded
         else
         {
           // DYNAMIC RECIPE: Find ingredient from first (and only) ingredient slot
+          // Check capacity for dynamic recipes
+          if (comp.getCapacityRemaining() <= 0)
+            continue;
+
           if (settings.ingredients[0] == null)
             continue;
 

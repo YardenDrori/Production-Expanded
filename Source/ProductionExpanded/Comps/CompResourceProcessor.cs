@@ -30,6 +30,7 @@ namespace ProductionExpanded
     public bool hasIdlePowerCost = false;
     public bool shouldDecayOnStopped = false;
     public bool hasTempRequirements = false;
+    public bool showGizmo = true;
     public int maxTempC = 0;
     public int minTempC = 0;
     public int ticksToRuin = 9500;
@@ -242,7 +243,7 @@ namespace ProductionExpanded
     // ============ Punishment System ============
     public void PunishProcessor()
     {
-      punishRareTicksLeft = (int)(prevPunishRareTicks * 1.3f + 0.9f);
+      punishRareTicksLeft = (int)(prevPunishRareTicks * 1.3f + 1);
 
       if (punishRareTicksLeft >= punishRareTicksCap)
         punishRareTicksLeft = punishRareTicksCap;
@@ -471,6 +472,10 @@ namespace ProductionExpanded
 
       // Both STATIC and RATIO scale by output count
       totalTicksPerCycle = (settings?.ticksPerItemOut ?? 2500) * Mathf.Max(1, totalOutput);
+      if (settings.isStaticRecipe)
+      {
+        totalTicksPerCycle = settings.ticksPerItemOut;
+      }
 
       if (heatPusher != null)
         heatPusher.enabled = true;
@@ -700,6 +705,10 @@ namespace ProductionExpanded
           }
 
           int newTotalTicksPerCycle = (settings.ticksPerItemOut) * totalOutput;
+          if (settings.isStaticRecipe)
+          {
+            newTotalTicksPerCycle = settings.ticksPerItemOut;
+          }
 
           // Preserve progress ratio
           int totalTicksPassed = totalTicksPerCycle * currentCycle + progressTicks;
@@ -784,6 +793,25 @@ namespace ProductionExpanded
           {
             Thing item = ThingMaker.MakeThing(kvp.Key);
             item.stackCount = kvp.Value;
+
+            // Populate CompIngredients for texture variation (VEF Graphics system)
+            CompIngredients compIngredients = item.TryGetComp<CompIngredients>();
+            if (compIngredients != null && ingredientContainer != null && ingredientContainer.Count > 0)
+            {
+              // Collect unique ingredient defs from the container
+              List<ThingDef> ingredientDefs = new List<ThingDef>();
+              foreach (Thing ingredient in ingredientContainer)
+              {
+                if (ingredient?.def != null && !ingredientDefs.Contains(ingredient.def))
+                {
+                  ingredientDefs.Add(ingredient.def);
+                }
+              }
+
+              // Set ingredients list directly (public field in CompIngredients)
+              compIngredients.ingredients = ingredientDefs;
+            }
+
             GenSpawn.Spawn(item, parent.InteractionCell, parent.Map);
           }
         }
@@ -1063,7 +1091,9 @@ namespace ProductionExpanded
       // Only show for selected single object
       if (Find.Selector.SingleSelectedThing == parent)
       {
-        yield return new Gizmo_ProcessorStatus(this);
+        if (isProcessing && Props.showGizmo)
+          yield return new Gizmo_ProcessorStatus(this);
+
         if (ingredientContainer != null && ingredientContainer.Count > 0)
         {
           yield return new Command_Action

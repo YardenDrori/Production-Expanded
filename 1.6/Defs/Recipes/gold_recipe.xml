@@ -107,8 +107,8 @@
           </li>
         </products>
         <ratio>1.0</ratio>
-        <ticksPerItemOut>1200</ticksPerItemOut>
-        <cycles>1</cycles>
+        <ticksPerItemOut>120000</ticksPerItemOut>
+        <cycles>5</cycles>
         <capacityFactor>1</capacityFactor>
       </li>
     </modExtensions>

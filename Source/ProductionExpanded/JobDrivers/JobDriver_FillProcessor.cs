@@ -29,25 +29,42 @@ namespace ProductionExpanded
       this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
       this.FailOnBurningImmobile(TargetIndex.A);
 
-      AddEndCondition(() => (processorComp.getCapacityRemaining() > 0) ? JobCondition.Ongoing : JobCondition.Succeeded);
+      // Check if this is a static recipe
+      Bill_Production bill = (Bill_Production)job.bill;
+      bool isStaticRecipe = false;
+      if (bill != null)
+      {
+        var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
+        isStaticRecipe = settings?.isStaticRecipe ?? false;
+      }
+
+      // Only check capacity for dynamic recipes
+      if (!isStaticRecipe)
+      {
+        AddEndCondition(() => (processorComp.getCapacityRemaining() > 0) ? JobCondition.Ongoing : JobCondition.Succeeded);
+      }
 
       yield return Toils_General.DoAtomic(delegate
       {
         // Get capacityFactor to calculate actual item count
-        Bill_Production bill = (Bill_Production)job.bill;
-        if (bill == null && processorComp.getIsProcessing())
+        Bill_Production billLocal = (Bill_Production)job.bill;
+        if (billLocal == null && processorComp.getIsProcessing())
         {
-          bill = processorComp.GetActiveBill();
+          billLocal = processorComp.GetActiveBill();
         }
 
-        float capacityFactor = 1f;
-        if (bill != null)
+        if (billLocal != null)
         {
-          var settings = bill.recipe.GetModExtension<RecipeExtension_Processor>();
-          capacityFactor = settings?.capacityFactor ?? 1f;
-        }
+          var settings = billLocal.recipe.GetModExtension<RecipeExtension_Processor>();
 
-        job.count = Mathf.Max(1, (int)(processorComp.getCapacityRemaining() / capacityFactor));
+          // Only recalculate count based on capacity for dynamic recipes
+          if (settings?.isStaticRecipe != true)
+          {
+            float capacityFactor = settings?.capacityFactor ?? 1f;
+            job.count = Mathf.Max(1, (int)(processorComp.getCapacityRemaining() / capacityFactor));
+          }
+          // For static recipes, keep the count set by WorkGiver
+        }
       });
 
       Toil reserveMaterials = Toils_Reserve.Reserve(TargetIndex.B);
