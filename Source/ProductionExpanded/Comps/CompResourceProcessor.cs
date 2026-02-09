@@ -72,6 +72,7 @@ namespace ProductionExpanded
     private RuinReason isRuinReason = RuinReason.None;
     private int punishRareTicksLeft = 1;
     private int prevPunishRareTicks = 1;
+    private int ingredientWaitTicks = 0; // Tracks how long we've been waiting for ingredients (static recipes)
 
     // Recipe type and parameters
     private bool isStaticRecipe = false; // Track which recipe type
@@ -204,6 +205,12 @@ namespace ProductionExpanded
             cachedNeedsFill = true;
             processorTracker.processorsNeedingFill.Add(processor);
           }
+          else
+          {
+            cachedNeedsFill = false;
+            if (processorTracker.processorsNeedingFill.Contains(processor))
+              processorTracker.processorsNeedingFill.Remove(processor);
+          }
           // If punished, don't update cache so we retry next tick
         }
         else
@@ -249,6 +256,10 @@ namespace ProductionExpanded
         punishRareTicksLeft = punishRareTicksCap;
 
       prevPunishRareTicks = punishRareTicksLeft;
+
+      // Reset cache so next CompTickRare will re-evaluate and remove from tracker
+      // (Can't modify hashset here - would crash during iteration)
+      cachedNeedsFill = false;
     }
 
     public void ForgiveProcessor()
@@ -329,6 +340,10 @@ namespace ProductionExpanded
         // Idle state updates
         UpdateTrackerState(needsFill: getIsReady());
 
+        // Update inspect string if has temperature requirements (to show "too cold/hot" warnings)
+        if (Props.hasTempRequirements)
+          isInspectStringDirty = true;
+
         if (heatPusher != null)
           heatPusher.enabled = false;
         if (powerTrader != null && Props.hasIdlePowerCost)
@@ -357,7 +372,9 @@ namespace ProductionExpanded
         var settings = activeBill?.recipe.GetModExtension<RecipeExtension_Processor>();
         if (settings != null && settings.ingredients != null)
         {
-          // Check if all needed ingredients still exist on map
+          bool allIngredientsAvailable = true;
+
+          // Check if all needed ingredients still exist on map in sufficient quantity
           for (int i = 0; i < settings.ingredients.Count; i++)
           {
             int needed = ingredientsNeeded.GetValueOrDefault(i, 0);
@@ -368,44 +385,66 @@ namespace ProductionExpanded
               continue; // This slot satisfied
 
             var procIng = settings.ingredients[i];
-            bool found = false;
+            int availableCount = 0;
 
-            // Check if ANY option exists on map (not forbidden)
+            // Count available items from thingDefs
             if (procIng.thingDefs != null)
             {
               foreach (var def in procIng.thingDefs)
               {
-                if (
-                  parent
-                    .Map.listerThings.ThingsOfDef(def)
-                    .Any(t => !t.IsForbidden(Faction.OfPlayer))
-                )
+                availableCount += parent
+                  .Map.listerThings.ThingsOfDef(def)
+                  .Where(t => !t.IsForbidden(Faction.OfPlayer))
+                  .Sum(t => t.stackCount);
+              }
+            }
+
+            // Count from categories if needed
+            if (procIng.categoryDefs != null)
+            {
+              var categoryThings = parent
+                .Map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver)
+                .Where(t =>
+                  !t.IsForbidden(Faction.OfPlayer)
+                  && procIng.categoryDefs.Any(cat => cat.ContainedInThisOrDescendant(t.def))
+                );
+
+              foreach (var thing in categoryThings)
+              {
+                // Avoid double-counting if thing was already counted in thingDefs
+                if (procIng.thingDefs == null || !procIng.thingDefs.Contains(thing.def))
                 {
-                  found = true;
-                  break;
+                  availableCount += thing.stackCount;
                 }
               }
             }
 
-            // Check categories if not found in thingDefs
-            if (!found && procIng.categoryDefs != null)
+            // Check if not enough ingredients available
+            if (availableCount < stillNeeded)
             {
-              found = parent
-                .Map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver)
-                .Any(t =>
-                  !t.IsForbidden(Faction.OfPlayer)
-                  && procIng.categoryDefs.Any(cat => cat.ContainedInThisOrDescendant(t.def))
-                );
-            }
-
-            if (!found)
-            {
-              Log.Warning(
-                $"[Production Expanded] Processor at {parent.Position} ejecting ingredients - slot {i} ingredient no longer available"
-              );
-              EjectIngredients();
+              allIngredientsAvailable = false;
               break;
             }
+          }
+
+          // If ingredients unavailable, increment wait counter
+          if (!allIngredientsAvailable)
+          {
+            ingredientWaitTicks++;
+
+            // Eject after waiting 30 rare ticks (~90 seconds)
+            if (ingredientWaitTicks >= 30)
+            {
+              Log.Warning(
+                $"[Production Expanded] Processor at {parent.Position} ejecting ingredients - waited 30 rare ticks but ingredients still unavailable"
+              );
+              EjectIngredients();
+            }
+          }
+          else
+          {
+            // Reset counter if ingredients become available
+            ingredientWaitTicks = 0;
           }
         }
       }
@@ -647,6 +686,9 @@ namespace ProductionExpanded
         ingredientsReceived[ingredientIndex] =
           ingredientsReceived.GetValueOrDefault(ingredientIndex, 0) + count;
 
+        // Reset wait counter since we successfully received ingredients
+        ingredientWaitTicks = 0;
+
         // Check if all slots satisfied
         bool hasAll = ingredientsNeeded.All(kvp =>
           ingredientsReceived.GetValueOrDefault(kvp.Key, 0) >= kvp.Value
@@ -796,7 +838,11 @@ namespace ProductionExpanded
 
             // Populate CompIngredients for texture variation (VEF Graphics system)
             CompIngredients compIngredients = item.TryGetComp<CompIngredients>();
-            if (compIngredients != null && ingredientContainer != null && ingredientContainer.Count > 0)
+            if (
+              compIngredients != null
+              && ingredientContainer != null
+              && ingredientContainer.Count > 0
+            )
             {
               // Collect unique ingredient defs from the container
               List<ThingDef> ingredientDefs = new List<ThingDef>();
@@ -928,6 +974,12 @@ namespace ProductionExpanded
 
       if (Props.hasTempRequirements)
       {
+        // Get current temperature
+        float currentTemp = parent.AmbientTemperature;
+        bool isTooHot = currentTemp > Props.maxTempC;
+        bool isTooCold = currentTemp < Props.minTempC;
+
+        // Show active temperature damage warning
         if (previousRuinReason == RuinReason.TooCold || previousRuinReason == RuinReason.TooHot)
         {
           if (ruinTicks < Props.ticksToRuin)
@@ -949,9 +1001,24 @@ namespace ProductionExpanded
             inspectMessageCahce = $"Ruined by temperature";
           }
         }
+        // Show temperature warning even when idle
+        else if (!isProcessing && (isTooHot || isTooCold))
+        {
+          if (!string.IsNullOrEmpty(inspectMessageCahce))
+            inspectMessageCahce += "\n";
+          if (isTooCold)
+          {
+            inspectMessageCahce += $"Too cold";
+          }
+          else
+          {
+            inspectMessageCahce += $"Too hot";
+          }
+        }
+
         if (!string.IsNullOrEmpty(inspectMessageCahce))
           inspectMessageCahce += "\n";
-        inspectMessageCahce += $"Ideal temperature: {Props.minTempC}~{Props.maxTempC}";
+        inspectMessageCahce += $"Ideal temperature: {Props.minTempC}~{Props.maxTempC}°C";
       }
       isInspectStringDirty = false;
     }

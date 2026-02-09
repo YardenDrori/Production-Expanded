@@ -54,7 +54,10 @@ namespace ProductionExpanded
 
         // Static recipes lock processor once started
         if (settings.isStaticRecipe)
+        {
+          comp.PunishProcessor();
           return false;
+        }
 
         // Invalid state check
         if (settings.ingredients.NullOrEmpty() || settings.ingredients[0] == null)
@@ -62,7 +65,10 @@ namespace ProductionExpanded
 
         // No room
         if (comp.getCapacityRemaining() <= 0)
+        {
+          comp.PunishProcessor();
           return false;
+        }
 
         var ing = settings.ingredients[0];
         int minNeeded = (int)(1 / settings.ratio);
@@ -96,16 +102,29 @@ namespace ProductionExpanded
         if (settings.isStaticRecipe)
         {
           bool allSlotsFulfilled = true;
-          foreach (var ing in settings.ingredients)
+          for (int i = 0; i < settings.ingredients.Count; i++)
           {
+            var ing = settings.ingredients[i];
+            if (ing == null)
+              continue;
+
             int countNeeded = ing.count;
+            int alreadyReceived = comp.GetIngredientReceived(i);
+            int stillNeeded = countNeeded - alreadyReceived;
+
+            // If this slot is already satisfied, skip it
+            if (stillNeeded <= 0)
+              continue;
+
             int countAvailableStatic = FindHowManyItemsExistForIngredient(
               pawn,
               processor,
               bill,
               ing
             );
-            if (countNeeded > countAvailableStatic)
+
+            // Check if enough ingredients are available for what's still needed
+            if (stillNeeded > countAvailableStatic)
             {
               allSlotsFulfilled = false;
               break;
@@ -124,7 +143,10 @@ namespace ProductionExpanded
         // Minimum needed = 1/ratio (e.g., 1/0.5 = 2 minimum iron for 1 craft)
         // Check capacity for dynamic recipes
         if (comp.getCapacityRemaining() <= 0)
+        {
+          comp.PunishProcessor();
           return false;
+        }
 
         int minCountNeeded = (int)(1 / settings.ratio);
         int countAvailableDynamic = FindHowManyItemsExistForIngredient(
@@ -142,6 +164,7 @@ namespace ProductionExpanded
         return true;
       }
       //no bills
+      comp.PunishProcessor();
       return false;
     }
 
@@ -153,7 +176,10 @@ namespace ProductionExpanded
 
       CompResourceProcessor comp = processor.GetComp<CompResourceProcessor>();
       if (comp == null || !comp.getIsReady())
+      {
+        comp.PunishProcessor();
         return null;
+      }
 
       if (t.IsForbidden(pawn) || !pawn.CanReserve(t, 1, -1, null, forced))
         return null;
@@ -179,7 +205,10 @@ namespace ProductionExpanded
 
         // Static recipes can't be refilled while processing
         if (settings.isStaticRecipe)
+        {
+          comp.PunishProcessor();
           return null;
+        }
 
         // Validate ingredients exist
         if (settings.ingredients.NullOrEmpty() || settings.ingredients[0] == null)
@@ -196,7 +225,10 @@ namespace ProductionExpanded
         );
 
         if (availableIngredients.NullOrEmpty())
+        {
+          comp.PunishProcessor();
           return null;
+        }
 
         Thing ingredient = availableIngredients[0];
 
@@ -223,7 +255,33 @@ namespace ProductionExpanded
 
         if (settings.isStaticRecipe)
         {
-          // STATIC RECIPE: Find first unfulfilled ingredient slot
+          // STATIC RECIPE: First verify ALL slots can be fulfilled
+          bool allSlotsCanBeFulfilled = true;
+          for (int i = 0; i < settings.ingredients.Count; i++)
+          {
+            var ing = settings.ingredients[i];
+            if (ing == null)
+              continue;
+
+            int needed = ing.count;
+            int received = comp.GetIngredientReceived(i);
+            int stillNeeded = needed - received;
+
+            if (stillNeeded <= 0)
+              continue; // This slot already satisfied
+
+            int countAvailable = FindHowManyItemsExistForIngredient(pawn, processor, bill, ing);
+            if (stillNeeded > countAvailable)
+            {
+              allSlotsCanBeFulfilled = false;
+              break;
+            }
+          }
+
+          if (!allSlotsCanBeFulfilled)
+            continue; // Skip this bill, try next one
+
+          // Now find first unfulfilled ingredient slot to haul
           for (int i = 0; i < settings.ingredients.Count; i++)
           {
             if (settings.ingredients[i] == null)
@@ -302,6 +360,7 @@ namespace ProductionExpanded
       }
 
       // No valid bills found
+      comp.PunishProcessor();
       return null;
     }
 
@@ -399,7 +458,10 @@ namespace ProductionExpanded
       // Check equipped (skip equipped items unless bill allows it)
       if (!bill.includeEquipped)
       {
-        if (thing.ParentHolder is Pawn_EquipmentTracker || thing.ParentHolder is Pawn_ApparelTracker)
+        if (
+          thing.ParentHolder is Pawn_EquipmentTracker
+          || thing.ParentHolder is Pawn_ApparelTracker
+        )
         {
           return false;
         }
@@ -437,12 +499,17 @@ namespace ProductionExpanded
           foreach (Thing thing in pawn.Map.listerThings.ThingsOfDef(ingredientDef))
           {
             // Basic checks: forbidden, reachable, ingredient filter
-            if (!thing.IsForbidden(pawn) &&
-                pawn.CanReach(thing, PathEndMode.ClosestTouch, Danger.Deadly) &&
-                bill.ingredientFilter.Allows(thing))
+            if (
+              !thing.IsForbidden(pawn)
+              && pawn.CanReach(thing, PathEndMode.ClosestTouch, Danger.Deadly)
+              && bill.ingredientFilter.Allows(thing)
+            )
             {
               // Check if within search radius
-              if (searchRadius > 0f && (thing.Position - processor.Position).LengthHorizontal > searchRadius)
+              if (
+                searchRadius > 0f
+                && (thing.Position - processor.Position).LengthHorizontal > searchRadius
+              )
                 continue;
 
               // For dynamic recipes, check "Do until X" target count
@@ -485,12 +552,17 @@ namespace ProductionExpanded
             foreach (Thing thing in pawn.Map.listerThings.ThingsOfDef(def))
             {
               // Basic checks: forbidden, reachable, ingredient filter
-              if (!thing.IsForbidden(pawn) &&
-                  pawn.CanReach(thing, PathEndMode.ClosestTouch, Danger.Deadly) &&
-                  bill.ingredientFilter.Allows(thing))
+              if (
+                !thing.IsForbidden(pawn)
+                && pawn.CanReach(thing, PathEndMode.ClosestTouch, Danger.Deadly)
+                && bill.ingredientFilter.Allows(thing)
+              )
               {
                 // Check if within search radius
-                if (searchRadius > 0f && (thing.Position - processor.Position).LengthHorizontal > searchRadius)
+                if (
+                  searchRadius > 0f
+                  && (thing.Position - processor.Position).LengthHorizontal > searchRadius
+                )
                   continue;
 
                 // For dynamic recipes, check "Do until X" target count
@@ -501,7 +573,10 @@ namespace ProductionExpanded
                   {
                     Bill_Production billProduction = bill as Bill_Production;
                     // Check if bill is in "Do until you have X" mode (TargetCount)
-                    if (billProduction != null && billProduction.repeatMode?.defName == "TargetCount")
+                    if (
+                      billProduction != null
+                      && billProduction.repeatMode?.defName == "TargetCount"
+                    )
                     {
                       int totalInMap = GetCountOfDefInMap(pawn, product, billProduction);
                       if (totalInMap >= billProduction.targetCount)
@@ -513,11 +588,15 @@ namespace ProductionExpanded
                 }
 
                 // All checks passed - this is a valid ingredient
-                foundThings.Add(thing);
+                // Skip if already added from thingDefs (avoid double-counting)
+                if (!foundThings.Contains(thing))
+                {
+                  foundThings.Add(thing);
 
-                // If we only need one valid thing, return immediately
-                if (stopAtFirst)
-                  return foundThings;
+                  // If we only need one valid thing, return immediately
+                  if (stopAtFirst)
+                    return foundThings;
+                }
               }
             }
           }
