@@ -29,7 +29,7 @@ namespace ProductionExpanded
       // Pre-cache the "_on" texture path
       if (def.graphicData != null)
       {
-        cachedOnTexPath = def.graphicData.texPath + "_on";
+        cachedOnTexPath = def.graphicData.texPath + cachedComp.getProps().onTextureKeyWord;
       }
     }
 
@@ -57,7 +57,10 @@ namespace ProductionExpanded
       }
 
       // Check if paused (power/fuel issues) but not bad temp or waiting for cycle
-      bool isPaused = !cachedComp.getIsReady() && !cachedComp.getIsBadTemp() && !cachedComp.getIsWaitingForNextCycle();
+      bool isPaused =
+        !cachedComp.getIsReady()
+        && !cachedComp.getIsBadTemp()
+        && !cachedComp.getIsWaitingForNextCycle();
       if (isPaused)
       {
         // If showOnTextureWhenPaused is true, keep showing "on" even when paused

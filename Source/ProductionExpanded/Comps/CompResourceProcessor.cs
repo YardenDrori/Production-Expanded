@@ -34,6 +34,7 @@ namespace ProductionExpanded
     public int maxTempC = 0;
     public int minTempC = 0;
     public int ticksToRuin = 9500;
+    public string onTextureKeyWord = "_on";
 
     // Sound effects
     public SoundDef soundInput;
