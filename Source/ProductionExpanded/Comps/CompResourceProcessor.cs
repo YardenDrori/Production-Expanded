@@ -31,6 +31,7 @@ namespace ProductionExpanded
     public bool shouldDecayOnStopped = false;
     public bool hasTempRequirements = false;
     public bool showGizmo = true;
+    public bool inheritIngredients = false;
     public int maxTempC = 0;
     public int minTempC = 0;
     public int ticksToRuin = 9500;
@@ -852,6 +853,16 @@ namespace ProductionExpanded
                 if (ingredient?.def != null && !ingredientDefs.Contains(ingredient.def))
                 {
                   ingredientDefs.Add(ingredient.def);
+                }
+
+                if (Props.inheritIngredients == true)
+                {
+                  CompIngredients nested = ingredient.TryGetComp<CompIngredients>();
+                  if (nested != null)
+                  {
+                    for (int i = 0; i < nested.ingredients.Count; i++)
+                      compIngredients.RegisterIngredient(nested.ingredients[i]);
+                  }
                 }
               }
 
