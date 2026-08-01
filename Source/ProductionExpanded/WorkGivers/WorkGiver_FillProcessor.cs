@@ -71,7 +71,10 @@ namespace ProductionExpanded
         }
 
         var ing = settings.ingredients[0];
-        int minNeeded = (int)(1 / settings.ratio);
+        // Mathf.Max(1, ...) matters: a ratio above 1 (one input yielding many outputs)
+        // truncates to 0, and a threshold of 0 reports work available with nothing on the
+        // map. Must stay identical to the matching JobOnThing check or the two desync.
+        int minNeeded = Mathf.Max(1, (int)(1 / settings.ratio));
         int found = FindHowManyItemsExistForIngredient(pawn, processor, bill, ing);
 
         if (found < minNeeded)
@@ -148,7 +151,8 @@ namespace ProductionExpanded
           return false;
         }
 
-        int minCountNeeded = (int)(1 / settings.ratio);
+        // Same truncation guard as above; JobOnThing uses Mathf.Max(1, ...) here too.
+        int minCountNeeded = Mathf.Max(1, (int)(1 / settings.ratio));
         int countAvailableDynamic = FindHowManyItemsExistForIngredient(
           pawn,
           processor,
