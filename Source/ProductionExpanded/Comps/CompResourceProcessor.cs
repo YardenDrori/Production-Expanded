@@ -30,6 +30,7 @@ namespace ProductionExpanded
     public bool hasIdlePowerCost = false;
     public bool shouldDecayOnStopped = false;
     public bool hasTempRequirements = false;
+    public bool ruinsWhenUnpowered = false;
     public bool showGizmo = true;
     public int maxTempC = 0;
     public int minTempC = 0;
@@ -55,6 +56,7 @@ namespace ProductionExpanded
     {
       TooHot,
       TooCold,
+      Unpowered,
       Paused,
       Finished,
       None,
@@ -78,6 +80,7 @@ namespace ProductionExpanded
     // Recipe type and parameters
     private bool isStaticRecipe = false; // Track which recipe type
     private float ratio = 1.0f; // For ratio recipes only
+    private bool inheritIngredients = false; // Captured at cycle start; the bill may be gone by empty time
 
     // STATIC recipe ingredient tracking (index-based)
     private Dictionary<int, int> ingredientsNeeded; // ingredientIndex -> required count
@@ -294,6 +297,11 @@ namespace ProductionExpanded
 
           UpdateTrackerState(needsFill: getCapacityRemaining() > 0);
 
+          // Power came back before the batch spoiled, so it recovers. Temperature-gated
+          // processors keep their accumulating ruin clock instead.
+          if (Props.ruinsWhenUnpowered && !Props.hasTempRequirements && ruinTicks > 0)
+            ruinTicks = 0;
+
           progressTicks += 250;
 
           if (refuelable != null)
@@ -318,11 +326,22 @@ namespace ProductionExpanded
             else
               progressTicks = 0;
           }
-          if (Props.hasTempRequirements && currentRuinReason != RuinReason.Paused)
+          // Only conditions that actively spoil the batch accrue ruin progress -
+          // a plain pause (flicked off, waiting on a colonist) never does.
+          bool isRuining =
+            currentRuinReason == RuinReason.Unpowered
+            || (
+              Props.hasTempRequirements
+              && (
+                currentRuinReason == RuinReason.TooHot || currentRuinReason == RuinReason.TooCold
+              )
+            );
+
+          if (isRuining)
           {
             if (ruinTicks >= Props.ticksToRuin)
             {
-              RuinBatch();
+              RuinBatch(currentRuinReason);
             }
             else
             {
@@ -476,7 +495,7 @@ namespace ProductionExpanded
       if (isFinished)
         return RuinReason.Finished;
       if (powerTrader != null && !powerTrader.PowerOn)
-        return RuinReason.Paused;
+        return Props.ruinsWhenUnpowered ? RuinReason.Unpowered : RuinReason.Paused;
       if (refuelable != null && !refuelable.HasFuel)
         return RuinReason.Paused;
       if (isWaitingForCycleInteraction)
@@ -567,6 +586,7 @@ namespace ProductionExpanded
         activeBill = bill;
         isStaticRecipe = settings.isStaticRecipe;
         ratio = settings.ratio;
+        inheritIngredients = settings.inheritIngredients;
 
         if (isStaticRecipe)
         {
@@ -802,13 +822,14 @@ namespace ProductionExpanded
       UpdateGlower();
     }
 
-    private void RuinBatch()
+    private void RuinBatch(RuinReason reason)
     {
       if (ingredientContainer != null)
       {
         ingredientContainer.ClearAndDestroyContents();
       }
       // Reset
+      isRuinReason = reason;
       isFinished = true;
       if (heatPusher != null)
         heatPusher.enabled = false;
@@ -826,10 +847,6 @@ namespace ProductionExpanded
     {
       if (!isFinished)
         return;
-
-      // Null-safe: the bill can be gone by the time the building is emptied - the
-      // "bill was removed" branch further down handles exactly that case.
-      var settings = activeBill?.recipe?.GetModExtension<RecipeExtension_Processor>();
 
       // Spawn all outputs
       if (plannedOutputs != null && plannedOutputs.Count > 0)
@@ -860,7 +877,7 @@ namespace ProductionExpanded
 
                 // Inherit what the input was itself made of, so lineage (condiments, human
                 // meat, insect meat) survives a multi-stage chain.
-                if (settings != null && settings.inheritIngredients)
+                if (inheritIngredients)
                 {
                   CompIngredients nested = ingredient.TryGetComp<CompIngredients>();
                   if (nested != null)
@@ -946,6 +963,11 @@ namespace ProductionExpanded
         inspectMessageCahce =
           $"Well this is awkward... \nso how is your day going? personally im decent but tbh could be better. \nI assume yours isnt that fun if you are seeing this string in game... \nWell im truly sorry about that! but think about the bright side, \natleast its more interesting than me writing \"ERROR COMP HAS NO PARENT\" right? \nwell anyway ive gotta get back to coding so cya XD";
       }
+      else if (isRuinReason != RuinReason.None)
+      {
+        inspectMessageCahce =
+          isRuinReason == RuinReason.Unpowered ? "Ruined - lost power" : "Ruined by temperature";
+      }
       else if (!isProcessing && (ingredientContainer == null || ingredientContainer.Count == 0))
       {
         inspectMessageCahce = "";
@@ -984,6 +1006,19 @@ namespace ProductionExpanded
         {
           inspectMessageCahce += $"\ncycles remaining: {cycles - currentCycle}";
         }
+      }
+
+      // Show how close an unpowered batch is to spoiling
+      if (
+        Props.ruinsWhenUnpowered
+        && isRuinReason == RuinReason.None
+        && previousRuinReason == RuinReason.Unpowered
+        && ruinTicks < Props.ticksToRuin
+      )
+      {
+        if (!string.IsNullOrEmpty(inspectMessageCahce))
+          inspectMessageCahce += "\n";
+        inspectMessageCahce += $"Spoiling ({(float)ruinTicks / Props.ticksToRuin:P0})";
       }
 
       if (Props.hasTempRequirements)
@@ -1065,6 +1100,7 @@ namespace ProductionExpanded
       // Recipe type and parameters
       Scribe_Values.Look(ref isStaticRecipe, "isStaticRecipe", false);
       Scribe_Values.Look(ref ratio, "ratio", 1.0f);
+      Scribe_Values.Look(ref inheritIngredients, "inheritIngredients", false);
 
       // STATIC recipe ingredient tracking
       Scribe_Collections.Look(
