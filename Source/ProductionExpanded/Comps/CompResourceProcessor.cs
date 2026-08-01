@@ -31,7 +31,6 @@ namespace ProductionExpanded
     public bool shouldDecayOnStopped = false;
     public bool hasTempRequirements = false;
     public bool showGizmo = true;
-    public bool inheritIngredients = false;
     public int maxTempC = 0;
     public int minTempC = 0;
     public int ticksToRuin = 9500;
@@ -828,6 +827,8 @@ namespace ProductionExpanded
       if (!isFinished)
         return;
 
+      var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
+
       // Spawn all outputs
       if (plannedOutputs != null && plannedOutputs.Count > 0)
       {
@@ -850,12 +851,11 @@ namespace ProductionExpanded
               List<ThingDef> ingredientDefs = new List<ThingDef>();
               foreach (Thing ingredient in ingredientContainer)
               {
-                if (ingredient?.def != null && !ingredientDefs.Contains(ingredient.def))
-                {
-                  ingredientDefs.Add(ingredient.def);
-                }
+                if (ingredient?.def == null)
+                  continue;
+                compIngredients.RegisterIngredient(ingredient.def);
 
-                if (Props.inheritIngredients == true)
+                if (settings.inheritIngredients)
                 {
                   CompIngredients nested = ingredient.TryGetComp<CompIngredients>();
                   if (nested != null)
@@ -865,7 +865,6 @@ namespace ProductionExpanded
                   }
                 }
               }
-
               // Set ingredients list directly (public field in CompIngredients)
               compIngredients.ingredients = ingredientDefs;
             }
