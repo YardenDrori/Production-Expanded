@@ -827,7 +827,9 @@ namespace ProductionExpanded
       if (!isFinished)
         return;
 
-      var settings = activeBill.recipe.GetModExtension<RecipeExtension_Processor>();
+      // Null-safe: the bill can be gone by the time the building is emptied - the
+      // "bill was removed" branch further down handles exactly that case.
+      var settings = activeBill?.recipe?.GetModExtension<RecipeExtension_Processor>();
 
       // Spawn all outputs
       if (plannedOutputs != null && plannedOutputs.Count > 0)
@@ -847,15 +849,18 @@ namespace ProductionExpanded
               && ingredientContainer.Count > 0
             )
             {
-              // Collect unique ingredient defs from the container
-              List<ThingDef> ingredientDefs = new List<ThingDef>();
+              // Collect unique ingredient defs from the container. RegisterIngredient
+              // dedupes for us and invalidates the comp's cached merge-compatibility tags,
+              // which decide whether two output stacks are allowed to merge.
               foreach (Thing ingredient in ingredientContainer)
               {
                 if (ingredient?.def == null)
                   continue;
                 compIngredients.RegisterIngredient(ingredient.def);
 
-                if (settings.inheritIngredients)
+                // Inherit what the input was itself made of, so lineage (condiments, human
+                // meat, insect meat) survives a multi-stage chain.
+                if (settings != null && settings.inheritIngredients)
                 {
                   CompIngredients nested = ingredient.TryGetComp<CompIngredients>();
                   if (nested != null)
@@ -865,8 +870,6 @@ namespace ProductionExpanded
                   }
                 }
               }
-              // Set ingredients list directly (public field in CompIngredients)
-              compIngredients.ingredients = ingredientDefs;
             }
 
             GenSpawn.Spawn(item, parent.InteractionCell, parent.Map);
