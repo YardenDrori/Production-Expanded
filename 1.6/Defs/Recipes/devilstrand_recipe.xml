@@ -26,8 +26,7 @@
       <Crafting>2</Crafting>
     </skillRequirements>
     <recipeUsers>
-      <li>HandTailoringBench</li>
-      <li>ElectricTailoringBench</li>
+      <li>PE_Loom</li>
       <!-- <li>TableMachining</li> -->
     </recipeUsers>
     <displayPriority>8</displayPriority>
@@ -59,8 +58,7 @@
       <Crafting>4</Crafting>
     </skillRequirements>
     <recipeUsers>
-      <li>HandTailoringBench</li>
-      <li>ElectricTailoringBench</li>
+      <li>PE_Loom</li>
       <!-- <li>TableMachining</li> -->
     </recipeUsers>
     <displayPriority>9</displayPriority>

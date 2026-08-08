@@ -10,9 +10,7 @@
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
     <recipeUsers>
-      <li>HandTailoringBench</li>
-      <li>CraftingSpot</li>
-      <li>ElectricTailoringBench</li>
+      <li>PE_Loom</li>
     </recipeUsers>
     <ingredients>
       <li>
@@ -74,8 +72,7 @@
     <effectWorking>Tailor</effectWorking>
     <soundWorking>Recipe_Tailor</soundWorking>
     <recipeUsers>
-      <li>HandTailoringBench</li>
-      <li>ElectricTailoringBench</li>
+      <li>PE_Loom</li>
     </recipeUsers>
     <ingredients>
       <li>

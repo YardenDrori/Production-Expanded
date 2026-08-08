@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<Defs>
+  <ThingDef ParentName="BuildingBase">
+    <defName>PE_Loom</defName>
+    <label>loom</label>
+    <description>A wooden frame loom strung with warp threads. A weaver works the shuttle by hand to spin raw fibers into usable fabric. Slow and tiring compared to a powered spinner, but it needs nothing more than wood and patience.</description>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <thingClass>Building_WorkTable</thingClass>
+    <graphicData>
+      <texPath>Things/Building/Production/Loom/Loom</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(2,2)</drawSize>
+      <shadowData>
+        <volume>(1.8, 0.5, 0.5)</volume>
+        <offset>(0, 0, 0)</offset>
+      </shadowData>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <stuffCategories>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>110</costStuffCount>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <fillPercent>1.0</fillPercent>
+    <useHitPoints>True</useHitPoints>
+    <statBases>
+      <WorkToBuild>1600</WorkToBuild>
+      <MaxHitPoints>120</MaxHitPoints>
+      <Cleanliness>-10</Cleanliness>
+      <Flammability>1.0</Flammability>
+      <Beauty>0</Beauty>
+    </statBases>
+    <size>(2,1)</size>
+    <designationCategory>Production</designationCategory>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <defaultPlacingRot>North</defaultPlacingRot>
+    <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+    <surfaceType>Item</surfaceType>
+    <comps>
+      <li Class="CompProperties_Forbiddable"/>
+    </comps>
+    <tickerType>Rare</tickerType>
+    <placeWorkers>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <techLevel>Neolithic</techLevel>
+  </ThingDef>
+</Defs>
