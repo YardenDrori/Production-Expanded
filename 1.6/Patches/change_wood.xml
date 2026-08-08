@@ -26,14 +26,10 @@
       <label>lumber</label>
     </value>
   </Operation>
-  <!-- Add wood color back to graphicData -->
-  <Operation Class="PatchOperationAdd">
-    <xpath>Defs/ThingDef[defName="WoodLog"]/graphicData</xpath>
-    <value>
-      <color>(139, 102, 71)</color>
-    </value>
-  </Operation>
-  <!-- Ensure color is in stuffProps too -->
+  <!-- No graphicData color: the wood brown is baked into the plank sprite instead. A runtime tint
+       gets applied a second time on any stack that carries its own draw color (a stuff reference,
+       CompColorable), which made such stacks render much darker than the rest. -->
+  <!-- Stuff color, for things built out of wood -->
   <Operation Class="PatchOperationReplace">
     <xpath>Defs/ThingDef[defName="WoodLog"]/stuffProps/color</xpath>
     <value>
