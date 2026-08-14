@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!--
+    Better Architect Menu (ferny.BetterArchitect) support.
+
+    Wrapped in a mod check, so this whole file is a no-op when Better Architect
+    is not active.
+
+    Everything here turns one resource into another, which is Ferny's "Refine"
+    (Ferny_ProcessingProduction) category - the same place his Medieval Overhaul
+    patch puts the tanning drum, tanning rack, cloth spinner, silk bed, smelter,
+    furnace, trestle and saw table.
+  -->
+
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Better Architect Menu</li>
+      <li>ferny.BetterArchitect</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+
+<!-- PROCESSING PRODUCTION - textiles -->
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_ClothSpinner"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_Loom"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_SilkBed"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+<!-- PROCESSING PRODUCTION - leather -->
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_TanningRack"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_TanningDrum"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+<!-- PROCESSING PRODUCTION - smelting and ore -->
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_WoodFiredFurnace"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_ArcFurnace"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_FueledAlloySmelter"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="EM_ElectricAlloySmelter"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+<!-- PROCESSING PRODUCTION - lumber -->
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_ManualSawTable"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_SawTable"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+        <li Class="PatchOperationReplace">
+          <success>Always</success>
+          <xpath>Defs/ThingDef[defName="PE_AutoSawTable"]/designationCategory</xpath>
+          <value>
+            <designationCategory>Ferny_ProcessingProduction</designationCategory>
+          </value>
+        </li>
+
+      </operations>
+    </match>
+  </Operation>
+
+</Patch>
